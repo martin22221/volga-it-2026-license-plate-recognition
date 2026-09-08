@@ -1,0 +1,9 @@
+# Runtime dependencies for the current stage: none.
+# The placeholder pipeline runs on the Python standard library only, so the
+# project stays fully offline and installable without wheels.
+#
+# Development / testing:
+pytest>=8.0
+
+# Added later, together with the actual models (kept here as a reminder, not
+# installed yet): opencv-python, numpy, onnxruntime or torch.
