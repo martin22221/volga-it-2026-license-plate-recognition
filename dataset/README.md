@@ -158,3 +158,4 @@ image. See [`LICENSE`](LICENSE).
 - [`../docs/dataset_strategy.md`](../docs/dataset_strategy.md) — what to collect and how much.
 - [`../docs/data_sources.md`](../docs/data_sources.md) — the source registry.
 - [`../docs/annotation_guide.md`](../docs/annotation_guide.md) — how to annotate.
+- [`../docs/external_dataset_workflow.md`](../docs/external_dataset_workflow.md) — auditing and approving a third-party dataset before import.

@@ -53,7 +53,9 @@ That leaves three realistic channels, in order of expected yield:
    scene list below is written for this channel.
 2. **Public-domain and CC0/CC BY collections** — usable, but thin for Russian
    plates specifically, and each item still needs its license checked and
-   recorded individually.
+   recorded individually. A whole third-party dataset goes through
+   [`external_dataset_workflow.md`](external_dataset_workflow.md) first:
+   audit, license review, plate-type review, approval, and only then import.
 3. **Synthetic generation** — unlimited, and the fallback whenever a real
    category or condition cannot be filled legally.
 

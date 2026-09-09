@@ -70,6 +70,12 @@ dataset/images/**
 dataset/labels/*
 !dataset/labels/.gitkeep
 
+# ---- Downloaded external datasets (staging only, never committed) ----
+# Third-party datasets are audited here before any human approval.
+# They must never be unpacked into dataset/.
+data/external/
+reports/
+
 # ---- Trained model weights ----
 models/*
 !models/.gitkeep

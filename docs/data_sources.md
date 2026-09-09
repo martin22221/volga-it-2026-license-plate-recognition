@@ -45,6 +45,10 @@ exact credit line goes in `notes`.
 in `src/dataset_meta.py` is a **warning** that a person must resolve before
 submission.
 
+For a *third-party dataset* rather than a single image, the audit and review
+steps that come before registration are in
+[`external_dataset_workflow.md`](external_dataset_workflow.md).
+
 ## How to use this file
 
 1. Before collecting anything from a source, add a row here.

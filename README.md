@@ -44,6 +44,7 @@ volga-it-2026-license-plate-recognition/
     validator.py     # real Russian plate format validator
     csv_writer.py    # PlateRecord + submission CSV writer
     dataset_meta.py  # meta.csv schema + dataset validation
+    external_audit.py# read-only audit of third-party datasets
   training/          # (empty) training scripts for detector/classifier/OCR
   dataset/           # the training dataset we build ourselves
     images/real/     # collected photographs, git-ignored
@@ -55,16 +56,19 @@ volga-it-2026-license-plate-recognition/
     LICENSE          # dataset license (CC BY 4.0)
   scripts/
     validate_dataset_local.py   # dataset checker, prints a report
+    audit_external_dataset.py   # inspect a third-party dataset, imports nothing
   configs/           # (empty) model and run configuration files
   models/            # (empty) trained weights, git-ignored
   data/
     official_debug/  # official debug images from the organisers
+    external/        # staging for third-party datasets, git-ignored
     outputs/         # generated CSVs
   tests/             # pytest suite
   docs/
     dataset_strategy.md   # what to collect and how much
     data_sources.md       # source registry (licenses, provenance)
     annotation_guide.md   # how to annotate
+    external_dataset_workflow.md  # audit -> review -> approve -> import
   run.py             # CLI entry point
   requirements.txt
   .gitignore
@@ -163,6 +167,25 @@ never copied into `dataset/`. See
 [`docs/data_sources.md`](docs/data_sources.md) and
 [`docs/annotation_guide.md`](docs/annotation_guide.md).
 
+## Auditing an external dataset
+
+Before any third-party dataset is considered, it is inspected in place:
+
+```bash
+python scripts/audit_external_dataset.py <directory> --source-id candidate     --json reports/candidate.json --report reports/candidate.txt
+```
+
+The tool is **inspection-only**: it never modifies the audited directory and
+never imports anything into `dataset/` — it refuses to write even its own
+reports into either location. It reports image counts, formats, dimension
+statistics, corrupt files, YOLO coordinate validity, class-id counts,
+image/annotation pairing, duplicate names, byte-identical images (SHA-256),
+CSV headers and any README/LICENSE it finds.
+
+It does not interpret what a class id *means* and does not judge licenses.
+Those are human steps: see
+[`docs/external_dataset_workflow.md`](docs/external_dataset_workflow.md).
+
 ## Tests
 
 ```bash
@@ -171,7 +194,8 @@ python -m pytest -q
 
 Covers valid plates, invalid letters, malformed numbers, 2- and 3-digit
 regions, normalisation, CSV generation, image discovery, pipeline wiring,
-the CLI, and the dataset metadata schema and validator.
+the CLI, the dataset metadata schema and validator, and the external
+dataset audit tool.
 
 ## Replacing the placeholders
 

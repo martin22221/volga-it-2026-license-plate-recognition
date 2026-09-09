@@ -19,6 +19,7 @@ __all__ = [
     "csv_writer",
     "dataset_meta",
     "detector",
+    "external_audit",
     "ocr",
     "pipeline",
     "validator",
