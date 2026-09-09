@@ -11,11 +11,15 @@ from src.dataset_meta import (
     ALLOWED_PLATE_TYPES,
     BBOX_COLUMNS,
     CSV_DELIMITER,
+    DATASET_LICENSE,
     QUAD_COLUMNS,
     REQUIRED_COLUMNS,
     MetaFormatError,
     Severity,
     ValidationReport,
+    is_redistributable_license,
+    license_incompatibility,
+    normalize_license,
     parse_bool,
     parse_number,
     polygon_signed_area,
@@ -539,6 +543,106 @@ def test_blank_provenance_on_a_real_image_warns(tmp_path: Path, column: str) -> 
 
     assert report.is_valid
     assert f"{column} is blank for a real image" in warnings(report)
+
+
+# --------------------------------------------------------------------------
+# License compatibility with the CC BY 4.0 dataset license
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("CC BY 4.0", "cc by 4.0"),
+        ("cc-by-4.0", "cc by 4.0"),
+        ("Creative Commons Attribution 4.0 International", "cc by 4.0"),
+        ("  CC0  1.0  ", "cc0 1.0"),
+        ("Own Work", "own work"),
+        ("", ""),
+    ],
+)
+def test_normalize_license(value: str, expected: str) -> None:
+    assert normalize_license(value) == expected
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["own work", "CC0 1.0", "public domain", "CC BY 4.0", "CC BY 3.0", "cc-by-2.0"],
+)
+def test_redistributable_licenses_are_recognised(value: str) -> None:
+    assert is_redistributable_license(value)
+    assert license_incompatibility(value) is None
+
+
+@pytest.mark.parametrize(
+    ("value", "clause"),
+    [
+        ("CC BY-NC 4.0", "non-commercial"),
+        ("CC BY-NC-SA 4.0", "non-commercial"),
+        ("CC BY-ND 4.0", "no-derivatives"),
+        ("CC BY-SA 4.0", "share-alike"),
+        ("Creative Commons Attribution-NonCommercial 4.0", "non-commercial"),
+        ("CC BY-SA", "share-alike"),
+    ],
+)
+def test_incompatible_license_clauses_are_named(value: str, clause: str) -> None:
+    assert license_incompatibility(value) == clause
+    assert not is_redistributable_license(value)
+
+
+def test_share_alike_is_rejected_despite_allowing_redistribution() -> None:
+    """ShareAlike permits redistribution but forbids relicensing under CC BY."""
+    assert license_incompatibility("CC BY-SA 4.0") == "share-alike"
+
+
+@pytest.mark.parametrize(
+    "license_name",
+    ["CC BY-NC 4.0", "CC BY-ND 4.0", "CC BY-SA 4.0", "CC BY-NC-ND 2.0"],
+)
+def test_non_redistributable_license_is_an_error(tmp_path: Path, license_name: str) -> None:
+    report = validate_meta(make_dataset(tmp_path, [row(license=license_name)]))
+
+    assert not report.is_valid
+    assert "cannot be redistributed" in errors(report)
+
+
+def test_unrecognised_license_warns_for_human_review(tmp_path: Path) -> None:
+    report = validate_meta(make_dataset(tmp_path, [row(license="Unsplash License")]))
+
+    assert report.is_valid, errors(report)
+    assert "not on the confirmed-redistributable list" in warnings(report)
+
+
+@pytest.mark.parametrize("license_name", ["CC BY 4.0", "CC0 1.0", "own work"])
+def test_confirmed_license_passes_without_findings(tmp_path: Path, license_name: str) -> None:
+    report = validate_meta(make_dataset(tmp_path, [row(license=license_name)]))
+
+    assert report.is_valid, errors(report)
+    assert report.warnings == []
+
+
+def test_blank_license_warns_once_and_is_not_double_reported(tmp_path: Path) -> None:
+    report = validate_meta(make_dataset(tmp_path, [row(license="")]))
+    license_warnings = [i for i in report.warnings if i.column == "license"]
+
+    assert len(license_warnings) == 1
+    assert "blank" in license_warnings[0].message
+
+
+def test_synthetic_rows_are_exempt_from_the_license_check(tmp_path: Path) -> None:
+    synthetic = row(
+        image="images/synthetic/000001.png",
+        is_synthetic="true",
+        source="",
+        license="CC BY-NC 4.0",
+    )
+    report = validate_meta(make_dataset(tmp_path, [synthetic]))
+
+    assert report.is_valid, errors(report)
+
+
+def test_dataset_license_constant_is_cc_by_4() -> None:
+    assert DATASET_LICENSE == "CC BY 4.0"
 
 
 def test_short_row_is_reported(tmp_path: Path) -> None:

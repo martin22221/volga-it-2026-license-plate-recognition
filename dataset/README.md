@@ -68,7 +68,7 @@ rows. This is the only case in which zero geometry is accepted.
 | `is_vehicle` | bool | Whether the plate is mounted on an actual vehicle in the scene. `false` for a detached plate, a plate on a screen, a poster, or a shop window. |
 | `is_synthetic` | bool | Whether the image came from our generator. Must agree with the folder the image is stored in. |
 | `source` | text | `source_id` from `docs/data_sources.md`. Required for every real image. |
-| `license` | text | The license the image is used under, for example `CC BY 4.0`. Required for every real image. |
+| `license` | text | The exact license the image is used under, e.g. `CC BY 4.0`. Required for every real image, and must permit redistribution — see Legal and source tracking. |
 | `conditions` | tags | Zero or more tags from the controlled list, separated by `\|`. |
 
 Booleans accept `true`/`false`, `1`/`0`, `yes`/`no`, `y`/`n` in any case.
@@ -77,7 +77,7 @@ Booleans accept `true`/`false`, `1`/`0`, `yes`/`no`, `y`/`n` in any case.
 
 | Value | Description |
 | --- | --- |
-| `type1` | Standard white one-line passenger car plate. |
+| `type1` | Standard white one-line passenger car plate. Supported by the pipeline so recognition quality on ordinary plates is preserved, but not a real-data acquisition target for now. |
 | `type1a` | **Target.** Square / two-line white plate. |
 | `type1b` | **Target.** Yellow one-line plate for passenger transport and taxis. |
 | `other` | Any other plate (trailer, motorcycle, military, diplomatic, foreign, transit), an unrecognisable plate, or a background image with no plate. |
@@ -105,13 +105,34 @@ commit that touches `meta.csv`.
 
 ## Legal and source tracking
 
-These rules are not optional. They exist so the dataset can be published
-alongside the solution without a licensing problem.
+These rules are not optional. The competition rules state that the submitted
+dataset is **published under CC BY 4.0** and may be used and published by the
+organizers with attribution. Everything here follows from that.
 
+Our own contributions — the annotations, the synthetic images, the generator,
+and this documentation — are released under CC BY 4.0. That grant covers only
+what we made; it does **not** and cannot alter the terms of any third-party
+image. See [`LICENSE`](LICENSE).
+
+- **The test for a third-party image is redistribution, not use.** Because the
+  whole dataset gets published under CC BY 4.0, an image may be included only
+  if its own license permits redistribution, commercial use and modification
+  (we crop, resize and blur faces), with attribution as the only condition.
+  A license that allows us to *train on* an image but not to *republish* it
+  disqualifies it.
+  - Rejected without exception: **NonCommercial (NC)**, **NoDerivatives (ND)**,
+    **ShareAlike (SA)** — SA permits redistribution but forbids the relicensing
+    under plain CC BY that publication requires — "no redistribution" terms,
+    and anything **unclear or unverifiable**.
+  - The validator enforces this: an NC/ND/SA license is an **error**, and an
+    unrecognised license is a **warning** for a person to resolve before
+    submission.
 - **Every real image must have a documented `source` and `license`.** The
   `source` value is a `source_id` registered in
-  [`../docs/data_sources.md`](../docs/data_sources.md). Blank provenance is a
-  validation warning today and a blocker before submission.
+  [`../docs/data_sources.md`](../docs/data_sources.md), which also records the
+  redistribution check and its date. The `license` column holds the exact
+  license. Blank provenance is a validation warning today and a blocker before
+  submission.
 - **Faces must be blurred or covered** wherever a person is identifiable and
   the source's license or applicable privacy rules require it. Do this before
   the image enters `images/real/`, never afterwards.
@@ -125,6 +146,10 @@ alongside the solution without a licensing problem.
   that bypasses its access restrictions, paywall, login wall, rate limits, or
   `robots.txt`. If getting an image requires circumventing something, the
   image does not go in the dataset.
+- **Generator assets count as sources.** A font, plate template, texture or
+  background used by the synthetic generator is registered in
+  `docs/data_sources.md` and passes the same gate: a synthetic image built on a
+  non-redistributable asset is not redistributable either.
 - Attribution requirements from a source's license must be recorded in
   `docs/data_sources.md` and reproduced in `LICENSE`.
 

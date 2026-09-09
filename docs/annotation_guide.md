@@ -74,6 +74,11 @@ Decide on **layout and colour**, not on what the vehicle is.
 `type1a` and `type1b` are the competition's target classes; `type1` and `other`
 are context that teaches the classifier the boundary.
 
+**Annotate every `type1` plate you photograph.** The class is supported by the
+pipeline and stays in the schema, so ordinary white plates keep their
+recognition quality — they are just not a class we go hunting for, since they
+turn up for free in every scene. Label them `type1`, never `other`.
+
 Goes to `other`: motorcycle plates, trailer plates, military (black),
 diplomatic, transit, police, foreign plates, and any plate too small, too
 blurred or too occluded to classify confidently.
@@ -189,7 +194,11 @@ Only these tags, separated by `|`:
 
 - `source` — the `source_id` from [`data_sources.md`](data_sources.md).
   Register the source there *before* annotating its images.
-- `license` — the exact license, e.g. `CC BY 4.0`.
+- `license` — the **exact** license, e.g. `CC BY 4.0`, not "Creative Commons"
+  and not "free". The validator reads this cell: an NC, ND or SA license is an
+  error, and a license it does not recognise is a warning for a person to
+  resolve. The dataset is published under CC BY 4.0, so an image we may use but
+  not redistribute cannot be in it.
 - Both are required for every real image. Synthetic images leave them empty.
 - `is_synthetic` must match the folder: `images/real/` → `false`,
   `images/synthetic/` → `true`.
@@ -198,7 +207,8 @@ Only these tags, separated by `|`:
 
 1. `python scripts/validate_dataset_local.py`
 2. Fix every **error**. Exit code must be `0`.
-3. Read the **warnings** — most are real mistakes: blank provenance, a quad
-   that disagrees with its bbox, a file name reused under two paths.
+3. Read the **warnings** — most are real mistakes: blank provenance, an
+   unverified license, a quad that disagrees with its bbox, a file name reused
+   under two paths.
 4. Check the report's plate-type and condition tables against the targets in
    [`dataset_strategy.md`](dataset_strategy.md).

@@ -92,6 +92,39 @@ QUAD_COLUMNS: Final[tuple[str, ...]] = tuple(
 #: Columns whose blank value is reported, but only as a warning.
 PROVENANCE_COLUMNS: Final[tuple[str, ...]] = ("source", "license")
 
+#: The license the finished dataset is submitted and published under.
+DATASET_LICENSE: Final[str] = "CC BY 4.0"
+
+#: Licenses under which a third-party image may be redistributed as part of a
+#: CC BY 4.0 dataset.  Attribution-only and public-domain terms qualify;
+#: everything else has to be confirmed by a human and added here explicitly.
+REDISTRIBUTABLE_LICENSES: Final[frozenset[str]] = frozenset(
+    {
+        "own work",
+        "public domain",
+        "cc0",
+        "cc0 1.0",
+        "cc by 1.0",
+        "cc by 2.0",
+        "cc by 2.5",
+        "cc by 3.0",
+        "cc by 4.0",
+    }
+)
+
+#: License tokens that rule an image out of a CC BY 4.0 dataset.  ``nc``
+#: forbids commercial use, ``nd`` forbids the derivatives we make when we crop
+#: and blur, and ``sa`` forces a ShareAlike license we cannot grant.
+INCOMPATIBLE_LICENSE_TOKENS: Final[dict[str, str]] = {
+    "nc": "non-commercial",
+    "noncommercial": "non-commercial",
+    "nd": "no-derivatives",
+    "noderivatives": "no-derivatives",
+    "noderivs": "no-derivatives",
+    "sa": "share-alike",
+    "sharealike": "share-alike",
+}
+
 TRUE_VALUES: Final[frozenset[str]] = frozenset({"true", "1", "yes", "y"})
 FALSE_VALUES: Final[frozenset[str]] = frozenset({"false", "0", "no", "n"})
 
@@ -293,6 +326,55 @@ def split_conditions(value: str) -> list[str]:
     for separator in alternatives:
         normalized = normalized.replace(separator, canonical)
     return [tag.strip().lower() for tag in normalized.split(canonical) if tag.strip()]
+
+
+def normalize_license(value: str) -> str:
+    """Reduce a license cell to a comparable form.
+
+    Lower-cases, drops a ``creative commons`` prefix and the ``international``
+    suffix, and turns punctuation into single spaces, so that
+    ``"CC-BY-4.0"``, ``"cc by 4.0"`` and
+    ``"Creative Commons Attribution 4.0 International"`` all collapse together.
+    """
+    text = value.strip().lower()
+    if not text:
+        return ""
+
+    for old, new in (
+        ("creative commons", "cc"),
+        ("attribution", "by"),
+        ("international", ""),
+        ("public domain dedication", "public domain"),
+    ):
+        text = text.replace(old, new)
+
+    for character in "-_/,()":
+        text = text.replace(character, " ")
+
+    return " ".join(text.split())
+
+
+def license_tokens(value: str) -> list[str]:
+    """The individual tokens of a normalised license string."""
+    return normalize_license(value).split()
+
+
+def license_incompatibility(value: str) -> str | None:
+    """Name the clause that bars ``value`` from a CC BY 4.0 dataset.
+
+    Returns ``None`` when no disqualifying clause is present; that is *not* a
+    promise the license is compatible, only that it is not obviously not.
+    """
+    for token in license_tokens(value):
+        clause = INCOMPATIBLE_LICENSE_TOKENS.get(token)
+        if clause is not None:
+            return clause
+    return None
+
+
+def is_redistributable_license(value: str) -> bool:
+    """Whether ``value`` is a license we have confirmed we may redistribute."""
+    return normalize_license(value) in REDISTRIBUTABLE_LICENSES
 
 
 def polygon_signed_area(points: Sequence[tuple[float, float]]) -> float:
@@ -574,6 +656,47 @@ def _check_provenance(row: MetaRow, report: ValidationReport) -> None:
                 row.line,
                 column,
             )
+
+    _check_license_permits_redistribution(row, report)
+
+
+def _check_license_permits_redistribution(
+    row: MetaRow, report: ValidationReport
+) -> None:
+    """Check a real image's license against the dataset's own license.
+
+    The dataset is submitted and published under :data:`DATASET_LICENSE`, so an
+    image we may *use* but not *redistribute* cannot be in it.  A clause that
+    definitely bars redistribution is an error; a license we simply do not
+    recognise is a warning, because it needs a person to read the terms rather
+    than an assumption either way.
+    """
+    license_name = row.get("license")
+    if not license_name:
+        return  # already reported as blank provenance
+
+    clause = license_incompatibility(license_name)
+    if clause is not None:
+        report.add(
+            Severity.ERROR,
+            f"license {license_name!r} carries a {clause} clause and cannot be "
+            f"redistributed as part of a {DATASET_LICENSE} dataset; "
+            "remove the image or replace the source",
+            row.line,
+            "license",
+        )
+        return
+
+    if not is_redistributable_license(license_name):
+        report.add(
+            Severity.WARNING,
+            f"license {license_name!r} is not on the confirmed-redistributable "
+            f"list; verify it allows redistribution under {DATASET_LICENSE}, "
+            "record the check in docs/data_sources.md, and add it to "
+            "REDISTRIBUTABLE_LICENSES",
+            row.line,
+            "license",
+        )
 
 
 def _check_geometry(row: MetaRow, report: ValidationReport) -> None:

@@ -4,45 +4,72 @@ DATASET LICENSE
 Volga-IT 2026 semifinal, "Artificial Intelligence and Data Analysis".
 Russian license plate detection and recognition dataset.
 
-STATUS: DRAFT. The license for our own contributions (item 1 below) is a
-proposal and still needs to be confirmed by the team before the dataset is
-published or submitted. Everything in item 2 is not a choice we can make and
-is binding regardless.
-
-This dataset is a compilation of material with mixed provenance. It has two
-distinct layers, licensed separately.
+The competition rules state that the submitted dataset will be published under
+CC BY 4.0 and may be used and published by the organizers with attribution.
+The dataset is therefore assembled so that it can be released on those terms in
+full. This is a hard constraint on what may be included; see section 2.
 
 
 1. OUR OWN CONTRIBUTIONS
 ------------------------
 
-The following were produced by this project and are offered under the
+The following were produced by this project, and are released under the
 Creative Commons Attribution 4.0 International license (CC BY 4.0),
-https://creativecommons.org/licenses/by/4.0/ :
+https://creativecommons.org/licenses/by/4.0/ , to the extent that we hold the
+rights necessary to do so:
 
   - all annotations in meta.csv and in labels/
-  - all synthetic images under images/synthetic/
+  - all synthetic images under images/synthetic/, and the generator output
+    they were produced from
   - the synthetic image generator under generator/
   - the documentation in this directory
 
 Attribution: "Volga-IT 2026 license plate dataset".
 
+The qualification "to the extent that we hold the necessary rights" is
+deliberate. Where a synthetic image is composited onto a third-party
+background, or a generator asset (font, template, texture) comes from a third
+party, our CC BY 4.0 grant covers only our own contribution. The underlying
+asset keeps its own terms, which must themselves permit redistribution under
+this dataset's license; those assets are registered in
+../docs/data_sources.md like any other source.
+
 
 2. THIRD-PARTY IMAGES
 ---------------------
 
-Every photograph under images/real/ remains the property of its original
-rights holder and is used under the license recorded for it.
+This license does NOT, and cannot, alter the terms of any third-party
+material. Our CC BY 4.0 grant in section 1 applies solely to what we made. No
+grant we make here extends to an image we did not create.
 
-  - The per-image license is the `license` column of meta.csv.
-  - The origin of each image is the `source` column of meta.csv, which is a
-    source_id registered in ../docs/data_sources.md.
-  - The registry records, per source, whether commercial use, modification and
-    attribution apply.
+Because the dataset as a whole is published under CC BY 4.0, a third-party
+image may be included ONLY IF its own terms permit that publication. In
+practice an image qualifies only when its license permits all of:
 
-NO BLANKET LICENSE IS GRANTED OVER THESE IMAGES BY THIS FILE. Anyone
-redistributing the dataset must honour each image's own terms. Required
-attributions are listed in ../docs/data_sources.md.
+  - redistribution as part of a published dataset,
+  - commercial use,
+  - modification (we crop, resize and blur faces),
+
+with attribution as the only condition. Public-domain and CC0 material, plain
+CC BY material, and our own photographs qualify. The following do NOT, and are
+excluded without exception:
+
+  - NonCommercial (NC) terms,
+  - NoDerivatives (ND) terms,
+  - ShareAlike (SA) terms, which permit redistribution but forbid the
+    relicensing under plain CC BY that publication requires,
+  - "free to use, no redistribution" terms, however permissive otherwise,
+  - any license whose terms are unclear or could not be verified.
+
+Per-image provenance is recorded in meta.csv: the `license` column holds the
+exact license, and the `source` column holds a source_id registered in
+../docs/data_sources.md, which records the redistribution check and the date it
+was performed. scripts/validate_dataset_local.py enforces this mechanically:
+an NC, ND or SA license is a validation error, and an unrecognised license is a
+warning that must be resolved by a person before submission.
+
+Required attributions for included images are listed in ../docs/data_sources.md
+and are reproduced wherever the dataset is redistributed.
 
 
 3. EXCLUSIONS
@@ -54,6 +81,7 @@ attributions are listed in ../docs/data_sources.md.
   - No image obtained from a closed or private source, or by bypassing a
     site's access restrictions, paywall, login wall, rate limits or
     robots.txt, is included.
+  - No image whose license permits use but prohibits redistribution.
 
 
 4. PRIVACY

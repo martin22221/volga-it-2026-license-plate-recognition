@@ -45,7 +45,6 @@ volga-it-2026-license-plate-recognition/
     csv_writer.py    # PlateRecord + submission CSV writer
     dataset_meta.py  # meta.csv schema + dataset validation
   training/          # (empty) training scripts for detector/classifier/OCR
-  generator/         # (empty) superseded by dataset/generator/
   dataset/           # the training dataset we build ourselves
     images/real/     # collected photographs, git-ignored
     images/synthetic/# generated images, git-ignored
@@ -53,7 +52,7 @@ volga-it-2026-license-plate-recognition/
     generator/       # generator configs, fonts, templates
     meta.csv         # the annotation source of truth
     README.md        # format and legal rules
-    LICENSE          # dataset license (draft)
+    LICENSE          # dataset license (CC BY 4.0)
   scripts/
     validate_dataset_local.py   # dataset checker, prints a report
   configs/           # (empty) model and run configuration files
@@ -154,9 +153,11 @@ Exit code `0` = valid, `1` = validation errors. The report gives image and
 annotation totals, real/synthetic split, counts by plate type and by condition,
 missing files, duplicates, and source/license coverage.
 
-No images have been collected yet. Every real image needs a documented source
-and license before it enters the dataset, and the official 30-image debug set
-is never copied into `dataset/`. See
+No images have been collected yet. The dataset is submitted and published under
+**CC BY 4.0**, so every real image needs a documented source and a license that
+permits redistribution on those terms — NC, ND, SA and unclear licenses are
+rejected, and the validator enforces this. The official 30-image debug set is
+never copied into `dataset/`. See
 [`dataset/README.md`](dataset/README.md),
 [`docs/dataset_strategy.md`](docs/dataset_strategy.md),
 [`docs/data_sources.md`](docs/data_sources.md) and

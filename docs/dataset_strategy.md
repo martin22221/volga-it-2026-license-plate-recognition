@@ -17,6 +17,12 @@ rules), [`data_sources.md`](data_sources.md) (source registry),
 - Every real image needs a documented source and license before it counts
   towards any target below. An image without provenance is not "collected
   but undocumented" — it is not collected.
+- **The dataset is submitted and published under CC BY 4.0**, so every
+  third-party image must be *redistributable* on those terms, not merely
+  usable by us. NC, ND, SA, "no redistribution" and unclear licenses are
+  rejected outright. This is the single biggest constraint on where images can
+  come from — see [`data_sources.md`](data_sources.md) for the gate and
+  `dataset/LICENSE` for why.
 - No closed or private sources, no scraping that bypasses access restrictions.
 - Faces blurred or covered before the image enters `images/real/`.
 
@@ -32,6 +38,28 @@ that get discarded on review.
 | `type1b` — yellow one-line transport | 300 | 100 | **400–500** |
 | `other` — negatives and out-of-scope | 50 | — | **100–150** |
 | Synthetic (all types) | 5 000 | — | **8 000–12 000** |
+
+### What the CC BY 4.0 requirement means in practice
+
+The redistribution gate rules out most of the internet: stock sites, image
+search results, forum and classified-ad photos, dashcam compilations and social
+media posts are almost never licensed for commercial redistribution in modified
+form. Assume a source is unusable until its terms say otherwise in writing.
+
+That leaves three realistic channels, in order of expected yield:
+
+1. **Our own photography** — the primary channel. We hold the rights outright,
+   so we can grant CC BY 4.0 directly with no third-party analysis. Every
+   scene list below is written for this channel.
+2. **Public-domain and CC0/CC BY collections** — usable, but thin for Russian
+   plates specifically, and each item still needs its license checked and
+   recorded individually.
+3. **Synthetic generation** — unlimited, and the fallback whenever a real
+   category or condition cannot be filled legally.
+
+Plan on own photography carrying the bulk of the real-image targets. If that
+proves impractical, the shortfall is closed with synthetic data and reported
+here — not by relaxing the license gate.
 
 Unique-plate targets scale with the image targets: aim for **≥ 80 unique
 plates** for `type1a` and **≥ 150 unique plates** for `type1b`. Unique plates
@@ -125,10 +153,17 @@ Notes:
 
 Two distinct jobs, both needed:
 
-1. **Out-of-scope plates** (~60 % of the category): standard white one-line
-   `type1` plates, motorcycle plates, trailer plates, military, diplomatic,
-   transit, and foreign plates. These teach the classifier the boundary of the
-   target classes.
+1. **Out-of-scope plates** (~60 % of the category): motorcycle plates, trailer
+   plates, military, diplomatic, transit, and foreign plates. These teach the
+   classifier the boundary of the target classes.
+
+   Standard white one-line **`type1` plates are annotated as `type1`, not as
+   `other`** — the class stays in the schema and the pipeline so recognition
+   quality on ordinary plates is preserved. They are simply not a real-data
+   acquisition target for now: they are by far the most common plate on the
+   street, so they accumulate for free in every scene we shoot, and dataset
+   effort goes to the rare `type1a` and `type1b` classes. Annotate every
+   `type1` plate you photograph; do not go looking for them.
 2. **True negatives** (~40 %): images with no plate at all but with things that
    look like one — road signs, advertising panels, house numbers, shop signage,
    text on vehicle bodies, printed banners, and plates displayed on screens,
@@ -161,7 +196,13 @@ Split the budget roughly `type1a` 40 % / `type1b` 40 % / `type1` and other
 layouts 20 %.
 
 Synthetic images always carry `is_synthetic=true` and live under
-`images/synthetic/`; they need no `source` or `license`.
+`images/synthetic/`; they need no `source` or `license` of their own.
+
+Their *inputs* do. Fonts, plate templates, textures and background photographs
+used by the generator are registered in [`data_sources.md`](data_sources.md)
+and must clear the same redistribution gate — a synthetic image composited onto
+a non-redistributable background is not redistributable either. Prefer
+backgrounds we photographed ourselves.
 
 ## Workflow
 
@@ -173,10 +214,22 @@ Synthetic images always carry `is_synthetic=true` and live under
 5. Review the report's condition and plate-type tables against the targets
    above, and steer the next collection session at whatever is thinnest.
 
+## Decisions on record
+
+Settled 2026-09-09, and reflected throughout this document:
+
+- Our own contributions — annotations, synthetic images, metadata and generator
+  output — are released under **CC BY 4.0**, to the extent we hold the rights.
+  That grant never extends to third-party material.
+- The submitted dataset is **published under CC BY 4.0** by the organizers with
+  attribution. Sources that permit use but prohibit redistribution are
+  rejected, as are unclear ones.
+- **`type1` stays** in the schema and the pipeline, but is not a real-data
+  acquisition target for now.
+- The synthetic generator's canonical location is `dataset/generator/`.
+
 ## Open questions
 
-- The license for our own contributions (`dataset/LICENSE`) is drafted as
-  CC BY 4.0 and needs team confirmation.
-- Whether the competition rules cap dataset size or require the dataset to be
-  published — this affects how aggressively we can use sources whose licenses
-  forbid redistribution.
+- None outstanding for dataset policy. Practical questions — how many
+  photographers are available, and over what period — are scheduling matters
+  rather than blockers, and will be settled as collection starts.
