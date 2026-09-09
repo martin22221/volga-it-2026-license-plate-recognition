@@ -1,0 +1,73 @@
+DATASET LICENSE
+===============
+
+Volga-IT 2026 semifinal, "Artificial Intelligence and Data Analysis".
+Russian license plate detection and recognition dataset.
+
+STATUS: DRAFT. The license for our own contributions (item 1 below) is a
+proposal and still needs to be confirmed by the team before the dataset is
+published or submitted. Everything in item 2 is not a choice we can make and
+is binding regardless.
+
+This dataset is a compilation of material with mixed provenance. It has two
+distinct layers, licensed separately.
+
+
+1. OUR OWN CONTRIBUTIONS
+------------------------
+
+The following were produced by this project and are offered under the
+Creative Commons Attribution 4.0 International license (CC BY 4.0),
+https://creativecommons.org/licenses/by/4.0/ :
+
+  - all annotations in meta.csv and in labels/
+  - all synthetic images under images/synthetic/
+  - the synthetic image generator under generator/
+  - the documentation in this directory
+
+Attribution: "Volga-IT 2026 license plate dataset".
+
+
+2. THIRD-PARTY IMAGES
+---------------------
+
+Every photograph under images/real/ remains the property of its original
+rights holder and is used under the license recorded for it.
+
+  - The per-image license is the `license` column of meta.csv.
+  - The origin of each image is the `source` column of meta.csv, which is a
+    source_id registered in ../docs/data_sources.md.
+  - The registry records, per source, whether commercial use, modification and
+    attribution apply.
+
+NO BLANKET LICENSE IS GRANTED OVER THESE IMAGES BY THIS FILE. Anyone
+redistributing the dataset must honour each image's own terms. Required
+attributions are listed in ../docs/data_sources.md.
+
+
+3. EXCLUSIONS
+-------------
+
+  - The official 30-image debug set supplied by the competition organizers is
+    NOT part of this dataset and must never be copied into it or referenced
+    from meta.csv. It stays under data/official_debug/.
+  - No image obtained from a closed or private source, or by bypassing a
+    site's access restrictions, paywall, login wall, rate limits or
+    robots.txt, is included.
+
+
+4. PRIVACY
+----------
+
+Faces are blurred or covered where individuals are identifiable and the
+source's license or applicable privacy rules require it. If you believe an
+image in this dataset infringes your rights or privacy, contact the project
+team and it will be removed.
+
+
+5. NO WARRANTY
+--------------
+
+This dataset is provided "as is", without warranty of any kind, express or
+implied. The authors are not liable for any claim, damages or other liability
+arising from the dataset or its use.

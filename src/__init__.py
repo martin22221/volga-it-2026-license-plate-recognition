@@ -17,6 +17,7 @@ __version__ = "0.1.0"
 __all__ = [
     "classifier",
     "csv_writer",
+    "dataset_meta",
     "detector",
     "ocr",
     "pipeline",

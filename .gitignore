@@ -58,6 +58,18 @@ data/**
 !data/**/
 !data/**/.gitkeep
 
+# ---- Collected dataset images ----
+# The structure, meta.csv, the generator and the docs are committed.
+# The image files themselves are not; they are rebuilt from meta.csv
+# plus the source registry in docs/data_sources.md.
+dataset/images/**
+!dataset/images/**/
+!dataset/images/**/.gitkeep
+
+# Label files are derived from meta.csv and regenerated, never edited.
+dataset/labels/*
+!dataset/labels/.gitkeep
+
 # ---- Trained model weights ----
 models/*
 !models/.gitkeep

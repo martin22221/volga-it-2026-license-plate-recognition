@@ -43,16 +43,29 @@ volga-it-2026-license-plate-recognition/
     ocr.py           # OcrEngine protocol + PlaceholderOcr
     validator.py     # real Russian plate format validator
     csv_writer.py    # PlateRecord + submission CSV writer
+    dataset_meta.py  # meta.csv schema + dataset validation
   training/          # (empty) training scripts for detector/classifier/OCR
-  generator/         # (empty) synthetic plate dataset generator
-  scripts/           # (empty) helper/utility scripts
+  generator/         # (empty) superseded by dataset/generator/
+  dataset/           # the training dataset we build ourselves
+    images/real/     # collected photographs, git-ignored
+    images/synthetic/# generated images, git-ignored
+    labels/          # derived per-image labels, git-ignored
+    generator/       # generator configs, fonts, templates
+    meta.csv         # the annotation source of truth
+    README.md        # format and legal rules
+    LICENSE          # dataset license (draft)
+  scripts/
+    validate_dataset_local.py   # dataset checker, prints a report
   configs/           # (empty) model and run configuration files
   models/            # (empty) trained weights, git-ignored
   data/
     official_debug/  # official debug images from the organisers
     outputs/         # generated CSVs
   tests/             # pytest suite
-  docs/              # notes and design documents
+  docs/
+    dataset_strategy.md   # what to collect and how much
+    data_sources.md       # source registry (licenses, provenance)
+    annotation_guide.md   # how to annotate
   run.py             # CLI entry point
   requirements.txt
   .gitignore
@@ -126,6 +139,29 @@ Implemented in `src/validator.py`:
   confusion handling (`0`↔`O`, `8`↔`B`, …) is deliberately **not** implemented
   yet.
 
+## Training dataset
+
+The dataset we build ourselves lives in `dataset/`. Annotations go in
+`dataset/meta.csv` (UTF-8, semicolon separated, one row per *plate*, not per
+image); the schema and all validation rules are in `src/dataset_meta.py`.
+
+```bash
+python scripts/validate_dataset_local.py
+python scripts/validate_dataset_local.py --report reports/dataset.txt --strict
+```
+
+Exit code `0` = valid, `1` = validation errors. The report gives image and
+annotation totals, real/synthetic split, counts by plate type and by condition,
+missing files, duplicates, and source/license coverage.
+
+No images have been collected yet. Every real image needs a documented source
+and license before it enters the dataset, and the official 30-image debug set
+is never copied into `dataset/`. See
+[`dataset/README.md`](dataset/README.md),
+[`docs/dataset_strategy.md`](docs/dataset_strategy.md),
+[`docs/data_sources.md`](docs/data_sources.md) and
+[`docs/annotation_guide.md`](docs/annotation_guide.md).
+
 ## Tests
 
 ```bash
@@ -133,8 +169,8 @@ python -m pytest -q
 ```
 
 Covers valid plates, invalid letters, malformed numbers, 2- and 3-digit
-regions, normalisation, CSV generation, image discovery, pipeline wiring and
-the CLI.
+regions, normalisation, CSV generation, image discovery, pipeline wiring,
+the CLI, and the dataset metadata schema and validator.
 
 ## Replacing the placeholders
 
@@ -162,11 +198,12 @@ pipeline = Pipeline(detector=MyYoloDetector(...), classifier=..., ocr=...)
 
 ## Next steps
 
-1. Synthetic plate generator (`generator/`).
-2. Detector training (`training/`) and integration.
-3. Plate type classifier for `type1` / `type1a` / `type1b` / `other`.
-4. OCR model + calibrated confidences.
-5. Evaluation scripts against `data/official_debug`.
+1. Collect and annotate the real dataset per `docs/dataset_strategy.md`.
+2. Synthetic plate generator (`dataset/generator/`).
+3. Detector training (`training/`) and integration.
+4. Plate type classifier for `type1` / `type1a` / `type1b` / `other`.
+5. OCR model + calibrated confidences.
+6. Evaluation scripts against `data/official_debug`.
 
 **Actual models will be added later — nothing in this repository is trained
 yet.**
