@@ -1,0 +1,142 @@
+External dataset audit (inspection only -- nothing was imported)
+------------------------------------------------------------------------
+directory : C:\Users\User\Downloads\test\test
+source_id : autoria_numberplate_options
+
+Totals
+------------------------------------------------------------------------
+  images                : 2564
+  readable images       : 2564
+  corrupt/unreadable    : 0
+  extension mismatches  : 742  (readable, but wrongly named)
+  annotation files      : 2564
+  annotation boxes      : 2685
+  invalid annotation rows: 0
+  CSV files             : 0
+  metadata files        : 0
+  config files          : 0
+  other files           : 0
+
+Image formats
+------------------------------------------------------------------------
+  jpeg     2558
+  png         4
+  bmp         2
+
+Image dimensions
+------------------------------------------------------------------------
+  width   min 250  median 1200.0  mean 1212.3  max 4000
+  height  min 154  median 861.0  mean 889.1  max 3000
+  distinct resolutions: 1197
+  most common:
+    640x480        675
+    1600x1200      202
+    1024x768        72
+    2000x1500       53
+    1901x1267       37
+    1400x1050       35
+    2592x1552       34
+    1280x960        27
+    800x600         24
+    1200x800        19
+
+Corrupt or unreadable images (0)
+------------------------------------------------------------------------
+  (none)
+  Note: headers are parsed, pixel data is not decoded. Corruption in
+  the middle of an image stream is not detected by this audit.
+
+Extension / format mismatches (742)
+------------------------------------------------------------------------
+  These files are readable; only their names are wrong.
+    .bmp -> jpeg      738
+    .bmp -> png         4
+
+  examples:
+    images/10045.bmp: extension .bmp does not match actual format jpeg
+    images/10057.bmp: extension .bmp does not match actual format jpeg
+    images/1008.bmp: extension .bmp does not match actual format jpeg
+    images/10114.bmp: extension .bmp does not match actual format jpeg
+    images/10132.bmp: extension .bmp does not match actual format jpeg
+    images/10153.bmp: extension .bmp does not match actual format jpeg
+    images/10157.bmp: extension .bmp does not match actual format png
+    images/10217.bmp: extension .bmp does not match actual format jpeg
+    images/1027.bmp: extension .bmp does not match actual format jpeg
+    images/10319.bmp: extension .bmp does not match actual format jpeg
+    images/10454.bmp: extension .bmp does not match actual format jpeg
+    images/10490.bmp: extension .bmp does not match actual format jpeg
+    images/10496.bmp: extension .bmp does not match actual format jpeg
+    images/10502.bmp: extension .bmp does not match actual format jpeg
+    images/10557.bmp: extension .bmp does not match actual format jpeg
+    images/10583.bmp: extension .bmp does not match actual format jpeg
+    images/1060.bmp: extension .bmp does not match actual format jpeg
+    images/10735.bmp: extension .bmp does not match actual format jpeg
+    images/10800.bmp: extension .bmp does not match actual format png
+    images/10834.bmp: extension .bmp does not match actual format jpeg
+    images/1087.bmp: extension .bmp does not match actual format jpeg
+    images/11003.bmp: extension .bmp does not match actual format jpeg
+    images/11014.bmp: extension .bmp does not match actual format jpeg
+    images/11033.bmp: extension .bmp does not match actual format jpeg
+    images/11060.bmp: extension .bmp does not match actual format jpeg
+    ... and 717 more
+
+  On import, decide the format from the file's content, not its
+  extension, and rename to match -- some image loaders trust the
+  extension and will fail on these.
+
+YOLO annotations
+------------------------------------------------------------------------
+  files parsed as YOLO  : 2564
+  files not in YOLO form: 0
+  empty files (negatives): 0
+  invalid annotation rows (0):
+    (none)
+
+Classes
+------------------------------------------------------------------------
+  class 0     2685 box(es)
+
+  No class names were declared by the dataset.
+  Class meanings are NOT inferred by this tool. Mapping these ids onto
+  our plate_type values is a human decision made when the source is
+  approved -- see docs/external_dataset_workflow.md.
+
+Image / annotation pairing
+------------------------------------------------------------------------
+  images without annotations (0):
+    (none)
+  annotations without images (0):
+    (none)
+
+Duplicates
+------------------------------------------------------------------------
+  duplicate file names (0):
+    (none)
+  identical images by SHA-256 (9):
+    images/13410.bmp == images/22295.bmp
+    images/2273.bmp == images/24877.bmp
+    images/1128.bmp == images/19715.bmp == images/4254.bmp
+    images/20882.bmp == images/22026.bmp == images/3315.bmp
+    images/8019.bmp == images/9903.bmp
+    images/20191.bmp == images/4740.bmp
+    images/12482.bmp == images/507.bmp
+    images/10490.bmp == images/13807.bmp
+    images/15682.bmp == images/5848.bmp
+
+CSV files
+------------------------------------------------------------------------
+  (none)
+
+Dataset paperwork
+------------------------------------------------------------------------
+  (none found)
+  A dataset with no LICENSE cannot be approved. Find the
+  license at the source, or reject it.
+
+Next steps
+------------------------------------------------------------------------
+  This audit imports nothing. Before any image enters dataset/:
+    1. Human license review  -- may we redistribute under CC BY 4.0?
+    2. Human plate-type review -- what do these classes actually show?
+    3. Register the source in docs/data_sources.md.
+    4. Only then import, and re-run validate_dataset_local.py.

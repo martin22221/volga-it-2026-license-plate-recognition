@@ -65,14 +65,36 @@ it refuses to write its own reports into either the audited directory or
 [`data_sources.md`](data_sources.md), so an audit artefact can be traced back
 to a source later. It does not register anything by itself.
 
+Supported image formats: **JPEG, PNG and BMP**, identified by magic bytes
+rather than by file extension. Anything else is listed under "other files".
+
+### Committing an audit report
+
+Audit reports live in `data/audits/<source>/` and are committed as a record of
+what we inspected. Use `--json-detail summary` for anything committed:
+
+```bash
+python scripts/audit_external_dataset.py <directory> \
+    --source-id candidate \
+    --json  data/audits/candidate/audit.json --json-detail summary \
+    --report data/audits/candidate/audit.txt
+```
+
+The default `full` JSON embeds every parsed bounding box, which is a verbatim
+copy of the dataset's annotations — fine locally, not something to commit
+before the source is approved. `summary` keeps the statistics and findings and
+drops the per-image and per-annotation arrays. The text report never contains
+annotation data.
+
 What the report covers:
 
 | Section | Tells you |
 | --- | --- |
 | Totals | Images, annotation files, boxes, CSVs, paperwork, unknown files. |
-| Image formats | JPEG/PNG split, plus anything unreadable. |
+| Image formats | JPEG / PNG / BMP split by **actual content**, plus anything unreadable. |
 | Image dimensions | min/median/mean/max and the most common resolutions. Tiny images mean tiny plates. |
-| Corrupt or unreadable images | Empty files, wrong magic bytes, truncation, extension/format mismatches. |
+| Corrupt or unreadable images | Empty files, wrong magic bytes, truncation. Genuine damage only. |
+| Extension / format mismatches | Readable files whose name lies about their format, e.g. a `.bmp` that is really a JPEG. Reported separately from corruption, because the file is fine and only its name is wrong. |
 | YOLO annotations | Files that parsed, files that are not YOLO at all, and every invalid row with its line number and reason. |
 | Classes | Raw class ids with box counts, and any names the dataset itself declared. |
 | Image / annotation pairing | Images with no label, labels with no image, ambiguous stems. |

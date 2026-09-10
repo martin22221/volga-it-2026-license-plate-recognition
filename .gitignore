@@ -58,6 +58,10 @@ data/**
 !data/**/
 !data/**/.gitkeep
 
+# Audit reports are statistics and metadata only -- never copied images or
+# annotations -- so they are committed as a record of what we inspected.
+!data/audits/**
+
 # ---- Collected dataset images ----
 # The structure, meta.csv, the generator and the docs are committed.
 # The image files themselves are not; they are rebuilt from meta.csv

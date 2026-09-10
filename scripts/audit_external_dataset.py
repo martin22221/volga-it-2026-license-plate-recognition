@@ -32,6 +32,8 @@ if str(REPO_ROOT) not in sys.path:  # allow running the script directly
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.external_audit import (  # noqa: E402  (path set up above)
+    DETAIL_LEVELS,
+    FULL_DETAIL,
     AuditError,
     AuditReport,
     audit_dataset,
@@ -82,6 +84,8 @@ def build_report_text(report: AuditReport) -> str:
         f"  images                : {len(report.images)}",
         f"  readable images       : {len(report.readable_images)}",
         f"  corrupt/unreadable    : {len(report.corrupt_images)}",
+        f"  extension mismatches  : {len(report.mismatched_images)}  "
+        "(readable, but wrongly named)",
         f"  annotation files      : {len(report.annotations)}",
         f"  annotation boxes      : {report.total_boxes()}",
         f"  invalid annotation rows: {report.invalid_annotation_count()}",
@@ -121,6 +125,32 @@ def build_report_text(report: AuditReport) -> str:
         "  Note: headers are parsed, pixel data is not decoded. Corruption in"
     )
     lines.append("  the middle of an image stream is not detected by this audit.")
+
+    lines += _section(
+        f"Extension / format mismatches ({len(report.mismatched_images)})"
+    )
+    if not report.mismatched_images:
+        lines.append("  (none)")
+    else:
+        lines.append("  These files are readable; only their names are wrong.")
+        lines += _counts(report.mismatch_counts(), indent="    ")
+        lines.append("")
+        lines.append("  examples:")
+        lines += _listing(
+            [
+                f"{image.path}: {'; '.join(image.warnings)}"
+                for image in report.mismatched_images
+            ],
+            indent="    ",
+        )
+        lines.append("")
+        lines.append(
+            "  On import, decide the format from the file's content, not its"
+        )
+        lines.append(
+            "  extension, and rename to match -- some image loaders trust the"
+        )
+        lines.append("  extension and will fail on these.")
 
     lines += _section("YOLO annotations")
     if not report.annotations:
@@ -314,6 +344,17 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--json", type=Path, default=None, help="write the JSON report here")
     parser.add_argument(
+        "--json-detail",
+        choices=sorted(DETAIL_LEVELS),
+        default=FULL_DETAIL,
+        help=(
+            "how much the JSON report carries. '%(default)s' keeps per-image and "
+            "per-annotation records; 'summary' keeps statistics and findings only, "
+            "omitting the audited dataset's own annotation coordinates -- use it "
+            "for a report you intend to commit"
+        ),
+    )
+    parser.add_argument(
         "--report", type=Path, default=None, help="write the text report here"
     )
     parser.add_argument(
@@ -363,8 +404,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"Text report written to {args.report}")
 
     if args.json is not None:
-        write_json_report(report, args.json)
-        print(f"JSON report written to {args.json}")
+        write_json_report(report, args.json, detail=args.json_detail)
+        print(f"JSON report written to {args.json} (detail: {args.json_detail})")
 
     if args.fail_on_findings and has_findings(report):
         return EXIT_FINDINGS

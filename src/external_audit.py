@@ -33,7 +33,17 @@ from typing import Any, Final, Iterable, Sequence
 logger = logging.getLogger(__name__)
 
 #: Image extensions the audit recognises, lower-cased.
-IMAGE_EXTENSIONS: Final[frozenset[str]] = frozenset({".jpg", ".jpeg", ".png"})
+IMAGE_EXTENSIONS: Final[frozenset[str]] = frozenset(
+    {".jpg", ".jpeg", ".png", ".bmp"}
+)
+
+#: Maps an image extension to the format its magic bytes should declare.
+EXPECTED_FORMATS: Final[dict[str, str]] = {
+    ".jpg": "jpeg",
+    ".jpeg": "jpeg",
+    ".png": "png",
+    ".bmp": "bmp",
+}
 
 #: Extension treated as a candidate YOLO annotation file.
 ANNOTATION_EXTENSION: Final[str] = ".txt"
@@ -62,12 +72,27 @@ YOLO_EPSILON: Final[float] = 1e-6
 
 PNG_SIGNATURE: Final[bytes] = b"\x89PNG\r\n\x1a\n"
 JPEG_SIGNATURE: Final[bytes] = b"\xff\xd8"
+BMP_SIGNATURE: Final[bytes] = b"BM"
+
+#: Smallest BMP carrying dimensions: the 14-byte file header plus the 12-byte
+#: BITMAPCOREHEADER.
+_BMP_MIN_BYTES: Final[int] = 26
+
+#: DIB header size marking the legacy BITMAPCOREHEADER, whose dimensions are
+#: 16-bit. Every later header (40, 52, 56, 108, 124) uses 32-bit dimensions.
+_BMP_CORE_HEADER_SIZE: Final[int] = 12
 
 #: JPEG start-of-frame markers, which carry the image dimensions.  C4, C8 and
 #: CC are Huffman/arithmetic tables, not frames.
 _SOF_MARKERS: Final[frozenset[int]] = frozenset(
     set(range(0xC0, 0xD0)) - {0xC4, 0xC8, 0xCC}
 )
+
+#: JSON report detail levels. "summary" omits the per-image and
+#: per-annotation arrays, which reproduce the audited dataset's content.
+FULL_DETAIL: Final[str] = "full"
+SUMMARY_DETAIL: Final[str] = "summary"
+DETAIL_LEVELS: Final[frozenset[str]] = frozenset({FULL_DETAIL, SUMMARY_DETAIL})
 
 _HASH_CHUNK_BYTES: Final[int] = 1 << 20
 
@@ -88,6 +113,7 @@ class ImageRecord:
     size_bytes: int = 0
     sha256: str | None = None
     problems: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
 
     @property
     def is_readable(self) -> bool:
@@ -95,6 +121,13 @@ class ImageRecord:
 
     @property
     def is_corrupt(self) -> bool:
+        """Whether the file is actually damaged.
+
+        Deliberately excludes :attr:`warnings`.  A file whose extension
+        disagrees with its content is perfectly readable and usable -- calling
+        it corrupt would overstate the state of a dataset, which matters when
+        the count decides whether a source is worth reviewing.
+        """
         return bool(self.problems)
 
 
@@ -183,6 +216,21 @@ class AuditReport:
     def readable_images(self) -> list[ImageRecord]:
         return [image for image in self.images if image.is_readable]
 
+    @property
+    def mismatched_images(self) -> list[ImageRecord]:
+        """Readable images whose extension disagrees with their real format."""
+        return [image for image in self.images if image.warnings]
+
+    def mismatch_counts(self) -> dict[str, int]:
+        """How many files carry each ``extension -> actual format`` mismatch."""
+        counts: dict[str, int] = {}
+        for image in self.mismatched_images:
+            if image.format is None:
+                continue
+            key = f"{image.extension} -> {image.format}"
+            counts[key] = counts.get(key, 0) + 1
+        return dict(sorted(counts.items(), key=lambda item: (-item[1], item[0])))
+
     def format_counts(self) -> dict[str, int]:
         counts: dict[str, int] = {}
         for image in self.images:
@@ -250,9 +298,19 @@ class AuditReport:
     def total_boxes(self) -> int:
         return sum(len(annotation.boxes) for annotation in self.annotations)
 
-    def to_dict(self) -> dict[str, Any]:
-        """The machine-readable form of the audit."""
-        return {
+    def to_dict(self, *, detail: str = FULL_DETAIL) -> dict[str, Any]:
+        """The machine-readable form of the audit.
+
+        ``detail="summary"`` omits the per-image and per-annotation arrays.
+        Those arrays carry the dataset's own content -- every bounding box
+        coordinate -- so a summary report is the form that may be committed
+        alongside our code: it describes a third-party dataset without
+        reproducing it.
+        """
+        if detail not in DETAIL_LEVELS:
+            raise ValueError(f"detail must be one of {sorted(DETAIL_LEVELS)}")
+
+        payload: dict[str, Any] = {
             "schema_version": 1,
             "root": self.root,
             "source_id": self.source_id,
@@ -262,6 +320,7 @@ class AuditReport:
                 "total_images": len(self.images),
                 "readable_images": len(self.readable_images),
                 "corrupt_images": len(self.corrupt_images),
+                "extension_format_mismatches": len(self.mismatched_images),
                 "annotation_files": len(self.annotations),
                 "total_annotation_boxes": self.total_boxes(),
                 "invalid_annotation_lines": self.invalid_annotation_count(),
@@ -275,6 +334,7 @@ class AuditReport:
                 "duplicate_image_groups": len(self.duplicate_images),
             },
             "image_formats": self.format_counts(),
+            "extension_format_mismatches": self.mismatch_counts(),
             "dimensions": self.dimension_stats(),
             "classes": {
                 "counts_by_id": {str(k): v for k, v in self.class_counts().items()},
@@ -289,8 +349,6 @@ class AuditReport:
                     "plate_type values is a human decision made at approval time."
                 ),
             },
-            "images": [asdict(image) for image in self.images],
-            "annotations": [asdict(annotation) for annotation in self.annotations],
             "csv_files": [asdict(csv_file) for csv_file in self.csv_files],
             "metadata_files": [asdict(meta) for meta in self.metadata_files],
             "configs": [
@@ -308,7 +366,26 @@ class AuditReport:
                 "filenames": self.duplicate_filenames,
                 "identical_images_sha256": self.duplicate_images,
             },
+            "mismatched_image_paths": [
+                {"path": image.path, "declared": image.extension, "actual": image.format}
+                for image in self.mismatched_images
+            ],
         }
+
+        payload["detail"] = detail
+        if detail == FULL_DETAIL:
+            payload["images"] = [asdict(image) for image in self.images]
+            payload["annotations"] = [
+                asdict(annotation) for annotation in self.annotations
+            ]
+        else:
+            payload["detail_note"] = (
+                "Per-image and per-annotation records omitted. Those arrays "
+                "reproduce the audited dataset's own annotation coordinates; "
+                "this summary describes the dataset without copying it."
+            )
+
+        return payload
 
 
 def _numeric_summary(values: Sequence[int]) -> dict[str, float]:
@@ -381,6 +458,56 @@ def read_jpeg_size(data: bytes) -> tuple[int, int]:
     raise ValueError("no JPEG start-of-frame marker found")
 
 
+def read_bmp_size(data: bytes) -> tuple[int, int]:
+    """Width and height from a BMP DIB header.
+
+    Handles the legacy 12-byte BITMAPCOREHEADER (16-bit dimensions) and every
+    later header (32-bit).  A negative height marks a top-down bitmap, which is
+    a storage order rather than a different size, so it is returned absolute.
+    """
+    if len(data) < _BMP_MIN_BYTES:
+        raise ValueError("BMP is too short to contain a DIB header")
+
+    header_size = int.from_bytes(data[14:18], "little")
+    if header_size == _BMP_CORE_HEADER_SIZE:
+        width = int.from_bytes(data[18:20], "little", signed=True)
+        height = int.from_bytes(data[20:22], "little", signed=True)
+    elif header_size >= 40:
+        if len(data) < 26:
+            raise ValueError("BMP info header is truncated")
+        width = int.from_bytes(data[18:22], "little", signed=True)
+        height = int.from_bytes(data[22:26], "little", signed=True)
+    else:
+        raise ValueError(f"unsupported BMP DIB header size {header_size}")
+
+    height = abs(height)  # negative height means top-down row order
+    if width <= 0 or height <= 0:
+        raise ValueError("BMP declares a zero or negative dimension")
+    return width, height
+
+
+def _check_bmp_integrity(data: bytes, record: ImageRecord) -> None:
+    """BMP has no end-of-file marker, so truncation is judged by its headers.
+
+    The file header states the total size and where pixel data begins; either
+    exceeding the bytes actually present means the file is incomplete.  Some
+    writers leave the size field at zero, which is tolerated rather than
+    reported as damage.
+    """
+    declared_size = int.from_bytes(data[2:6], "little")
+    if declared_size and declared_size > len(data):
+        record.problems.append(
+            f"BMP is truncated: header declares {declared_size} bytes, "
+            f"file holds {len(data)}"
+        )
+
+    pixel_offset = int.from_bytes(data[10:14], "little")
+    if pixel_offset >= len(data):
+        record.problems.append(
+            f"BMP pixel data starts at byte {pixel_offset}, past the end of the file"
+        )
+
+
 def inspect_image(path: Path, root: Path) -> ImageRecord:
     """Inspect one image file without decoding its pixels."""
     record = ImageRecord(
@@ -416,16 +543,23 @@ def inspect_image(path: Path, root: Path) -> ImageRecord:
             record.problems.append(str(error))
         if not data.rstrip(b"\x00").endswith(b"\xff\xd9"):
             record.problems.append("JPEG is truncated (no EOI marker at end of file)")
+    elif data.startswith(BMP_SIGNATURE):
+        record.format = "bmp"
+        try:
+            record.width, record.height = read_bmp_size(data)
+        except ValueError as error:
+            record.problems.append(str(error))
+        _check_bmp_integrity(data, record)
     else:
         preview = data[:8].hex()
         record.problems.append(
-            f"not a PNG or JPEG: unrecognised magic bytes {preview}"
+            f"not a PNG, JPEG or BMP: unrecognised magic bytes {preview}"
         )
         return record
 
-    expected = {".png": "png", ".jpg": "jpeg", ".jpeg": "jpeg"}.get(record.extension)
+    expected = EXPECTED_FORMATS.get(record.extension)
     if expected is not None and record.format != expected:
-        record.problems.append(
+        record.warnings.append(
             f"extension {record.extension} does not match actual format {record.format}"
         )
 
@@ -837,11 +971,17 @@ def _find_duplicate_images(report: AuditReport) -> None:
     ]
 
 
-def write_json_report(report: AuditReport, destination: Path) -> None:
-    """Write the machine-readable audit to ``destination``."""
+def write_json_report(
+    report: AuditReport, destination: Path, *, detail: str = FULL_DETAIL
+) -> None:
+    """Write the machine-readable audit to ``destination``.
+
+    Pass ``detail="summary"`` for the form that may be committed: statistics
+    and findings without the dataset's own annotation coordinates.
+    """
     destination = Path(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(
-        json.dumps(report.to_dict(), indent=2, ensure_ascii=False) + "\n",
+        json.dumps(report.to_dict(detail=detail), indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )

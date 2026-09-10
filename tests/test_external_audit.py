@@ -15,6 +15,7 @@ from src.external_audit import (
     audit_dataset,
     parse_dataset_config,
     parse_yolo_file,
+    read_bmp_size,
     read_jpeg_size,
     read_png_size,
     sha256_file,
@@ -56,9 +57,37 @@ def jpeg_bytes(width: int, height: int) -> bytes:
     return b"\xff\xd8" + app0 + sof0 + b"\xff\xda\x00\x08\x01\x01\x00\x00\x3f\x00" + b"\xff\xd9"
 
 
+def bmp_bytes(width: int, height: int, *, top_down: bool = False, core: bool = False) -> bytes:
+    """A structurally valid 24-bit BMP.
+
+    ``core`` emits the legacy 12-byte BITMAPCOREHEADER instead of the usual
+    40-byte BITMAPINFOHEADER; ``top_down`` stores a negative height, which is a
+    row order rather than a different size.
+    """
+    row_stride = (width * 3 + 3) & ~3
+    pixels = b"\x00" * (row_stride * height)
+
+    if core:
+        dib = struct.pack("<IHHHH", 12, width, height, 1, 24)
+    else:
+        stored_height = -height if top_down else height
+        dib = struct.pack(
+            "<IiiHHIIiiII", 40, width, stored_height, 1, 24, 0, len(pixels), 0, 0, 0, 0
+        )
+
+    offset = 14 + len(dib)
+    header = b"BM" + struct.pack("<IHHI", offset + len(pixels), 0, 0, offset)
+    return header + dib + pixels
+
+
 def write_image(path: Path, width: int = 640, height: int = 480, *, fmt: str = "jpg") -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
-    data = png_bytes(width, height) if fmt == "png" else jpeg_bytes(width, height)
+    if fmt == "png":
+        data = png_bytes(width, height)
+    elif fmt == "bmp":
+        data = bmp_bytes(width, height)
+    else:
+        data = jpeg_bytes(width, height)
     path.write_bytes(data)
     return path
 
@@ -105,6 +134,202 @@ def test_jpeg_size_is_read_from_sof() -> None:
 def test_jpeg_without_frame_marker_is_rejected() -> None:
     with pytest.raises(ValueError, match="start-of-frame"):
         read_jpeg_size(b"\xff\xd8\xff\xd9")
+
+
+# --------------------------------------------------------------------------
+# BMP support
+# --------------------------------------------------------------------------
+
+
+def test_bmp_size_is_read_from_info_header() -> None:
+    assert read_bmp_size(bmp_bytes(200, 120)) == (200, 120)
+
+
+def test_bmp_size_is_read_from_legacy_core_header() -> None:
+    assert read_bmp_size(bmp_bytes(64, 32, core=True)) == (64, 32)
+
+
+def test_top_down_bmp_reports_positive_height() -> None:
+    """A negative stored height is a row order, not a negative size."""
+    assert read_bmp_size(bmp_bytes(80, 40, top_down=True)) == (80, 40)
+
+
+def test_bmp_too_short_is_rejected() -> None:
+    with pytest.raises(ValueError, match="too short"):
+        read_bmp_size(b"BM" + b"\x00" * 8)
+
+
+def test_bmp_with_unsupported_header_size_is_rejected() -> None:
+    data = bytearray(bmp_bytes(10, 10))
+    data[14:18] = (20).to_bytes(4, "little")  # neither 12 nor >= 40
+    with pytest.raises(ValueError, match="unsupported BMP DIB header size"):
+        read_bmp_size(bytes(data))
+
+
+def test_bmp_is_discovered_and_measured(tmp_path: Path) -> None:
+    root = tmp_path / "d"
+    write_image(root / "a.bmp", 320, 240, fmt="bmp")
+
+    report = audit_dataset(root)
+
+    assert len(report.images) == 1
+    assert report.images[0].format == "bmp"
+    assert (report.images[0].width, report.images[0].height) == (320, 240)
+    assert report.corrupt_images == []
+
+
+def test_bmp_counts_alongside_jpg_and_png(tmp_path: Path) -> None:
+    """BMP must be added without disturbing the existing formats."""
+    root = tmp_path / "d"
+    write_image(root / "a.jpg", 100, 100, fmt="jpg")
+    write_image(root / "b.jpeg", 100, 100, fmt="jpg")
+    write_image(root / "c.png", 100, 100, fmt="png")
+    write_image(root / "d.bmp", 100, 100, fmt="bmp")
+
+    report = audit_dataset(root)
+
+    assert len(report.images) == 4
+    assert report.format_counts() == {"jpeg": 2, "bmp": 1, "png": 1}
+    assert report.corrupt_images == []
+
+
+def test_bmp_dimensions_feed_the_statistics(tmp_path: Path) -> None:
+    root = tmp_path / "d"
+    write_image(root / "small.bmp", 100, 50, fmt="bmp")
+    write_image(root / "large.bmp", 300, 150, fmt="bmp")
+    write_image(root / "mid.jpg", 200, 100, fmt="jpg")
+
+    stats = audit_dataset(root).dimension_stats()
+
+    assert stats["count"] == 3
+    assert stats["width"]["min"] == 100
+    assert stats["width"]["max"] == 300
+    assert stats["height"]["median"] == 100
+    assert stats["distinct_resolutions"] == 3
+
+
+def test_bmp_pairs_with_its_annotation(tmp_path: Path) -> None:
+    root = tmp_path / "d"
+    write_image(root / "images" / "frame.bmp", fmt="bmp")
+    write_label(root / "labels" / "frame.txt", ["0 0.5 0.5 0.2 0.2"])
+
+    report = audit_dataset(root)
+
+    assert report.images_without_annotations == []
+    assert report.annotations_without_images == []
+
+
+def test_bmp_without_annotation_is_reported(tmp_path: Path) -> None:
+    root = tmp_path / "d"
+    write_image(root / "images" / "orphan.bmp", fmt="bmp")
+
+    report = audit_dataset(root)
+
+    assert report.images_without_annotations == ["images/orphan.bmp"]
+
+
+def test_identical_bmps_are_detected_by_hash(tmp_path: Path) -> None:
+    root = tmp_path / "d"
+    data = bmp_bytes(64, 64)
+    for name in ("one.bmp", "two.bmp"):
+        (root).mkdir(parents=True, exist_ok=True)
+        (root / name).write_bytes(data)
+    write_image(root / "other.bmp", 32, 32, fmt="bmp")
+
+    report = audit_dataset(root)
+
+    assert report.duplicate_images == [["one.bmp", "two.bmp"]]
+
+
+def test_bmp_and_jpg_of_the_same_stem_are_ambiguous(tmp_path: Path) -> None:
+    """A dataset holding both x.jpg and x.bmp must not silently pick one."""
+    root = tmp_path / "d"
+    write_image(root / "images" / "x.jpg", fmt="jpg")
+    write_image(root / "images" / "x.bmp", fmt="bmp")
+    write_label(root / "labels" / "x.txt", ["0 0.5 0.5 0.2 0.2"])
+
+    report = audit_dataset(root)
+
+    assert report.ambiguous_stems == {"x": ["images/x.bmp", "images/x.jpg"]}
+
+
+def test_duplicate_bmp_filenames_across_directories(tmp_path: Path) -> None:
+    root = tmp_path / "d"
+    write_image(root / "train" / "img.bmp", 10, 10, fmt="bmp")
+    write_image(root / "val" / "img.bmp", 20, 20, fmt="bmp")
+
+    report = audit_dataset(root)
+
+    assert report.duplicate_filenames == {"img.bmp": ["train/img.bmp", "val/img.bmp"]}
+
+
+def test_truncated_bmp_is_reported(tmp_path: Path) -> None:
+    root = tmp_path / "d"
+    root.mkdir()
+    (root / "cut.bmp").write_bytes(bmp_bytes(64, 64)[:100])
+
+    report = audit_dataset(root)
+
+    assert len(report.corrupt_images) == 1
+    assert "truncated" in " ".join(report.corrupt_images[0].problems)
+
+
+def test_bmp_with_pixel_offset_past_end_is_reported(tmp_path: Path) -> None:
+    root = tmp_path / "d"
+    root.mkdir()
+    data = bytearray(bmp_bytes(16, 16))
+    data[10:14] = (999999).to_bytes(4, "little")
+    (root / "bad.bmp").write_bytes(bytes(data))
+
+    report = audit_dataset(root)
+
+    assert "past the end of the file" in " ".join(report.corrupt_images[0].problems)
+
+
+def test_empty_bmp_is_reported(tmp_path: Path) -> None:
+    root = tmp_path / "d"
+    root.mkdir()
+    (root / "empty.bmp").write_bytes(b"")
+
+    report = audit_dataset(root)
+
+    assert "file is empty" in report.corrupt_images[0].problems[0]
+
+
+def test_bmp_extension_on_a_jpeg_is_reported(tmp_path: Path) -> None:
+    root = tmp_path / "d"
+    root.mkdir()
+    (root / "mislabelled.bmp").write_bytes(jpeg_bytes(32, 32))
+
+    report = audit_dataset(root)
+
+    assert report.images[0].format == "jpeg"
+    assert "does not match actual format" in " ".join(report.images[0].warnings)
+    assert report.corrupt_images == []
+
+
+def test_jpg_extension_on_a_bmp_is_reported(tmp_path: Path) -> None:
+    root = tmp_path / "d"
+    root.mkdir()
+    (root / "mislabelled.jpg").write_bytes(bmp_bytes(48, 24))
+
+    report = audit_dataset(root)
+
+    assert report.images[0].format == "bmp"
+    assert (report.images[0].width, report.images[0].height) == (48, 24)
+    assert "does not match actual format" in " ".join(report.images[0].warnings)
+    assert report.corrupt_images == []
+
+
+def test_bmp_appears_in_the_cli_report(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    root = tmp_path / "d"
+    write_image(root / "a.bmp", 128, 64, fmt="bmp")
+
+    assert cli.main([str(root)]) == cli.EXIT_OK
+    output = capsys.readouterr().out
+
+    assert "bmp" in output
+    assert "128x64" in output
 
 
 def test_sha256_matches_hashlib(tmp_path: Path) -> None:
@@ -300,21 +525,50 @@ def test_file_with_wrong_magic_bytes_is_reported(tmp_path: Path) -> None:
     report = audit_dataset(root)
 
     assert len(report.corrupt_images) == 1
-    assert "not a PNG or JPEG" in report.corrupt_images[0].problems[0]
+    assert "not a PNG, JPEG or BMP" in report.corrupt_images[0].problems[0]
     assert report.corrupt_images[0].width is None
 
 
-def test_extension_mismatch_is_reported(tmp_path: Path) -> None:
+def test_extension_mismatch_is_a_warning_not_corruption(tmp_path: Path) -> None:
+    """A wrongly named file is readable; counting it corrupt would mislead."""
     root = tmp_path / "d"
     root.mkdir()
     (root / "mislabelled.png").write_bytes(jpeg_bytes(32, 32))
 
     report = audit_dataset(root)
 
-    problems = " ".join(report.corrupt_images[0].problems)
-    assert "does not match actual format" in problems
+    assert report.corrupt_images == []
+    assert len(report.mismatched_images) == 1
+    assert "does not match actual format" in " ".join(report.images[0].warnings)
     assert report.images[0].format == "jpeg"
     assert report.images[0].width == 32  # still readable
+    assert report.images[0] in report.readable_images
+
+
+def test_mismatch_counts_group_by_extension_and_format(tmp_path: Path) -> None:
+    root = tmp_path / "d"
+    root.mkdir()
+    (root / "a.bmp").write_bytes(jpeg_bytes(10, 10))
+    (root / "b.bmp").write_bytes(jpeg_bytes(20, 20))
+    (root / "c.bmp").write_bytes(png_bytes(30, 30))
+    write_image(root / "d.bmp", 40, 40, fmt="bmp")  # correctly named
+
+    report = audit_dataset(root)
+
+    assert report.mismatch_counts() == {".bmp -> jpeg": 2, ".bmp -> png": 1}
+    assert report.corrupt_images == []
+
+
+def test_corruption_and_mismatch_are_counted_separately(tmp_path: Path) -> None:
+    root = tmp_path / "d"
+    root.mkdir()
+    (root / "wrong_name.bmp").write_bytes(jpeg_bytes(10, 10))
+    (root / "damaged.jpg").write_bytes(b"not an image")
+
+    report = audit_dataset(root)
+
+    assert [i.path for i in report.corrupt_images] == ["damaged.jpg"]
+    assert [i.path for i in report.mismatched_images] == ["wrong_name.bmp"]
 
 
 def test_corrupt_images_are_excluded_from_dimension_stats(tmp_path: Path) -> None:
@@ -438,13 +692,14 @@ def test_unknown_files_are_listed_separately(tmp_path: Path) -> None:
 def test_unsupported_image_format_counts_as_other(tmp_path: Path) -> None:
     root = tmp_path / "d"
     root.mkdir()
-    (root / "photo.bmp").write_bytes(b"BM")
     (root / "photo.webp").write_bytes(b"RIFF")
+    (root / "photo.tiff").write_bytes(b"II*")
+    (root / "photo.gif").write_bytes(b"GIF89a")
 
     report = audit_dataset(root)
 
     assert report.images == []
-    assert sorted(report.other_files) == ["photo.bmp", "photo.webp"]
+    assert sorted(report.other_files) == ["photo.gif", "photo.tiff", "photo.webp"]
 
 
 # --------------------------------------------------------------------------
@@ -732,6 +987,56 @@ def test_json_report_is_serialisable_for_every_field(tmp_path: Path) -> None:
 
     assert payload["summary"]["invalid_annotation_lines"] == 1
     assert payload["other_files"] == ["junk.bin"]
+
+
+def test_summary_json_omits_the_datasets_own_annotations(valid_dataset: Path) -> None:
+    """A committable report must not reproduce third-party annotation data."""
+    payload = audit_dataset(valid_dataset).to_dict(detail="summary")
+
+    assert "annotations" not in payload
+    assert "images" not in payload
+    assert payload["detail"] == "summary"
+    assert "0.5" not in json.dumps(payload)  # no box coordinates leaked
+    # Statistics and findings survive.
+    assert payload["summary"]["total_annotation_boxes"] == 6
+    assert payload["classes"]["counts_by_id"] == {"0": 3, "1": 3}
+
+
+def test_full_json_keeps_the_detail_arrays(valid_dataset: Path) -> None:
+    payload = audit_dataset(valid_dataset).to_dict(detail="full")
+
+    assert len(payload["annotations"]) == 3
+    assert len(payload["images"]) == 3
+    assert payload["detail"] == "full"
+
+
+def test_unknown_detail_level_is_rejected(valid_dataset: Path) -> None:
+    with pytest.raises(ValueError, match="detail must be one of"):
+        audit_dataset(valid_dataset).to_dict(detail="partial")
+
+
+def test_summary_still_lists_mismatched_paths(tmp_path: Path) -> None:
+    root = tmp_path / "d"
+    root.mkdir()
+    (root / "wrong.bmp").write_bytes(jpeg_bytes(10, 10))
+
+    payload = audit_dataset(root).to_dict(detail="summary")
+
+    assert payload["mismatched_image_paths"] == [
+        {"path": "wrong.bmp", "declared": ".bmp", "actual": "jpeg"}
+    ]
+
+
+def test_cli_json_detail_summary(valid_dataset: Path, tmp_path: Path) -> None:
+    destination = tmp_path / "audit.json"
+
+    assert cli.main(
+        [str(valid_dataset), "--json", str(destination), "--json-detail", "summary"]
+    ) == cli.EXIT_OK
+
+    payload = json.loads(destination.read_text(encoding="utf-8"))
+    assert "annotations" not in payload
+    assert payload["summary"]["total_images"] == 3
 
 
 def test_cli_source_id_flows_into_the_json(valid_dataset: Path, tmp_path: Path) -> None:

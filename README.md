@@ -172,7 +172,9 @@ never copied into `dataset/`. See
 Before any third-party dataset is considered, it is inspected in place:
 
 ```bash
-python scripts/audit_external_dataset.py <directory> --source-id candidate     --json reports/candidate.json --report reports/candidate.txt
+python scripts/audit_external_dataset.py <directory> --source-id candidate \
+    --json data/audits/candidate/audit.json --json-detail summary \
+    --report data/audits/candidate/audit.txt
 ```
 
 The tool is **inspection-only**: it never modifies the audited directory and
@@ -181,6 +183,14 @@ reports into either location. It reports image counts, formats, dimension
 statistics, corrupt files, YOLO coordinate validity, class-id counts,
 image/annotation pairing, duplicate names, byte-identical images (SHA-256),
 CSV headers and any README/LICENSE it finds.
+
+Images are recognised as **JPEG, PNG or BMP by magic bytes**, not by
+extension, so a file whose name lies about its format is still measured — and
+reported as a naming mismatch rather than as corruption. Use
+`--json-detail summary` for any report you intend to commit: the default
+`full` JSON embeds the audited dataset's own annotation coordinates.
+
+Completed audits are kept under `data/audits/`.
 
 It does not interpret what a class id *means* and does not judge licenses.
 Those are human steps: see

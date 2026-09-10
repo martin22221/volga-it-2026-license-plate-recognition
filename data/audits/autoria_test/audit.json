@@ -1,0 +1,3837 @@
+{
+  "schema_version": 1,
+  "root": "C:\\Users\\User\\Downloads\\test\\test",
+  "source_id": "autoria_numberplate_options",
+  "inspection_only": true,
+  "image_check": "structural header parsing only; pixel data not decoded",
+  "summary": {
+    "total_images": 2564,
+    "readable_images": 2564,
+    "corrupt_images": 0,
+    "extension_format_mismatches": 742,
+    "annotation_files": 2564,
+    "total_annotation_boxes": 2685,
+    "invalid_annotation_lines": 0,
+    "csv_files": 0,
+    "metadata_files": 0,
+    "config_files": 0,
+    "other_files": 0,
+    "images_without_annotations": 0,
+    "annotations_without_images": 0,
+    "duplicate_filename_groups": 0,
+    "duplicate_image_groups": 9
+  },
+  "image_formats": {
+    "jpeg": 2558,
+    "png": 4,
+    "bmp": 2
+  },
+  "extension_format_mismatches": {
+    ".bmp -> jpeg": 738,
+    ".bmp -> png": 4
+  },
+  "dimensions": {
+    "count": 2564,
+    "width": {
+      "min": 250,
+      "median": 1200.0,
+      "mean": 1212.3,
+      "max": 4000
+    },
+    "height": {
+      "min": 154,
+      "median": 861.0,
+      "mean": 889.1,
+      "max": 3000
+    },
+    "most_common_resolutions": {
+      "640x480": 675,
+      "1600x1200": 202,
+      "1024x768": 72,
+      "2000x1500": 53,
+      "1901x1267": 37,
+      "1400x1050": 35,
+      "2592x1552": 34,
+      "1280x960": 27,
+      "800x600": 24,
+      "1200x800": 19
+    },
+    "distinct_resolutions": 1197
+  },
+  "classes": {
+    "counts_by_id": {
+      "0": 2685
+    },
+    "names_declared_by_dataset": {},
+    "ids_used_but_not_declared": [],
+    "ids_declared_but_unused": [],
+    "note": "Class meanings are NOT inferred. Names appear here only if a dataset config declared them. Mapping these onto our plate_type values is a human decision made at approval time."
+  },
+  "csv_files": [],
+  "metadata_files": [],
+  "configs": [],
+  "other_files": [],
+  "unreadable_files": [],
+  "pairing": {
+    "images_without_annotations": [],
+    "annotations_without_images": [],
+    "ambiguous_stems": {}
+  },
+  "duplicates": {
+    "filenames": {},
+    "identical_images_sha256": [
+      [
+        "images/13410.bmp",
+        "images/22295.bmp"
+      ],
+      [
+        "images/2273.bmp",
+        "images/24877.bmp"
+      ],
+      [
+        "images/1128.bmp",
+        "images/19715.bmp",
+        "images/4254.bmp"
+      ],
+      [
+        "images/20882.bmp",
+        "images/22026.bmp",
+        "images/3315.bmp"
+      ],
+      [
+        "images/8019.bmp",
+        "images/9903.bmp"
+      ],
+      [
+        "images/20191.bmp",
+        "images/4740.bmp"
+      ],
+      [
+        "images/12482.bmp",
+        "images/507.bmp"
+      ],
+      [
+        "images/10490.bmp",
+        "images/13807.bmp"
+      ],
+      [
+        "images/15682.bmp",
+        "images/5848.bmp"
+      ]
+    ]
+  },
+  "mismatched_image_paths": [
+    {
+      "path": "images/10045.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/10057.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1008.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/10114.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/10132.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/10153.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/10157.bmp",
+      "declared": ".bmp",
+      "actual": "png"
+    },
+    {
+      "path": "images/10217.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1027.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/10319.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/10454.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/10490.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/10496.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/10502.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/10557.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/10583.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1060.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/10735.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/10800.bmp",
+      "declared": ".bmp",
+      "actual": "png"
+    },
+    {
+      "path": "images/10834.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1087.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11003.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11014.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11033.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11060.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1109.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11090.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11117.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11162.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11271.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1128.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11376.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11418.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11469.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11519.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11540.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11568.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11584.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11601.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11652.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11686.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11778.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11787.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11794.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11873.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11905.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/11988.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12018.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12020.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12065.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12123.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12148.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12167.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1221.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12251.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12254.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12308.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12347.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12352.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12357.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12371.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12372.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12399.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12404.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12419.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12427.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12465.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12482.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12543.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1255.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12612.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12652.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12660.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12690.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12730.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12755.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1276.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12770.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12772.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12800.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12828.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12902.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12903.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/12924.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13005.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13019.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13024.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1304.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13042.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13074.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13086.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13104.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13133.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13138.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13165.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13166.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13276.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13289.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13330.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1338.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13410.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13476.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13571.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13721.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13741.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13763.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/138.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13807.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13836.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1384.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13843.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13846.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13899.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13933.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13934.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1397.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/13982.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14037.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14042.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1405.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14094.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14127.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14144.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14152.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14159.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14188.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14251.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14326.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14351.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14356.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14470.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14471.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14549.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14562.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14579.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14590.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14629.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14671.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14708.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1472.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14740.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14761.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14768.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14777.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14778.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14801.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14862.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14867.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14870.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14889.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14902.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14911.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14929.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14943.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/14970.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15006.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15022.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15028.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15032.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15084.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15098.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15112.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15156.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15160.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15233.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15241.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15280.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15301.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15340.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15358.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15436.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15450.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15551.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15590.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15608.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15627.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15682.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15816.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15823.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15826.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15884.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15947.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15956.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15975.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/15983.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16013.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16048.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16053.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16067.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16073.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16170.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1623.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16283.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16321.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16340.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16389.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16433.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16452.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1650.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16509.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16521.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16614.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16645.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16663.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16751.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16832.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16849.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16858.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16898.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16910.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16936.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/16985.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17024.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1704.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1705.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17108.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17125.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17186.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17269.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17284.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17300.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17334.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17352.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17430.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17459.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17495.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17512.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17546.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17575.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17586.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17614.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17630.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17635.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17647.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17717.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17720.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1787.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17881.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17889.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17892.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17921.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/17960.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18081.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18097.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18098.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18099.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18175.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18190.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18226.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18237.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1824.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18284.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18299.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18314.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18334.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18400.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18446.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18495.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18509.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18521.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18552.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18581.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18608.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18611.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18632.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18634.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18738.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18776.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18826.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18830.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18832.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18838.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18855.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18884.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18892.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/18938.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1903.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19052.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19064.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19078.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19113.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19198.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19204.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19208.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19241.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19281.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19307.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19322.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19395.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19423.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19425.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/1944.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19440.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19526.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19535.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19592.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19627.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19715.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19720.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19782.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19789.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19810.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19819.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19879.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19880.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19887.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19972.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/19976.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20090.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20167.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20191.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2020.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20204.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20216.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20328.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20339.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2035.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20362.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20459.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20495.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20525.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20535.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20541.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20552.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20558.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20580.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20586.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20618.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20640.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20644.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20652.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2067.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20670.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20689.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20761.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20775.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20793.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2083.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20830.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2087.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20882.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/20883.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2091.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21011.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21049.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21050.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21171.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21206.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21212.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21217.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21220.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21237.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2127.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21300.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21328.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21381.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21384.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21417.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21459.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21460.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21461.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21507.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21529.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2156.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21703.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21711.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2175.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21766.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21808.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21862.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21921.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2194.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21959.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21969.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/21982.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/220.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22026.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22027.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22055.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22078.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22094.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22095.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/222.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22214.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22215.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22238.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22243.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22249.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2225.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22295.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22318.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22335.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22408.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22420.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2244.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22458.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22482.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22584.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22710.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2273.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22758.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2277.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22798.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22831.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22912.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22925.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/22928.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2299.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23038.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23071.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23144.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/232.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23223.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23230.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23347.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23393.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23402.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23406.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23438.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/235.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23511.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23538.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23559.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23579.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23645.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23664.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23770.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23967.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23971.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/23995.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24058.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24081.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24110.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24123.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24145.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24190.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24207.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24277.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24283.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24294.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24295.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2430.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24307.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2435.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24352.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24373.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24387.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24430.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24459.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24580.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24584.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24797.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24799.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24807.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2483.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24854.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24877.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24919.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24956.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24965.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24966.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/24970.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25002.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25009.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25079.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2508.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25087.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2509.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25105.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25108.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25116.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25179.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25252.bmp",
+      "declared": ".bmp",
+      "actual": "png"
+    },
+    {
+      "path": "images/25275.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2529.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25314.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25318.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25364.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25366.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25373.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25392.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2540.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25430.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25441.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25468.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25479.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25496.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2555.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/25624.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2591.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2625.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2641.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/268.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2710.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2758.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2785.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2881.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2882.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2883.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/290.bmp",
+      "declared": ".bmp",
+      "actual": "png"
+    },
+    {
+      "path": "images/2971.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/2977.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3005.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/301.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3061.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3100.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3190.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3225.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3242.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3315.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3317.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3332.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3371.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3372.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/340.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/341.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3449.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3480.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3493.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3534.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3538.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3552.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3617.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3666.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3697.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3698.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3724.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3726.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3733.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3754.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3769.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3797.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/382.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3861.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3865.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/391.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3920.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/3968.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4003.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4038.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/406.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4198.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4204.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4254.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/427.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4293.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4307.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4349.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4354.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4369.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4370.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4392.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4448.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4454.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/446.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4549.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4568.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/470.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/471.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4740.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4746.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4762.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4778.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/478.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4783.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4818.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4826.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4827.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4833.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/49.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4901.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4905.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4921.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4948.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4962.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/4973.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5019.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5049.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/507.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5101.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5146.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5213.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5258.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5261.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5277.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5309.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5369.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5464.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5544.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5570.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5603.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5656.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5668.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5723.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/573.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5757.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5815.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/5848.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6005.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6036.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6037.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6052.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6135.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6148.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6194.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6196.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6266.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/63.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6304.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/632.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/633.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6349.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6380.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6404.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6426.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6461.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6555.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6573.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6594.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6646.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6682.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6687.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6715.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6728.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6762.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6796.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6815.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/685.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6854.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/688.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6897.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6959.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6970.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/6988.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7015.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7016.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7020.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7038.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7083.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7095.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7103.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7123.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7144.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7170.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7194.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7200.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7206.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/721.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7224.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7261.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7265.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7282.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7286.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/729.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7293.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7313.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7372.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7397.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7457.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7611.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7641.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7671.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7701.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7757.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7811.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7817.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7878.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7929.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7937.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/7938.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/797.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8019.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8023.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8026.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8034.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8182.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/83.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/830.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8308.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8313.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8322.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8323.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8342.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/839.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8393.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/84.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8482.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8520.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8573.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/860.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8624.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8646.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/866.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8683.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8697.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8701.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8757.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8789.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8809.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8825.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8864.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8958.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8976.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/8985.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9021.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9040.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9043.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9057.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9074.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9100.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9102.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9174.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9226.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9239.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/925.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9252.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9302.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9315.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9390.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9417.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9491.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9501.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9531.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/955.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9574.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/964.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9660.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9668.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9675.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9700.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9786.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9799.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9833.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/984.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9849.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9861.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9897.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9903.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9928.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    },
+    {
+      "path": "images/9929.bmp",
+      "declared": ".bmp",
+      "actual": "jpeg"
+    }
+  ],
+  "detail": "summary",
+  "detail_note": "Per-image and per-annotation records omitted. Those arrays reproduce the audited dataset's own annotation coordinates; this summary describes the dataset without copying it."
+}
