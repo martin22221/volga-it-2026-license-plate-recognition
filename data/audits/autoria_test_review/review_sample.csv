@@ -1,0 +1,201 @@
+image;suggested_plate_type;human_plate_type;has_visible_face;quality_notes;review_status
+images/1001.jpg;needs_human_review;;;flags: one_line_shape | image 1000x617 | 1 plate(s), largest 142x31px, aspect 4.58, 0.71% of frame;pending
+images/1008.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 144x39px, aspect 3.69, 1.83% of frame;pending
+images/1027.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 238x89px, aspect 2.67, 6.90% of frame;pending
+images/10319.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 227x55px, aspect 4.13, 4.06% of frame;pending
+images/10410.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 2000x1500 | 1 plate(s), largest 303x201px, aspect 1.51, 2.03% of frame;pending
+images/10557.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape, small_plate | image 640x480 | 1 plate(s), largest 77x31px, aspect 2.48, 0.78% of frame;pending
+images/1106.jpg;needs_human_review;;;flags: one_line_shape | image 1920x1440 | 1 plate(s), largest 141x41px, aspect 3.44, 0.21% of frame;pending
+images/11064.jpg;needs_human_review;;;flags: one_line_shape | image 1481x1200 | 1 plate(s), largest 163x35px, aspect 4.66, 0.32% of frame;pending
+images/11439.jpg;needs_human_review;;;flags: one_line_shape | image 1393x994 | 1 plate(s), largest 187x57px, aspect 3.28, 0.77% of frame;pending
+images/1154.jpg;needs_human_review;;;flags: one_line_shape | image 1793x1305 | 1 plate(s), largest 345x73px, aspect 4.73, 1.08% of frame;pending
+images/11794.bmp;needs_human_review;;;flags: extension_mismatch, square_or_two_line_candidate | image 640x480 | 1 plate(s), largest 122x55px, aspect 2.22, 2.18% of frame;pending
+images/11905.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 103x26px, aspect 3.96, 0.87% of frame;pending
+images/12030.jpg;needs_human_review;;;flags: one_line_shape | image 1717x1199 | 1 plate(s), largest 433x129px, aspect 3.36, 2.71% of frame;pending
+images/12216.jpg;needs_human_review;;;flags: one_line_shape | image 876x639 | 1 plate(s), largest 198x42px, aspect 4.71, 1.49% of frame;pending
+images/12308.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 203x51px, aspect 3.98, 3.37% of frame;pending
+images/12367.jpg;needs_human_review;;;flags: one_line_shape | image 1582x1192 | 1 plate(s), largest 313x89px, aspect 3.52, 1.48% of frame;pending
+images/12419.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 84x26px, aspect 3.23, 0.71% of frame;pending
+images/12482.bmp;needs_human_review;;;flags: extension_mismatch, square_or_two_line_candidate | image 640x480 | 1 plate(s), largest 135x75px, aspect 1.80, 3.30% of frame;pending
+images/12862.jpg;needs_human_review;;;flags: one_line_shape | image 1400x1026 | 1 plate(s), largest 175x40px, aspect 4.38, 0.49% of frame;pending
+images/12905.jpg;needs_human_review;;;flags: ambiguous_shape | image 1000x750 | 1 plate(s), largest 104x43px, aspect 2.42, 0.60% of frame;pending
+images/12909.jpg;needs_human_review;;;flags: one_line_shape | image 1600x1200 | 1 plate(s), largest 331x77px, aspect 4.30, 1.33% of frame;pending
+images/13074.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape, plate_touches_edge | image 640x480 | 1 plate(s), largest 178x73px, aspect 2.44, 4.23% of frame;pending
+images/13230.jpg;needs_human_review;;;flags: ambiguous_shape | image 1400x1050 | 1 plate(s), largest 178x69px, aspect 2.58, 0.84% of frame;pending
+images/13428.jpg;needs_human_review;;;flags: one_line_shape | image 1759x1293 | 1 plate(s), largest 308x70px, aspect 4.40, 0.95% of frame;pending
+images/13448.jpg;needs_human_review;;;flags: one_line_shape | image 1900x1851 | 1 plate(s), largest 402x89px, aspect 4.52, 1.02% of frame;pending
+images/13862.jpg;needs_human_review;;;flags: one_line_shape | image 1904x1315 | 1 plate(s), largest 314x76px, aspect 4.13, 0.95% of frame;pending
+images/13890.jpg;needs_human_review;;;flags: multiple_plates, one_line_shape | image 1783x1143 | 2 plate(s), largest 215x66px, aspect 3.26, 0.70% of frame;pending
+images/1397.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 101x38px, aspect 2.66, 1.25% of frame;pending
+images/14011.jpg;needs_human_review;;;flags: one_line_shape | image 1200x900 | 1 plate(s), largest 174x38px, aspect 4.58, 0.61% of frame;pending
+images/14167.jpg;needs_human_review;;;flags: one_line_shape | image 1842x1435 | 1 plate(s), largest 280x73px, aspect 3.84, 0.77% of frame;pending
+images/14266.jpg;needs_human_review;;;flags: ambiguous_shape, small_plate | image 296x345 | 1 plate(s), largest 63x22px, aspect 2.86, 1.36% of frame;pending
+images/14290.jpg;needs_human_review;;;flags: ambiguous_shape | image 1966x1536 | 1 plate(s), largest 507x161px, aspect 3.15, 2.70% of frame;pending
+images/14337.jpg;needs_human_review;;;flags: one_line_shape | image 689x557 | 1 plate(s), largest 112x25px, aspect 4.48, 0.73% of frame;pending
+images/14491.jpg;needs_human_review;;;flags: ambiguous_shape | image 1280x960 | 1 plate(s), largest 187x62px, aspect 3.02, 0.94% of frame;pending
+images/14590.bmp;needs_human_review;;;flags: extension_mismatch, multiple_plates, one_line_shape, small_plate | image 800x217 | 3 plate(s), largest 66x20px, aspect 3.30, 0.76% of frame;pending
+images/14629.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 95x27px, aspect 3.52, 0.83% of frame;pending
+images/14708.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape, plate_touches_edge | image 640x480 | 1 plate(s), largest 151x48px, aspect 3.15, 2.36% of frame;pending
+images/1472.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 254x55px, aspect 4.62, 4.55% of frame;pending
+images/14813.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1987x1491 | 1 plate(s), largest 336x142px, aspect 2.37, 1.61% of frame;pending
+images/14889.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 98x32px, aspect 3.06, 1.02% of frame;pending
+images/14943.bmp;needs_human_review;;;flags: extension_mismatch, square_or_two_line_candidate | image 2592x1944 | 1 plate(s), largest 397x206px, aspect 1.93, 1.62% of frame;pending
+images/14944.jpg;needs_human_review;;;flags: one_line_shape | image 716x468 | 1 plate(s), largest 114x29px, aspect 3.93, 0.99% of frame;pending
+images/15084.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 139x56px, aspect 2.48, 2.53% of frame;pending
+images/15256.jpg;needs_human_review;;;flags: ambiguous_shape | image 1000x905 | 1 plate(s), largest 144x49px, aspect 2.94, 0.78% of frame;pending
+images/15284.jpg;needs_human_review;;;flags: ambiguous_shape, small_plate | image 1060x749 | 1 plate(s), largest 66x21px, aspect 3.14, 0.17% of frame;pending
+images/15307.jpg;needs_human_review;;;flags: multiple_plates, one_line_shape | image 1315x1409 | 2 plate(s), largest 296x84px, aspect 3.52, 1.34% of frame;pending
+images/15499.jpg;needs_human_review;;;flags: one_line_shape | image 1995x1350 | 1 plate(s), largest 497x118px, aspect 4.21, 2.18% of frame;pending
+images/15906.jpg;needs_human_review;;;flags: one_line_shape | image 587x538 | 1 plate(s), largest 128x29px, aspect 4.41, 1.18% of frame;pending
+images/15933.jpg;needs_human_review;;;flags: one_line_shape | image 1504x1000 | 1 plate(s), largest 321x69px, aspect 4.65, 1.47% of frame;pending
+images/15937.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1400x1050 | 1 plate(s), largest 240x106px, aspect 2.26, 1.73% of frame;pending
+images/15949.jpg;needs_human_review;;;flags: ambiguous_shape | image 1600x1200 | 1 plate(s), largest 174x56px, aspect 3.11, 0.51% of frame;pending
+images/1615.jpg;needs_human_review;;;flags: one_line_shape | image 549x623 | 1 plate(s), largest 119x34px, aspect 3.50, 1.18% of frame;pending
+images/16389.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 4000x3000 | 1 plate(s), largest 816x179px, aspect 4.56, 1.22% of frame;pending
+images/16603.jpg;needs_human_review;;;flags: one_line_shape | image 1600x1200 | 1 plate(s), largest 315x55px, aspect 5.73, 0.90% of frame;pending
+images/16735.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1200x956 | 1 plate(s), largest 137x68px, aspect 2.01, 0.81% of frame;pending
+images/16849.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 128x26px, aspect 4.92, 1.08% of frame;pending
+images/16898.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 194x49px, aspect 3.96, 3.09% of frame;pending
+images/17269.bmp;needs_human_review;;;flags: extension_mismatch, square_or_two_line_candidate | image 640x480 | 1 plate(s), largest 123x57px, aspect 2.16, 2.28% of frame;pending
+images/17334.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 113x25px, aspect 4.52, 0.92% of frame;pending
+images/17559.jpg;needs_human_review;;;flags: one_line_shape | image 1458x1060 | 1 plate(s), largest 250x75px, aspect 3.33, 1.21% of frame;pending
+images/17887.jpg;needs_human_review;;;flags: one_line_shape | image 795x600 | 1 plate(s), largest 162x45px, aspect 3.60, 1.53% of frame;pending
+images/18111.jpg;needs_human_review;;;flags: one_line_shape | image 2592x1552 | 1 plate(s), largest 283x88px, aspect 3.22, 0.62% of frame;pending
+images/18175.bmp;needs_human_review;;;flags: extension_mismatch, multiple_plates, square_or_two_line_candidate | image 640x480 | 2 plate(s), largest 96x67px, aspect 1.43, 2.09% of frame;pending
+images/18274.jpg;needs_human_review;;;flags: one_line_shape | image 2000x1038 | 1 plate(s), largest 293x89px, aspect 3.29, 1.26% of frame;pending
+images/18276.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1600x1200 | 1 plate(s), largest 336x180px, aspect 1.87, 3.15% of frame;pending
+images/18310.jpg;needs_human_review;;;flags: one_line_shape | image 1000x668 | 1 plate(s), largest 106x27px, aspect 3.93, 0.43% of frame;pending
+images/18338.jpg;needs_human_review;;;flags: one_line_shape | image 1675x1054 | 1 plate(s), largest 247x62px, aspect 3.98, 0.87% of frame;pending
+images/18392.jpg;needs_human_review;;;flags: one_line_shape | image 742x424 | 1 plate(s), largest 113x28px, aspect 4.04, 1.01% of frame;pending
+images/18429.jpg;needs_human_review;;;flags: one_line_shape | image 1800x1350 | 1 plate(s), largest 224x49px, aspect 4.57, 0.45% of frame;pending
+images/18638.jpg;needs_human_review;;;flags: one_line_shape | image 1100x779 | 1 plate(s), largest 177x49px, aspect 3.61, 1.01% of frame;pending
+images/18738.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 238x55px, aspect 4.33, 4.26% of frame;pending
+images/18826.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 136x28px, aspect 4.86, 1.24% of frame;pending
+images/18892.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 96x33px, aspect 2.91, 1.03% of frame;pending
+images/18902.jpg;needs_human_review;;;flags: one_line_shape | image 2592x1552 | 1 plate(s), largest 373x87px, aspect 4.29, 0.81% of frame;pending
+images/1903.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 83x32px, aspect 2.59, 0.86% of frame;pending
+images/1919.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1600x1200 | 1 plate(s), largest 234x100px, aspect 2.34, 1.22% of frame;pending
+images/19281.bmp;needs_human_review;;;flags: extension_mismatch, square_or_two_line_candidate | image 640x480 | 1 plate(s), largest 88x46px, aspect 1.91, 1.32% of frame;pending
+images/19430.jpg;needs_human_review;;;flags: ambiguous_shape | image 1900x1300 | 1 plate(s), largest 302x112px, aspect 2.70, 1.37% of frame;pending
+images/19493.jpg;needs_human_review;;;flags: multiple_plates, one_line_shape | image 999x711 | 2 plate(s), largest 196x45px, aspect 4.36, 1.24% of frame;pending
+images/19503.jpg;needs_human_review;;;flags: one_line_shape | image 1600x1200 | 1 plate(s), largest 123x31px, aspect 3.97, 0.20% of frame;pending
+images/1968.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1440x900 | 1 plate(s), largest 154x84px, aspect 1.83, 1.00% of frame;pending
+images/19782.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape, small_plate | image 640x480 | 1 plate(s), largest 75x28px, aspect 2.68, 0.68% of frame;pending
+images/19879.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape, small_plate | image 640x480 | 1 plate(s), largest 73x28px, aspect 2.61, 0.67% of frame;pending
+images/20223.jpg;needs_human_review;;;flags: one_line_shape | image 1215x810 | 1 plate(s), largest 234x62px, aspect 3.77, 1.47% of frame;pending
+images/20240.jpg;needs_human_review;;;flags: ambiguous_shape | image 1490x1001 | 1 plate(s), largest 301x119px, aspect 2.53, 2.40% of frame;pending
+images/20262.jpg;needs_human_review;;;flags: ambiguous_shape | image 1500x1125 | 1 plate(s), largest 247x78px, aspect 3.17, 1.14% of frame;pending
+images/2035.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 173x41px, aspect 4.22, 2.31% of frame;pending
+images/20362.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape, small_plate | image 640x480 | 1 plate(s), largest 78x24px, aspect 3.25, 0.61% of frame;pending
+images/20408.jpg;needs_human_review;;;flags: one_line_shape | image 1024x768 | 1 plate(s), largest 150x43px, aspect 3.49, 0.82% of frame;pending
+images/20459.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape, small_plate | image 640x480 | 1 plate(s), largest 71x21px, aspect 3.38, 0.49% of frame;pending
+images/20495.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 600x497 | 1 plate(s), largest 84x21px, aspect 4.00, 0.59% of frame;pending
+images/20531.jpg;needs_human_review;;;flags: ambiguous_shape | image 1000x758 | 1 plate(s), largest 159x50px, aspect 3.18, 1.05% of frame;pending
+images/20669.jpg;needs_human_review;;;flags: one_line_shape | image 997x581 | 1 plate(s), largest 148x35px, aspect 4.23, 0.89% of frame;pending
+images/21013.jpg;needs_human_review;;;flags: one_line_shape | image 1200x900 | 1 plate(s), largest 250x74px, aspect 3.38, 1.71% of frame;pending
+images/21183.jpg;needs_human_review;;;flags: multiple_plates, square_or_two_line_candidate | image 1024x768 | 2 plate(s), largest 189x92px, aspect 2.05, 2.21% of frame;pending
+images/21217.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 231x80px, aspect 2.89, 6.02% of frame;pending
+images/21237.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 611x480 | 1 plate(s), largest 170x45px, aspect 3.78, 2.61% of frame;pending
+images/21264.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1500x977 | 1 plate(s), largest 129x71px, aspect 1.82, 0.62% of frame;pending
+images/21318.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1600x1200 | 1 plate(s), largest 392x234px, aspect 1.68, 4.78% of frame;pending
+images/21328.bmp;needs_human_review;;;flags: extension_mismatch, square_or_two_line_candidate | image 640x480 | 1 plate(s), largest 106x49px, aspect 2.16, 1.69% of frame;pending
+images/21532.jpg;needs_human_review;;;flags: one_line_shape | image 639x480 | 1 plate(s), largest 97x24px, aspect 4.04, 0.76% of frame;pending
+images/21667.jpg;needs_human_review;;;flags: ambiguous_shape | image 2000x1540 | 1 plate(s), largest 354x125px, aspect 2.83, 1.44% of frame;pending
+images/21679.jpg;needs_human_review;;;flags: one_line_shape | image 1600x1200 | 1 plate(s), largest 388x120px, aspect 3.23, 2.43% of frame;pending
+images/21704.jpg;needs_human_review;;;flags: one_line_shape | image 1292x955 | 1 plate(s), largest 225x58px, aspect 3.88, 1.06% of frame;pending
+images/21750.jpg;needs_human_review;;;flags: one_line_shape | image 833x590 | 1 plate(s), largest 120x36px, aspect 3.33, 0.88% of frame;pending
+images/21969.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 119x31px, aspect 3.84, 1.20% of frame;pending
+images/22026.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 2560x1920 | 1 plate(s), largest 528x113px, aspect 4.67, 1.21% of frame;pending
+images/22078.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 184x39px, aspect 4.72, 2.34% of frame;pending
+images/22173.jpg;needs_human_review;;;flags: ambiguous_shape | image 1000x750 | 1 plate(s), largest 167x56px, aspect 2.98, 1.25% of frame;pending
+images/22307.jpg;needs_human_review;;;flags: one_line_shape | image 1800x1350 | 1 plate(s), largest 416x83px, aspect 5.01, 1.42% of frame;pending
+images/22335.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 145x42px, aspect 3.45, 1.98% of frame;pending
+images/22353.jpg;needs_human_review;;;flags: one_line_shape | image 1020x752 | 1 plate(s), largest 179x47px, aspect 3.81, 1.10% of frame;pending
+images/22507.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1998x1308 | 1 plate(s), largest 127x77px, aspect 1.65, 0.37% of frame;pending
+images/22710.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 101x37px, aspect 2.73, 1.22% of frame;pending
+images/22746.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 800x553 | 1 plate(s), largest 96x66px, aspect 1.45, 1.43% of frame;pending
+images/2277.bmp;needs_human_review;;;flags: extension_mismatch, square_or_two_line_candidate | image 640x480 | 1 plate(s), largest 91x46px, aspect 1.98, 1.36% of frame;pending
+images/22880.jpg;needs_human_review;;;flags: one_line_shape | image 2592x1552 | 1 plate(s), largest 370x102px, aspect 3.63, 0.94% of frame;pending
+images/22925.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 1035x776 | 1 plate(s), largest 149x59px, aspect 2.53, 1.09% of frame;pending
+images/22928.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 94x33px, aspect 2.85, 1.01% of frame;pending
+images/22964.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1648x1135 | 1 plate(s), largest 290x145px, aspect 2.00, 2.25% of frame;pending
+images/23205.jpg;needs_human_review;;;flags: one_line_shape | image 2000x1349 | 1 plate(s), largest 298x81px, aspect 3.68, 0.89% of frame;pending
+images/23584.jpg;needs_human_review;;;flags: one_line_shape | image 1215x793 | 1 plate(s), largest 144x34px, aspect 4.24, 0.51% of frame;pending
+images/23645.bmp;needs_human_review;;;flags: extension_mismatch, square_or_two_line_candidate | image 640x480 | 1 plate(s), largest 145x68px, aspect 2.13, 3.21% of frame;pending
+images/23695.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1600x1200 | 1 plate(s), largest 211x130px, aspect 1.62, 1.43% of frame;pending
+images/23697.jpg;needs_human_review;;;flags: one_line_shape | image 1901x1267 | 1 plate(s), largest 272x67px, aspect 4.06, 0.76% of frame;pending
+images/2375.jpg;needs_human_review;;;flags: one_line_shape | image 1024x647 | 1 plate(s), largest 225x64px, aspect 3.52, 2.17% of frame;pending
+images/23809.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1863x1401 | 1 plate(s), largest 201x89px, aspect 2.26, 0.69% of frame;pending
+images/2413.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1410x980 | 1 plate(s), largest 233x101px, aspect 2.31, 1.70% of frame;pending
+images/2430.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 138x39px, aspect 3.54, 1.75% of frame;pending
+images/24430.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 231x93px, aspect 2.48, 6.99% of frame;pending
+images/24848.jpg;needs_human_review;;;flags: multiple_plates, one_line_shape, plate_touches_edge | image 1579x1028 | 2 plate(s), largest 246x53px, aspect 4.64, 0.80% of frame;pending
+images/25259.jpg;needs_human_review;;;flags: one_line_shape | image 2000x1775 | 1 plate(s), largest 458x89px, aspect 5.15, 1.15% of frame;pending
+images/25275.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 146x30px, aspect 4.87, 1.43% of frame;pending
+images/25441.bmp;needs_human_review;;;flags: extension_mismatch, square_or_two_line_candidate | image 640x480 | 1 plate(s), largest 100x51px, aspect 1.96, 1.66% of frame;pending
+images/25446.jpg;needs_human_review;;;flags: ambiguous_shape | image 1029x886 | 1 plate(s), largest 103x33px, aspect 3.12, 0.37% of frame;pending
+images/25531.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1024x768 | 1 plate(s), largest 130x63px, aspect 2.06, 1.04% of frame;pending
+images/2667.jpg;needs_human_review;;;flags: square_or_two_line_candidate, small_plate | image 800x600 | 1 plate(s), largest 61x27px, aspect 2.26, 0.34% of frame;pending
+images/2710.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 110x32px, aspect 3.44, 1.15% of frame;pending
+images/2920.jpg;needs_human_review;;;flags: multiple_plates, one_line_shape | image 1396x930 | 2 plate(s), largest 94x19px, aspect 4.95, 0.14% of frame;pending
+images/293.jpg;needs_human_review;;;flags: one_line_shape | image 504x388 | 1 plate(s), largest 125x28px, aspect 4.46, 1.79% of frame;pending
+images/323.jpg;needs_human_review;;;flags: ambiguous_shape | image 1024x768 | 1 plate(s), largest 166x62px, aspect 2.68, 1.31% of frame;pending
+images/3422.jpg;needs_human_review;;;flags: one_line_shape | image 873x502 | 1 plate(s), largest 127x30px, aspect 4.23, 0.87% of frame;pending
+images/3562.jpg;needs_human_review;;;flags: ambiguous_shape | image 1137x1012 | 1 plate(s), largest 187x74px, aspect 2.53, 1.20% of frame;pending
+images/3666.bmp;needs_human_review;;;flags: extension_mismatch, square_or_two_line_candidate | image 640x480 | 1 plate(s), largest 212x90px, aspect 2.36, 6.21% of frame;pending
+images/3906.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1950x1417 | 1 plate(s), largest 312x158px, aspect 1.97, 1.78% of frame;pending
+images/3968.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 106x40px, aspect 2.65, 1.38% of frame;pending
+images/4102.jpg;needs_human_review;;;flags: one_line_shape | image 1412x1009 | 1 plate(s), largest 300x80px, aspect 3.75, 1.68% of frame;pending
+images/4175.jpg;needs_human_review;;;flags: square_or_two_line_candidate, small_plate | image 823x371 | 1 plate(s), largest 78x43px, aspect 1.81, 1.10% of frame;pending
+images/4529.jpg;needs_human_review;;;flags: one_line_shape | image 1400x1050 | 1 plate(s), largest 125x31px, aspect 4.03, 0.26% of frame;pending
+images/4561.jpg;needs_human_review;;;flags: one_line_shape | image 1100x903 | 1 plate(s), largest 113x25px, aspect 4.52, 0.28% of frame;pending
+images/4587.jpg;needs_human_review;;;flags: one_line_shape | image 1200x900 | 1 plate(s), largest 287x83px, aspect 3.46, 2.21% of frame;pending
+images/4746.bmp;needs_human_review;;;flags: extension_mismatch, square_or_two_line_candidate | image 640x480 | 1 plate(s), largest 158x78px, aspect 2.03, 4.01% of frame;pending
+images/4827.bmp;needs_human_review;;;flags: extension_mismatch, square_or_two_line_candidate, small_plate | image 640x480 | 1 plate(s), largest 68x57px, aspect 1.19, 1.26% of frame;pending
+images/4923.jpg;needs_human_review;;;flags: one_line_shape | image 1435x1052 | 1 plate(s), largest 216x57px, aspect 3.79, 0.82% of frame;pending
+images/4945.jpg;needs_human_review;;;flags: one_line_shape | image 722x673 | 1 plate(s), largest 114x29px, aspect 3.93, 0.68% of frame;pending
+images/4962.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 122x41px, aspect 2.98, 1.63% of frame;pending
+images/5213.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 138x48px, aspect 2.88, 2.16% of frame;pending
+images/5296.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 2000x1476 | 1 plate(s), largest 335x155px, aspect 2.16, 1.76% of frame;pending
+images/5507.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1400x1050 | 1 plate(s), largest 173x88px, aspect 1.97, 1.04% of frame;pending
+images/5577.jpg;needs_human_review;;;flags: one_line_shape | image 1302x1014 | 1 plate(s), largest 342x65px, aspect 5.26, 1.68% of frame;pending
+images/5629.jpg;needs_human_review;;;flags: one_line_shape | image 1912x1216 | 1 plate(s), largest 346x89px, aspect 3.89, 1.32% of frame;pending
+images/5691.jpg;needs_human_review;;;flags: ambiguous_shape | image 1911x1433 | 1 plate(s), largest 394x130px, aspect 3.03, 1.87% of frame;pending
+images/5719.jpg;needs_human_review;;;flags: ambiguous_shape | image 1400x1050 | 1 plate(s), largest 120x47px, aspect 2.55, 0.38% of frame;pending
+images/6018.jpg;needs_human_review;;;flags: one_line_shape | image 1293x1035 | 1 plate(s), largest 317x65px, aspect 4.88, 1.54% of frame;pending
+images/609.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1600x1200 | 1 plate(s), largest 303x144px, aspect 2.10, 2.27% of frame;pending
+images/6147.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 2000x1500 | 1 plate(s), largest 239x173px, aspect 1.38, 1.38% of frame;pending
+images/6184.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 875x693 | 1 plate(s), largest 103x54px, aspect 1.91, 0.92% of frame;pending
+images/6194.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 161x50px, aspect 3.22, 2.62% of frame;pending
+images/6303.jpg;needs_human_review;;;flags: one_line_shape | image 1800x1350 | 1 plate(s), largest 514x127px, aspect 4.05, 2.69% of frame;pending
+images/6304.bmp;needs_human_review;;;flags: extension_mismatch, square_or_two_line_candidate | image 640x480 | 1 plate(s), largest 86x48px, aspect 1.79, 1.34% of frame;pending
+images/6380.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 132x47px, aspect 2.81, 2.02% of frame;pending
+images/6534.jpg;needs_human_review;;;flags: one_line_shape | image 1600x1200 | 1 plate(s), largest 158x35px, aspect 4.51, 0.29% of frame;pending
+images/6646.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 169x63px, aspect 2.68, 3.47% of frame;pending
+images/6776.jpg;needs_human_review;;;flags: ambiguous_shape | image 1055x803 | 1 plate(s), largest 110x40px, aspect 2.75, 0.52% of frame;pending
+images/6933.jpg;needs_human_review;;;flags: one_line_shape, small_plate | image 980x735 | 1 plate(s), largest 77x19px, aspect 4.05, 0.20% of frame;pending
+images/7012.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1600x1200 | 1 plate(s), largest 200x85px, aspect 2.35, 0.89% of frame;pending
+images/71.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1829x1356 | 1 plate(s), largest 253x107px, aspect 2.36, 1.09% of frame;pending
+images/7148.jpg;needs_human_review;;;flags: one_line_shape | image 1200x800 | 1 plate(s), largest 251x58px, aspect 4.33, 1.52% of frame;pending
+images/7210.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1024x768 | 1 plate(s), largest 112x50px, aspect 2.24, 0.71% of frame;pending
+images/7262.jpg;needs_human_review;;;flags: ambiguous_shape | image 1060x822 | 1 plate(s), largest 80x27px, aspect 2.96, 0.25% of frame;pending
+images/7337.jpg;needs_human_review;;;flags: one_line_shape | image 1600x1200 | 1 plate(s), largest 151x39px, aspect 3.87, 0.31% of frame;pending
+images/7625.jpg;needs_human_review;;;flags: one_line_shape | image 1142x1001 | 1 plate(s), largest 162x35px, aspect 4.63, 0.50% of frame;pending
+images/7747.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1369x1008 | 1 plate(s), largest 255x130px, aspect 1.96, 2.40% of frame;pending
+images/7878.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 131x34px, aspect 3.85, 1.45% of frame;pending
+images/7880.jpg;needs_human_review;;;flags: one_line_shape | image 1303x1200 | 1 plate(s), largest 381x109px, aspect 3.50, 2.66% of frame;pending
+images/7987.jpg;needs_human_review;;;flags: one_line_shape | image 1280x853 | 1 plate(s), largest 179x38px, aspect 4.71, 0.62% of frame;pending
+images/812.jpg;needs_human_review;;;flags: one_line_shape | image 1275x765 | 1 plate(s), largest 131x39px, aspect 3.36, 0.52% of frame;pending
+images/8482.bmp;needs_human_review;;;flags: extension_mismatch, ambiguous_shape | image 640x480 | 1 plate(s), largest 159x57px, aspect 2.79, 2.95% of frame;pending
+images/8656.jpg;needs_human_review;;;flags: one_line_shape | image 1438x1331 | 1 plate(s), largest 308x65px, aspect 4.74, 1.05% of frame;pending
+images/8737.jpg;needs_human_review;;;flags: square_or_two_line_candidate | image 1600x1200 | 1 plate(s), largest 185x118px, aspect 1.57, 1.14% of frame;pending
+images/8958.bmp;needs_human_review;;;flags: extension_mismatch, square_or_two_line_candidate, small_plate | image 640x480 | 1 plate(s), largest 68x61px, aspect 1.11, 1.35% of frame;pending
+images/9252.bmp;needs_human_review;;;flags: extension_mismatch, one_line_shape | image 640x480 | 1 plate(s), largest 177x32px, aspect 5.53, 1.84% of frame;pending
+images/9371.jpg;needs_human_review;;;flags: one_line_shape | image 869x992 | 1 plate(s), largest 173x35px, aspect 4.94, 0.70% of frame;pending
+images/9575.jpg;needs_human_review;;;flags: multiple_plates, one_line_shape | image 980x735 | 2 plate(s), largest 110x26px, aspect 4.23, 0.40% of frame;pending
+images/9675.bmp;needs_human_review;;;flags: extension_mismatch, square_or_two_line_candidate | image 640x480 | 1 plate(s), largest 91x39px, aspect 2.33, 1.16% of frame;pending
+images/9724.jpg;needs_human_review;;;flags: one_line_shape | image 800x511 | 1 plate(s), largest 93x24px, aspect 3.87, 0.55% of frame;pending
+images/9823.jpg;needs_human_review;;;flags: one_line_shape | image 1695x1305 | 1 plate(s), largest 246x64px, aspect 3.84, 0.71% of frame;pending
+images/9848.jpg;needs_human_review;;;flags: one_line_shape | image 1756x1317 | 1 plate(s), largest 110x31px, aspect 3.55, 0.15% of frame;pending
+images/9927.jpg;needs_human_review;;;flags: one_line_shape | image 1600x1200 | 1 plate(s), largest 283x87px, aspect 3.25, 1.28% of frame;pending
+images/9975.jpg;needs_human_review;;;flags: one_line_shape | image 1600x1200 | 1 plate(s), largest 292x67px, aspect 4.36, 1.02% of frame;pending

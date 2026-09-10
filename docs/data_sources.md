@@ -3,9 +3,10 @@
 Every real image in `dataset/images/real/` traces back to a row in the table
 below through the `source` column of `dataset/meta.csv`.
 
-**The table is intentionally empty.** No source has been checked yet. Rows are
-added only after someone has actually read that source's license — never from
-memory, never from an assumption about what a site "probably" allows.
+Rows are added only after someone has actually read that source's license —
+never from memory, never from an assumption about what a site "probably"
+allows. A registered source is a *candidate cleared on licensing*; it is not
+imported until its content review passes too.
 
 ## The gate: redistribution, not just use
 
@@ -90,7 +91,48 @@ Lowercase, hyphenated, stable: `own-photos-ulyanovsk`, `wikimedia-commons`,
 
 | source_id | source_name | source_url_or_description | license | redistribution_allowed | commercial_use_allowed | modification_allowed | attribution_required | date_checked | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| _(none registered yet)_ | | | | | | | | | |
+| `autoria_numberplate_options` | AUTO.RIA Numberplate Options Dataset | Public dataset published by ARS Online OU; test split extracted locally for audit | CC BY 4.0 | yes | yes | yes | yes | 2026-09-10 | Copyright 2018–2024 ARS Online OU. Licence evidence: `license.txt` in the source repository (see below). **Licensing cleared; content review still open** — see `data/audits/autoria_test/`. Not imported. |
+
+### `autoria_numberplate_options` — licensing detail
+
+**Copyright holder:** ARS Online OU
+**License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
+**Evidence:** `license.txt` in the source repository, which states:
+
+> AUTO.RIA Numberplate Options Dataset
+> Copyright 2018-2024 by ARS Online OU
+>
+> AUTO.RIA Numberplate Dataset is licensed under a
+> Creative Commons Attribution 4.0 International License.
+
+**Gate result: passes.** CC BY 4.0 permits redistribution, commercial use and
+modification, with attribution as the only condition — exactly the terms our
+own dataset is published under, so this material can be carried through a
+CC BY 4.0 release without relicensing trouble.
+
+**Attribution requirement.** Every redistribution of our dataset that includes
+these images must credit:
+
+> AUTO.RIA Numberplate Options Dataset © 2018–2024 ARS Online OU, licensed
+> under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
+
+This line goes into `dataset/LICENSE` at the moment the first image is
+imported, not before.
+
+**Two caveats to keep on the record:**
+
+1. **The Hugging Face mirror's repository-level metadata may declare a
+   different license from `license.txt`.** Mirror metadata describes the
+   *repository*; `license.txt` is the upstream rights holder's own statement
+   about the *dataset*, and that is what we rely on. If the two ever conflict
+   in a way that matters, the upstream statement governs and the discrepancy
+   is noted here.
+2. **`license.txt` is not present in the extracted test split.** The audit of
+   `C:\Users\User\Downloads\test\test` found no LICENSE, README or config file
+   — the split ships images and labels only. The licence evidence comes from
+   the source repository, not from our local copy. **When importing, archive a
+   verbatim copy of `license.txt` alongside the imported images**, so our
+   provenance chain does not depend on a file we never kept.
 
 ## Rules
 

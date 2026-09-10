@@ -62,6 +62,11 @@ data/**
 # annotations -- so they are committed as a record of what we inspected.
 !data/audits/**
 
+# Review contact sheets stay local: they embed absolute file:// paths to an
+# external dataset and are meaningless on another machine.
+# (Covered by data/** above; named here so the intent is explicit.)
+data/review/
+
 # ---- Collected dataset images ----
 # The structure, meta.csv, the generator and the docs are committed.
 # The image files themselves are not; they are rebuilt from meta.csv

@@ -45,6 +45,7 @@ volga-it-2026-license-plate-recognition/
     csv_writer.py    # PlateRecord + submission CSV writer
     dataset_meta.py  # meta.csv schema + dataset validation
     external_audit.py# read-only audit of third-party datasets
+    review_sample.py # seeded review sample + contact sheet
   training/          # (empty) training scripts for detector/classifier/OCR
   dataset/           # the training dataset we build ourselves
     images/real/     # collected photographs, git-ignored
@@ -57,6 +58,7 @@ volga-it-2026-license-plate-recognition/
   scripts/
     validate_dataset_local.py   # dataset checker, prints a report
     audit_external_dataset.py   # inspect a third-party dataset, imports nothing
+    sample_review_set.py        # build a reproducible human-review sample
   configs/           # (empty) model and run configuration files
   models/            # (empty) trained weights, git-ignored
   data/
@@ -191,6 +193,12 @@ reported as a naming mismatch rather than as corruption. Use
 `full` JSON embeds the audited dataset's own annotation coordinates.
 
 Completed audits are kept under `data/audits/`.
+
+For the human plate-type review that follows, `scripts/sample_review_set.py`
+builds a seeded, reproducible sample plus an HTML contact sheet. It never
+guesses a plate type: `type1` and `type1b` differ only by colour, and this
+project decodes no pixels, so every row is `needs_human_review` and the
+geometry flags exist only to prioritise a reviewer's attention.
 
 It does not interpret what a class id *means* and does not judge licenses.
 Those are human steps: see

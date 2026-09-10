@@ -143,8 +143,32 @@ Two traps worth naming:
 
 ## Step 4 — Human plate-type review
 
-A dataset can be perfectly licensed and still useless or harmful to us. Open a
-sample of images — not just the first few — and check:
+A dataset can be perfectly licensed and still useless or harmful to us.
+
+Build a reproducible review sample rather than clicking through folders:
+
+```bash
+python scripts/sample_review_set.py <directory> \
+    --source-id <id> \
+    --csv data/audits/<id>_review/review_sample.csv \
+    --contact-sheet data/review/<id>/contact_sheet.html
+```
+
+This selects a seeded, deterministic subset (200 images by default), writes a
+CSV for you to fill in, and builds an HTML contact sheet that references the
+images in place — nothing is copied. Each card shows the frame with the
+annotation box overlaid, a close-up of that box, the filename and geometry
+flags, with filter buttons per flag. The CSV is committed as a record; the
+contact sheet is not, since it embeds absolute local paths.
+
+**The tool does not fill in plate types.** `type1` and `type1b` differ only by
+plate colour, and this project decodes no pixels, so every row comes back
+`needs_human_review`. The geometry flags — plate size, box aspect ratio, plate
+count — exist to prioritise your attention, not to label anything. Treat
+`square_or_two_line_candidate` as "look here first": a one-line plate seen at a
+steep angle foreshortens towards square.
+
+Then open the sheet and check:
 
 - **What do the classes actually contain?** "plate" in someone else's dataset
   may mean any plate of any country. Our `type1a` / `type1b` distinction almost

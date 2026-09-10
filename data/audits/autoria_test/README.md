@@ -30,19 +30,36 @@ no file in the audited directory was modified.
 | Images without annotations | 0 |
 | Annotations without images | 0 |
 | Identical images (SHA-256) | 9 groups, 20 files, 11 redundant copies |
-| README / LICENSE / config | **none found** |
+| README / LICENSE / config | none in the extracted split (see licensing below) |
+
+## Licensing — resolved 2026-09-10
+
+**The source is licensed CC BY 4.0 and passes our redistribution gate.**
+
+- Copyright 2018–2024 **ARS Online OU**
+- **CC BY 4.0**, per `license.txt` in the source repository
+- Attribution required; the exact credit line is in
+  [`../../../docs/data_sources.md`](../../../docs/data_sources.md)
+
+An earlier note in this file described the source as effectively unlicensed.
+That was wrong and has been corrected. What the audit actually established is
+narrower and still worth knowing: **`license.txt` is not present in the
+extracted split**, which contains images and labels only. The licence evidence
+lives in the source repository. When importing, archive a copy of `license.txt`
+with the images so the provenance chain does not rely on a file we never kept.
+
+The Hugging Face mirror's repository-level metadata may declare a different
+license; that describes the mirror repository, while `license.txt` is the
+rights holder's statement about the dataset itself.
 
 ## Status
 
-**Not approved.** The technical audit is clean, but two blocking questions are
-untouched by it:
+**Licensing cleared. Content review open. Not approved, not imported.**
 
-1. **No LICENSE, README or config file ships with this split.** Licensing must
-   be established from the source itself before anything can be imported. Per
-   `docs/data_sources.md`, an unclear license is a rejection.
-2. **The single class `0` is unnamed.** Nothing in the data says what it marks,
-   and it certainly does not encode our `type1a` / `type1b` distinction. A
-   human plate-type review is required.
+The remaining blocker is the plate-type question: the single class `0` is
+unnamed, nothing in the data says what it marks, and it certainly does not
+encode our `type1a` / `type1b` distinction. A human visual review is under way
+— see [`../autoria_test_review/`](../autoria_test_review/).
 
 Next steps are in
 [`../../../docs/external_dataset_workflow.md`](../../../docs/external_dataset_workflow.md).
