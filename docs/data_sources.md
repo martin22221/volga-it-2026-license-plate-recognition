@@ -92,11 +92,63 @@ Lowercase, hyphenated, stable: `own-photos-ulyanovsk`, `wikimedia-commons`,
 | source_id | source_name | source_url_or_description | license | redistribution_allowed | commercial_use_allowed | modification_allowed | attribution_required | date_checked | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `autoria_numberplate_options` | AUTO.RIA Numberplate Options Dataset | Public dataset published by ARS Online OU; test split extracted locally for audit | CC BY 4.0 | yes | yes | yes | yes | 2026-09-10 | Copyright 2018–2024 ARS Online OU. Licence evidence: `license.txt` in the source repository (see below). **Licensing cleared; content review still open** — see `data/audits/autoria_test/`. Not imported. |
-| `roboflow_two_line_russian_license_plates` | two-line-russian-license-plates (Roboflow Universe) | https://universe.roboflow.com/fverwfgerwf/two-line-russian-license-plates/dataset/1 | CC BY 4.0 *as declared by the uploader* | **unclear** | unclear | unclear | yes | 2026-09-12 | **NEEDS_LICENSE_REVIEW.** The licence is declared by an anonymous re-uploader with no provenance for the underlying images, and the files carry strong evidence of screen capture (see below). Not imported. |
+| `roboflow_two_line_russian_license_plates` | two-line-russian-license-plates (Roboflow Universe) | https://universe.roboflow.com/fverwfgerwf/two-line-russian-license-plates/dataset/1 | CC BY 4.0 *as declared by the project* | **no** | unclear | unclear | yes | 2026-09-12 | **REJECTED_FOR_SUBMISSION_PROVENANCE** (2026-09-12). Project declares CC BY 4.0, but no evidence establishes the provenance chain of the underlying 27 photographs. Not approved for the competition dataset or for training. Files kept locally for reference/visual review only. Reconsiderable on new evidence. |
 
 ### `roboflow_two_line_russian_license_plates` — licensing detail
 
-**Status: `NEEDS_LICENSE_REVIEW`** — not approved, not rejected.
+**Status: `REJECTED_FOR_SUBMISSION_PROVENANCE`** — decided 2026-09-12.
+
+Not approved for inclusion in the competition dataset, and not approved for
+training. **The source is retained, not deleted**, and the decision may be
+revisited if reliable provenance evidence appears.
+
+#### Decision
+
+| | |
+| --- | --- |
+| Decision | `REJECTED_FOR_SUBMISSION_PROVENANCE` |
+| Decided | 2026-09-12 |
+| Applies to | Inclusion in the submitted dataset **and** training of any kind |
+| Does **not** apply to | Keeping the downloaded files locally; visual and reference review |
+| Reversible | Yes, on reliable original-provenance evidence |
+
+**Reasons of record:**
+
+1. The Roboflow project declares **CC BY 4.0**.
+2. The 27 images are publicly presented by that project.
+3. **No sufficient evidence was found** establishing the original provenance,
+   ownership or licensing chain of the underlying photographs.
+4. Therefore the source is **not approved** for the competition dataset or for
+   training at this time.
+
+We apply a stricter standard than the platform's own declaration because the
+submitted dataset may be redistributed, and we must be able to *justify rights
+to the underlying images* — not merely point at a licence field someone else
+filled in. A declaration is not a provenance chain.
+
+#### What this means in practice
+
+- The downloaded files **stay where they are**, outside `dataset/`. Nothing is
+  deleted.
+- They remain available for **visual and reference review only** — the audit
+  and contact sheet in `data/audits/roboflow_type1a/` and
+  `data/review/roboflow_type1a/` are kept and still useful.
+- **No training**, no copying into the repository, and the images are **not**
+  competition training data.
+- The rejection is enforced mechanically: `REJECTED_SOURCES` in
+  `src/dataset_meta.py` makes any `meta.csv` row citing this `source` a
+  validation **error**, regardless of what its `license` column says — because
+  the objection is to provenance, which no licence string can cure.
+
+#### What would reopen it
+
+- The upstream origin of the photographs identified, with its own licence; or
+- confirmation from the uploader that they created the images themselves.
+
+Either would be recorded here with its date, and the row moved out of
+`REJECTED_SOURCES` in the same commit.
+
+#### Evidence gathered (retained for the record)
 
 | Field | Value |
 | --- | --- |
@@ -109,7 +161,7 @@ Lowercase, hyphenated, stable: `own-photos-ulyanovsk`, `wikimedia-commons`,
 | Local licence evidence | `data.yaml` (`license: CC BY 4.0`) and `README.dataset.txt` (`Provided by a Roboflow user` / `License: CC BY 4.0`) |
 | Attribution requirement | CC BY 4.0 requires attribution; no author name is given anywhere in the download — only the workspace handle `fverwfgerwf` |
 | Provenance status | **Undocumented, with contrary evidence** |
-| Redistribution status | **Unresolved** |
+| Redistribution status | **Not established** — the basis of the rejection |
 
 **Why this is not cleared despite a CC BY 4.0 declaration.**
 
@@ -138,17 +190,11 @@ permissive-looking aggregate licence does not cover its contents*, and *if the
 images' own provenance is not documented, the dataset is unclear*. Our rule for
 unclear provenance is to stop.
 
-**What would resolve it**
-
-- The upstream source of the images identified, with its own licence, or
-- confirmation from the uploader that they created the images themselves.
-
-Failing either, the source should be **rejected** rather than left pending —
-27 images are not worth a provenance risk in a dataset we must publish under
-CC BY 4.0. The content review may proceed meanwhile
-(`data/review/roboflow_type1a/`), because knowing whether the images are even
-usable `type1a` examples is cheap and informs the decision; **no image may be
-imported while this row says `NEEDS_LICENSE_REVIEW`.**
+Twenty-seven images were never worth a provenance risk in a dataset we must
+publish under CC BY 4.0, which is where the decision above landed. The audit
+and contact-sheet work is kept: knowing whether these are usable `type1a`
+examples costs nothing now and would matter immediately if provenance were
+ever established.
 
 ### `autoria_numberplate_options` — licensing detail
 
@@ -211,6 +257,12 @@ imported, not before.
   `dataset/`. It is evaluation material and stays in `data/official_debug/`.
 - A source removed from this table means its images must be removed from
   `dataset/` in the same commit.
+- **A rejected source is kept in this table, never deleted**, so the decision
+  and its reasons survive and nobody re-evaluates it from scratch. Add its
+  `source_id` to `REJECTED_SOURCES` in `src/dataset_meta.py` in the same
+  commit, so the validator refuses any `meta.csv` row citing it.
+- A rejection on **provenance** is not cured by a licence string. Record the
+  decision, the date, what evidence was missing, and what would reopen it.
 
 ## Pending
 

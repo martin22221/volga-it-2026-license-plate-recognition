@@ -95,6 +95,19 @@ PROVENANCE_COLUMNS: Final[tuple[str, ...]] = ("source", "license")
 #: The license the finished dataset is submitted and published under.
 DATASET_LICENSE: Final[str] = "CC BY 4.0"
 
+#: Sources ruled out for the submission, mapped to the reason.  A row citing
+#: one of these is an error even when its ``license`` column is otherwise
+#: acceptable: the rejection is about the *provenance* of the images, which no
+#: license string can repair.  Keep in step with ``docs/data_sources.md``.
+REJECTED_SOURCES: Final[dict[str, str]] = {
+    "roboflow_two_line_russian_license_plates": (
+        "REJECTED_FOR_SUBMISSION_PROVENANCE -- the Roboflow project declares "
+        "CC BY 4.0, but no evidence establishes the provenance, ownership or "
+        "licensing chain of the underlying 27 photographs. Reference and "
+        "visual review only; not competition training data"
+    ),
+}
+
 #: Licenses under which a third-party image may be redistributed as part of a
 #: CC BY 4.0 dataset.  Attribution-only and public-domain terms qualify;
 #: everything else has to be confirmed by a human and added here explicitly.
@@ -657,7 +670,26 @@ def _check_provenance(row: MetaRow, report: ValidationReport) -> None:
                 column,
             )
 
+    _check_source_not_rejected(row, report)
     _check_license_permits_redistribution(row, report)
+
+
+def _check_source_not_rejected(row: MetaRow, report: ValidationReport) -> None:
+    """Block any image from a source we have ruled out.
+
+    A rejected source stays rejected regardless of what its ``license`` column
+    says -- the objection is to the provenance of the images themselves, and a
+    license string cannot answer it.  Without this the decision would rest on
+    everyone remembering it.
+    """
+    reason = REJECTED_SOURCES.get(row.get("source"))
+    if reason is not None:
+        report.add(
+            Severity.ERROR,
+            f"source {row.get('source')!r} is rejected: {reason}",
+            row.line,
+            "source",
+        )
 
 
 def _check_license_permits_redistribution(

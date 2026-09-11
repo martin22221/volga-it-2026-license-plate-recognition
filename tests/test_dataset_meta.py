@@ -13,6 +13,7 @@ from src.dataset_meta import (
     CSV_DELIMITER,
     DATASET_LICENSE,
     QUAD_COLUMNS,
+    REJECTED_SOURCES,
     REQUIRED_COLUMNS,
     MetaFormatError,
     Severity,
@@ -643,6 +644,53 @@ def test_synthetic_rows_are_exempt_from_the_license_check(tmp_path: Path) -> Non
 
 def test_dataset_license_constant_is_cc_by_4() -> None:
     assert DATASET_LICENSE == "CC BY 4.0"
+
+
+# --------------------------------------------------------------------------
+# Rejected sources
+# --------------------------------------------------------------------------
+
+
+def test_rejected_source_is_an_error(tmp_path: Path) -> None:
+    rejected = sorted(REJECTED_SOURCES)[0]
+    report = validate_meta(make_dataset(tmp_path, [row(source=rejected)]))
+
+    assert not report.is_valid
+    assert f"source {rejected!r} is rejected" in errors(report)
+
+
+def test_rejected_source_is_blocked_even_with_an_acceptable_license(tmp_path: Path) -> None:
+    """The objection is to provenance; a good licence string cannot cure it."""
+    rejected = sorted(REJECTED_SOURCES)[0]
+    report = validate_meta(
+        make_dataset(tmp_path, [row(source=rejected, license="CC BY 4.0")])
+    )
+
+    assert not report.is_valid
+    assert "rejected" in errors(report)
+
+
+def test_roboflow_two_line_source_is_rejected_for_provenance() -> None:
+    reason = REJECTED_SOURCES["roboflow_two_line_russian_license_plates"]
+
+    assert "REJECTED_FOR_SUBMISSION_PROVENANCE" in reason
+    assert "provenance" in reason
+
+
+def test_accepted_source_is_unaffected(tmp_path: Path) -> None:
+    report = validate_meta(make_dataset(tmp_path, [row(source="own-photos-ulyanovsk")]))
+
+    assert report.is_valid, errors(report)
+
+
+def test_synthetic_rows_are_not_checked_against_rejected_sources(tmp_path: Path) -> None:
+    rejected = sorted(REJECTED_SOURCES)[0]
+    synthetic = row(
+        image="images/synthetic/000001.png", is_synthetic="true", source=rejected, license=""
+    )
+    report = validate_meta(make_dataset(tmp_path, [synthetic]))
+
+    assert report.is_valid, errors(report)
 
 
 def test_short_row_is_reported(tmp_path: Path) -> None:

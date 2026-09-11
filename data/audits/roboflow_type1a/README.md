@@ -3,7 +3,8 @@
 Candidate source for the rare `type1a` class (white square / two-line Russian
 plates). Audited 2026-09-12.
 
-**Status: `NEEDS_LICENSE_REVIEW`. Nothing imported. Nothing human-confirmed.**
+**Status: `REJECTED_FOR_SUBMISSION_PROVENANCE` (2026-09-12). Not imported,
+not trained on, nothing human-confirmed. Files retained for reference.**
 
 ## Identification
 
@@ -71,11 +72,31 @@ plates. It is still **not confirmation**: a square crop, or a one-line plate
 photographed at a steep angle, lands in the same place. That is what the visual
 review is for.
 
-## Licensing — `NEEDS_LICENSE_REVIEW`
+## Licensing — `REJECTED_FOR_SUBMISSION_PROVENANCE`
 
-The declared licence is CC BY 4.0, stated consistently in `data.yaml` and
-`README.dataset.txt`. It is **not** accepted, because a licence is only as good
-as the licensor's right to grant it and there is no evidence of that here:
+**Decided 2026-09-12 after external provenance research.** The Roboflow project
+declares CC BY 4.0 and publicly presents the 27 images, but no sufficient
+evidence establishes the provenance, ownership or licensing chain of the
+underlying photographs. The source is therefore **not approved** for the
+competition dataset or for training.
+
+We hold to a stricter standard than the platform's declaration because the
+submitted dataset may be redistributed and we must be able to justify rights to
+the underlying images. A declaration is not a provenance chain.
+
+**The files are retained, not deleted.** They stay outside `dataset/` and
+remain available for visual and reference review only — no training, no copying
+into the repository, not competition training data. The decision is reversible
+if reliable original-provenance evidence is found.
+
+The rejection is enforced in code: `REJECTED_SOURCES` in `src/dataset_meta.py`
+makes any `meta.csv` row citing this source a validation error, whatever its
+`license` column says.
+
+### The evidence behind it
+
+A licence is only as good as the licensor's right to grant it, and there is no
+evidence of that here:
 
 - The uploader is an anonymous handle; the README says only *"Provided by a
   Roboflow user"*. No photographer, collection or upstream source is named.
@@ -94,9 +115,9 @@ CC BY 4.0 declaration is void however sincerely it was made.
 Full reasoning and what would resolve it:
 [`../../../docs/data_sources.md`](../../../docs/data_sources.md).
 
-**Recommendation:** unless the upstream source can be identified, reject. 27
-images are not worth a provenance risk in a dataset we must publish under
-CC BY 4.0.
+This is what the decision rests on. Reopening it would need the upstream origin
+of the photographs identified with its own licence, or confirmation from the
+uploader that they created the images themselves.
 
 ## Human review
 
@@ -118,6 +139,9 @@ python scripts/build_type1a_review.py \
 Each card shows the filename, the full vehicle image with the annotation box
 drawn over it, a large close-up of that box (560 px wide), the YOLO class, and
 a blank verdict area listing the `type1a` criteria and the conditions to flag.
+
+The review work is **kept** despite the rejection: it costs nothing now and
+would matter immediately if provenance were ever established.
 
 All 27 rows carry `candidate_plate_type = type1a_candidate`.
 `human_plate_type`, `russian_plate`, `two_line_physical_plate` and
