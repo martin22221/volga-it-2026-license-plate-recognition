@@ -168,6 +168,18 @@ count — exist to prioritise your attention, not to label anything. Treat
 `square_or_two_line_candidate` as "look here first": a one-line plate seen at a
 steep angle foreshortens towards square.
 
+For the rare classes specifically, `scripts/build_rare_review.py` narrows the
+split further: it collects the shape candidates and measures plate colour
+across every image, then writes large-preview pages for `type1a` and `type1b`
+candidates plus a CSV and statistics.
+
+Plate colour is measured from the JPEG's own DC coefficients
+(`src/jpeg_dc.py`) -- no image-decoding dependency, no model, no network. It
+samples inside the annotation box and compares against a ring around it, so a
+yellow car with a white plate is rejected rather than surfaced, and it abstains
+on plates too small to judge. A type is suggested only on a strong reading, and
+even then the reviewer decides.
+
 Then open the sheet and check:
 
 - **What do the classes actually contain?** "plate" in someone else's dataset

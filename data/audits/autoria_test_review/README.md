@@ -44,8 +44,15 @@ Buttons at the top filter by flag.
 
 **This is deliberate, not a failure.** `type1` and `type1b` are distinguished
 *only* by plate colour, and `type1a` additionally requires the plate to be
-white. This project has no image-decoding dependency, so pixel data — and
-therefore colour — is unavailable. Any automated type here would be fabricated.
+white. This sampling tool reads no pixels, so it cannot judge colour and any
+type it emitted would be fabricated.
+
+> **Updated 2026-09-11.** Plate colour *is* now measurable, via the DC
+> coefficients of the JPEG itself (`src/jpeg_dc.py`) — still stdlib-only, no
+> model, no network. It is used in the separate rare-class pass
+> ([`RARE_CLASSES.md`](RARE_CLASSES.md)) to surface `type1b` candidates. It
+> narrows the field; it does not assign types, and this 200-image sample is
+> unchanged.
 
 `human_plate_type` and `has_visible_face` are left empty for the reviewer.
 
@@ -103,7 +110,9 @@ nominal geometry plus margin.
 None of these are in the CSV, because none can be computed without decoding
 pixels. Every one needs eyes:
 
-- **Plate colour (white vs yellow)** — decides `type1` vs `type1b`
+- **Plate colour (white vs yellow)** — decides `type1` vs `type1b`. Now
+  *measured* for the rare-class pass (see [`RARE_CLASSES.md`](RARE_CLASSES.md)),
+  but the measurement flags candidates rather than confirming them.
 - **Russian vs foreign plate** — AUTO.RIA is a Ukrainian marketplace, so a
   large share of these plates may be Ukrainian and therefore out of scope
 - **Visible faces** — **0 detected, because no detection was run.** All 200
@@ -111,6 +120,12 @@ pixels. Every one needs eyes:
 - **Blur, glare, dirt / occlusion**
 - **Severe angle** — the YOLO box is axis-aligned and carries no rotation, so
   angle is not recoverable from the annotation
+
+## Rare-class follow-up
+
+A focused review of the rare classes now exists, adding plate-colour
+measurement across all 2564 images: see [`RARE_CLASSES.md`](RARE_CLASSES.md).
+143 unique candidate images, 0 human-confirmed.
 
 ## Related
 

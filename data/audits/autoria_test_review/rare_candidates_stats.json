@@ -1,0 +1,27 @@
+{
+  "source_id": "autoria_numberplate_options",
+  "dataset": "C:\\Users\\User\\Downloads\\test\\test",
+  "sample_seed": 20260910,
+  "sample_size": 200,
+  "total_test_images_scanned": 2564,
+  "colour_scanned": 2564,
+  "colour_unreliable": 9,
+  "square_or_two_line_candidates": 46,
+  "ambiguous_shape_candidates": 43,
+  "shape_candidates_total": 89,
+  "yellow_threshold_candidates": 14,
+  "yellow_shortlist_shown": 40,
+  "overlap_shape_and_yellow": 0,
+  "overlap_images": [],
+  "unique_candidate_images": 143,
+  "csv_rows": 143,
+  "human_confirmed_type1a": 0,
+  "human_confirmed_type1b": 0,
+  "yellowness_percentiles": {
+    "min": -75.61,
+    "p50": -2.15,
+    "p90": 8.46,
+    "p99": 26.07,
+    "max": 48.62
+  }
+}

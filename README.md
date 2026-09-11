@@ -46,6 +46,9 @@ volga-it-2026-license-plate-recognition/
     dataset_meta.py  # meta.csv schema + dataset validation
     external_audit.py# read-only audit of third-party datasets
     review_sample.py # seeded review sample + contact sheet
+    jpeg_dc.py       # baseline-JPEG DC reader (1/8-scale, stdlib only)
+    plate_color.py   # conservative plate colour / yellow heuristic
+    rare_review.py   # type1a / type1b candidate pages
   training/          # (empty) training scripts for detector/classifier/OCR
   dataset/           # the training dataset we build ourselves
     images/real/     # collected photographs, git-ignored
@@ -59,6 +62,7 @@ volga-it-2026-license-plate-recognition/
     validate_dataset_local.py   # dataset checker, prints a report
     audit_external_dataset.py   # inspect a third-party dataset, imports nothing
     sample_review_set.py        # build a reproducible human-review sample
+    build_rare_review.py        # focused type1a / type1b candidate review
   configs/           # (empty) model and run configuration files
   models/            # (empty) trained weights, git-ignored
   data/
