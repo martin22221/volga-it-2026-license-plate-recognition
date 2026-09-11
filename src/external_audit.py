@@ -827,14 +827,18 @@ def _relative(path: Path, root: Path) -> str:
 def _classify(path: Path) -> str:
     """Which audit bucket ``path`` belongs to."""
     name = path.name.lower()
-    stem = path.stem.lower()
     suffix = path.suffix.lower()
+
+    # Paperwork is often multi-suffixed -- README.dataset.txt,
+    # README.roboflow.txt, LICENSE.md -- so the leading name segment decides,
+    # not Path.stem, which would read "readme.dataset" and miss it.
+    leading = name.split(".", 1)[0]
 
     if name in CONFIG_NAMES:
         return "config"
     if name in CLASS_NAME_FILES or suffix == ".names":
         return "class_names"
-    if stem in METADATA_STEMS:
+    if leading in METADATA_STEMS:
         return "metadata"
     if suffix in IMAGE_EXTENSIONS:
         return "image"
@@ -901,13 +905,13 @@ def audit_dataset(
 
 
 def _read_metadata(path: Path, root: Path) -> MetadataFile:
-    stem = path.stem.lower()
-    kind = "readme" if stem == "readme" else "license" if stem in {
+    leading = path.name.lower().split(".", 1)[0]
+    kind = "readme" if leading == "readme" else "license" if leading in {
         "license",
         "licence",
         "copying",
         "copyright",
-    } else stem
+    } else leading
 
     record = MetadataFile(path=_relative(path, root), kind=kind)
     record.size_bytes = path.stat().st_size

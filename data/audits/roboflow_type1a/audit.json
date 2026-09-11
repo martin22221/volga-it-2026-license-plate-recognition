@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "root": "C:\\Users\\User\\Downloads\\two-line-russian-license-plates.v1i.yolov8",
+  "source_id": "roboflow_two_line_russian_license_plates",
+  "inspection_only": true,
+  "image_check": "structural header parsing only; pixel data not decoded",
+  "summary": {
+    "total_images": 27,
+    "readable_images": 27,
+    "corrupt_images": 0,
+    "extension_format_mismatches": 0,
+    "annotation_files": 27,
+    "total_annotation_boxes": 27,
+    "invalid_annotation_lines": 0,
+    "csv_files": 0,
+    "metadata_files": 2,
+    "config_files": 1,
+    "other_files": 0,
+    "images_without_annotations": 0,
+    "annotations_without_images": 0,
+    "duplicate_filename_groups": 0,
+    "duplicate_image_groups": 0
+  },
+  "image_formats": {
+    "jpeg": 27
+  },
+  "extension_format_mismatches": {},
+  "dimensions": {
+    "count": 27,
+    "width": {
+      "min": 469,
+      "median": 932,
+      "mean": 1015.9,
+      "max": 1908
+    },
+    "height": {
+      "min": 302,
+      "median": 705,
+      "mean": 731.4,
+      "max": 1371
+    },
+    "most_common_resolutions": {
+      "1061x1305": 1,
+      "1270x951": 1,
+      "1275x711": 1,
+      "1490x1117": 1,
+      "1896x1371": 1,
+      "1907x1065": 1,
+      "1907x1356": 1,
+      "1908x1071": 1,
+      "469x623": 1,
+      "499x313": 1
+    },
+    "distinct_resolutions": 27
+  },
+  "classes": {
+    "counts_by_id": {
+      "0": 27
+    },
+    "names_declared_by_dataset": {
+      "0": "license-plate"
+    },
+    "ids_used_but_not_declared": [],
+    "ids_declared_but_unused": [],
+    "note": "Class meanings are NOT inferred. Names appear here only if a dataset config declared them. Mapping these onto our plate_type values is a human decision made at approval time."
+  },
+  "csv_files": [],
+  "metadata_files": [
+    {
+      "path": "README.dataset.txt",
+      "kind": "readme",
+      "size_bytes": 177,
+      "preview": "# two-line-russian-license-plates > 2026-02-10 3:12pm\nhttps://universe.roboflow.com/fverwfgerwf/two-line-russian-license-plates\n\nProvided by a Roboflow user\nLicense: CC BY 4.0"
+    },
+    {
+      "path": "README.roboflow.txt",
+      "kind": "readme",
+      "size_bytes": 919,
+      "preview": "two-line-russian-license-plates - v1 2026-02-10 3:12pm\n==============================\n\nThis dataset was exported via roboflow.com on February 10, 2026 at 12:17 PM GMT\n\nRoboflow is an end-to-end computer vision platform that helps you\n* collaborate with your team on computer vision projects\n* collect & organize images\n* understand and search unstructured image data\n* annotate, and create datasets\n* export, train, and deploy computer vision models\n* use active learning to improve your dataset over time\n\nFor state of the art Computer Vision training notebooks you can use with this dataset,\nvisit"
+    }
+  ],
+  "configs": [
+    {
+      "path": "data.yaml",
+      "class_names": {
+        "0": "license-plate"
+      },
+      "declared_class_count": 1,
+      "parse_note": ""
+    }
+  ],
+  "other_files": [],
+  "unreadable_files": [],
+  "pairing": {
+    "images_without_annotations": [],
+    "annotations_without_images": [],
+    "ambiguous_stems": {}
+  },
+  "duplicates": {
+    "filenames": {},
+    "identical_images_sha256": []
+  },
+  "mismatched_image_paths": [],
+  "detail": "summary",
+  "detail_note": "Per-image and per-annotation records omitted. Those arrays reproduce the audited dataset's own annotation coordinates; this summary describes the dataset without copying it."
+}

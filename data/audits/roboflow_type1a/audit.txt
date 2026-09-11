@@ -1,0 +1,115 @@
+External dataset audit (inspection only -- nothing was imported)
+------------------------------------------------------------------------
+directory : C:\Users\User\Downloads\two-line-russian-license-plates.v1i.yolov8
+source_id : roboflow_two_line_russian_license_plates
+
+Totals
+------------------------------------------------------------------------
+  images                : 27
+  readable images       : 27
+  corrupt/unreadable    : 0
+  extension mismatches  : 0  (readable, but wrongly named)
+  annotation files      : 27
+  annotation boxes      : 27
+  invalid annotation rows: 0
+  CSV files             : 0
+  metadata files        : 2
+  config files          : 1
+  other files           : 0
+
+Image formats
+------------------------------------------------------------------------
+  jpeg       27
+
+Image dimensions
+------------------------------------------------------------------------
+  width   min 469  median 932  mean 1015.9  max 1908
+  height  min 302  median 705  mean 731.4  max 1371
+  distinct resolutions: 27
+  most common:
+    1061x1305        1
+    1270x951         1
+    1275x711         1
+    1490x1117        1
+    1896x1371        1
+    1907x1065        1
+    1907x1356        1
+    1908x1071        1
+    469x623          1
+    499x313          1
+
+Corrupt or unreadable images (0)
+------------------------------------------------------------------------
+  (none)
+  Note: headers are parsed, pixel data is not decoded. Corruption in
+  the middle of an image stream is not detected by this audit.
+
+Extension / format mismatches (0)
+------------------------------------------------------------------------
+  (none)
+
+YOLO annotations
+------------------------------------------------------------------------
+  files parsed as YOLO  : 27
+  files not in YOLO form: 0
+  empty files (negatives): 0
+  invalid annotation rows (0):
+    (none)
+
+Classes
+------------------------------------------------------------------------
+  class 0       27 box(es)  declared name: 'license-plate'
+
+  Names above come from the dataset's own config file.
+  Class meanings are NOT inferred by this tool. Mapping these ids onto
+  our plate_type values is a human decision made when the source is
+  approved -- see docs/external_dataset_workflow.md.
+
+Image / annotation pairing
+------------------------------------------------------------------------
+  images without annotations (0):
+    (none)
+  annotations without images (0):
+    (none)
+
+Duplicates
+------------------------------------------------------------------------
+  duplicate file names (0):
+    (none)
+  identical images by SHA-256 (0):
+    (none)
+
+CSV files
+------------------------------------------------------------------------
+  (none)
+
+Dataset paperwork
+------------------------------------------------------------------------
+  [readme] README.dataset.txt (177 bytes)
+    | # two-line-russian-license-plates > 2026-02-10 3:12pm
+    | https://universe.roboflow.com/fverwfgerwf/two-line-russian-license-plates
+    | 
+    | Provided by a Roboflow user
+    | License: CC BY 4.0
+
+  [readme] README.roboflow.txt (919 bytes)
+    | two-line-russian-license-plates - v1 2026-02-10 3:12pm
+    | ==============================
+    | 
+    | This dataset was exported via roboflow.com on February 10, 2026 at 12:17 PM GMT
+    | 
+    | Roboflow is an end-to-end computer vision platform that helps you
+    | * collaborate with your team on computer vision projects
+    | * collect & organize images
+
+  [config] data.yaml
+    declared class count: 1
+    0: license-plate
+
+Next steps
+------------------------------------------------------------------------
+  This audit imports nothing. Before any image enters dataset/:
+    1. Human license review  -- may we redistribute under CC BY 4.0?
+    2. Human plate-type review -- what do these classes actually show?
+    3. Register the source in docs/data_sources.md.
+    4. Only then import, and re-run validate_dataset_local.py.

@@ -59,6 +59,43 @@ REASON_YELLOW_NEAR: Final[str] = "most_yellow_in_dataset"
 YELLOW_SHORTLIST: Final[int] = 40
 
 
+#: Columns of the type1a review CSV, in order.
+TYPE1A_COLUMNS: Final[tuple[str, ...]] = (
+    "image",
+    "annotation_class",
+    "candidate_plate_type",
+    "human_plate_type",
+    "russian_plate",
+    "two_line_physical_plate",
+    "visible_face",
+    "quality_notes",
+    "review_status",
+)
+
+#: Value written into ``candidate_plate_type`` -- a candidate, not a verdict.
+TYPE1A_CANDIDATE: Final[str] = "type1a_candidate"
+
+#: What a person must satisfy themselves of before writing `type1a`.
+TYPE1A_CRITERIA: Final[tuple[str, ...]] = (
+    "Russian registration plate (not Ukrainian, Belarusian or other foreign)",
+    "white plate with dark characters",
+    "physically square / two-line plate, not a wide one-line plate",
+    "characters actually arranged across two lines",
+    "not a normal one-line plate seen at an angle",
+    "not merely a square bounding box or a square crop",
+    "not an excluded competition category (trailer, moto, military, diplomatic, transit)",
+)
+
+#: Conditions to flag while reviewing.
+TYPE1A_FLAG_PROMPTS: Final[tuple[str, ...]] = (
+    "visible human face",
+    "severe blur",
+    "unreadable plate",
+    "extreme crop (plate or vehicle cut off)",
+    "annotation problem (box misplaced, too loose, too tight)",
+)
+
+
 @dataclass
 class RareCandidate:
     """One image put forward for focused review."""
@@ -67,6 +104,7 @@ class RareCandidate:
     reasons: list[str] = field(default_factory=list)
     colour: PlateColour | None = None
     yellowness: float | None = None
+    class_label: str | None = None
 
     @property
     def image_path(self) -> str:
@@ -128,6 +166,58 @@ class RareCandidate:
             )
 
         return " | ".join(parts).replace(CSV_DELIMITER, ",")
+
+
+def write_type1a_csv(candidates: Sequence[RareCandidate], destination: Path) -> int:
+    """Write the type1a review CSV; returns the number of data rows.
+
+    Every judgement column is left empty.  ``candidate_plate_type`` records
+    only that the image was *put forward* -- nothing here is confirmed, and a
+    dataset named "two-line plates" is a claim, not evidence.
+    """
+    destination = Path(destination)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+
+    with destination.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, delimiter=CSV_DELIMITER, lineterminator="\n")
+        writer.writerow(TYPE1A_COLUMNS)
+        for candidate in candidates:
+            writer.writerow(
+                [
+                    candidate.image_path,
+                    candidate.class_label or "",
+                    TYPE1A_CANDIDATE,
+                    "",  # human_plate_type
+                    "",  # russian_plate
+                    "",  # two_line_physical_plate
+                    "",  # visible_face
+                    _machine_notes(candidate),
+                    REVIEW_STATUS_PENDING,
+                ]
+            )
+    return len(candidates)
+
+
+def _machine_notes(candidate: RareCandidate) -> str:
+    """Measured facts only -- never a claim about the plate's type."""
+    item = candidate.item
+    parts: list[str] = []
+    if item.width and item.height:
+        parts.append(f"image {item.width}x{item.height}")
+
+    plate = item.largest_plate
+    if plate is None:
+        parts.append("no annotated plate")
+    else:
+        parts.append(
+            f"{len(item.plates)} box(es), largest "
+            f"{plate.width_px:.0f}x{plate.height_px:.0f}px, "
+            f"aspect {plate.aspect:.2f}, "
+            f"{plate.area_fraction * 100:.2f}% of frame"
+        )
+    if item.flags:
+        parts.append("flags: " + ", ".join(item.flags))
+    return " | ".join(parts).replace(CSV_DELIMITER, ",")
 
 
 def collect_shape_candidates(items: Sequence[ReviewItem]) -> dict[str, RareCandidate]:
@@ -201,24 +291,50 @@ BIG_CROP_WIDTH_PX: Final[int] = 420
 BIG_CROP_HEIGHT_PX: Final[int] = 180
 
 
-def _crop_style(candidate: RareCandidate) -> str:
+def _crop_style(candidate: RareCandidate, crop_width: int = BIG_CROP_WIDTH_PX) -> str:
     item = candidate.item
     plate = item.largest_plate
     if plate is None or not (item.width and item.height) or plate.norm_width <= 0:
         return "display:none"
 
-    display_width = BIG_CROP_WIDTH_PX / plate.norm_width
+    display_width = crop_width / plate.norm_width
     display_height = display_width * (item.height / item.width)
     left = -(plate.centre_x - plate.norm_width / 2) * display_width
     top = -(plate.centre_y - plate.norm_height / 2) * display_height
     top += (BIG_CROP_HEIGHT_PX - plate.norm_height * display_height) / 2
+    # (vertical centring uses the default crop height; the page CSS
+    #  clips to whatever height the caller asked for)
     return (
         f"width:{display_width:.1f}px;height:{display_height:.1f}px;"
         f"left:{left:.1f}px;top:{top:.1f}px"
     )
 
 
-def _card(candidate: RareCandidate, root: Path) -> str:
+def _verdict_block() -> str:
+    """A blank verdict area: what to decide, and where to record it."""
+    criteria = "".join(f"<li>{html.escape(text)}</li>" for text in TYPE1A_CRITERIA)
+    prompts = "".join(f"<li>{html.escape(text)}</li>" for text in TYPE1A_FLAG_PROMPTS)
+    return (
+        '<div class="verdict">'
+        "<b>Your verdict</b>"
+        '<div class="blank">human_plate_type: ________________'
+        "&nbsp;&nbsp;russian_plate: ____"
+        "&nbsp;&nbsp;two_line_physical_plate: ____"
+        "&nbsp;&nbsp;visible_face: ____</div>"
+        f"<details><summary>type1a requires all of</summary><ul>{criteria}</ul>"
+        f"<b>Also flag</b><ul>{prompts}</ul></details>"
+        "<small>Record it in <code>review.csv</code>; this page is read-only.</small>"
+        "</div>"
+    )
+
+
+def _card(
+    candidate: RareCandidate,
+    root: Path,
+    *,
+    verdict: bool = False,
+    crop_width: int = BIG_CROP_WIDTH_PX,
+) -> str:
     item = candidate.item
     uri = html.escape((root / item.image_path).as_uri())
     name = html.escape(Path(item.image_path).name)
@@ -245,16 +361,24 @@ def _card(candidate: RareCandidate, root: Path) -> str:
             f"<b>{plate.yellowness:+.1f}</b>"
         )
 
+    class_chip = (
+        f'<span class="cls">YOLO class: <b>{html.escape(candidate.class_label)}</b></span>'
+        if candidate.class_label
+        else ""
+    )
+    note = candidate.confidence_note() if not verdict else _machine_notes(candidate)
+
     return (
         '<article class="card">'
-        f'<div class="head"><b>{name}</b>{swatch}</div>'
+        f'<div class="head"><b>{name}</b>{class_chip}{swatch}</div>'
         '<div class="views">'
         f'<div class="frame"><img src="{uri}" alt="" loading="lazy">{boxes}</div>'
         f'<div class="crop"><img src="{uri}" alt="" loading="lazy" '
-        f'style="{_crop_style(candidate)}"></div>'
+        f'style="{_crop_style(candidate, crop_width)}"></div>'
         "</div>"
         f'<div class="flags">{reasons}</div>'
-        f'<p class="note">{html.escape(candidate.confidence_note())}</p>'
+        f'<p class="note">{html.escape(note)}</p>'
+        f"{_verdict_block() if verdict else ''}"
         "</article>"
     )
 
@@ -265,18 +389,29 @@ def build_page(
     *,
     title: str,
     intro_html: str,
+    verdict: bool = False,
+    preview_height: int = PREVIEW_HEIGHT_PX,
+    crop_height: int = BIG_CROP_HEIGHT_PX,
+    column_width: int = PREVIEW_WIDTH_PX,
 ) -> str:
-    """Render a focused review page with large previews."""
-    cards = "\n".join(_card(candidate, Path(root)) for candidate in candidates)
+    """Render a focused review page with large previews.
+
+    ``verdict=True`` adds a blank verdict area and the type1a criteria to every
+    card, for a page whose whole purpose is a human decision.
+    """
+    cards = "\n".join(
+        _card(candidate, Path(root), verdict=verdict, crop_width=column_width)
+        for candidate in candidates
+    )
     return _PAGE_TEMPLATE.format(
         title=html.escape(title),
         intro=intro_html,
         count=len(candidates),
         root=html.escape(str(root)),
-        preview_w=PREVIEW_WIDTH_PX,
-        preview_h=PREVIEW_HEIGHT_PX,
-        crop_w=BIG_CROP_WIDTH_PX,
-        crop_h=BIG_CROP_HEIGHT_PX,
+        preview_w=column_width,
+        preview_h=preview_height,
+        crop_w=column_width,
+        crop_h=crop_height,
         cards=cards or '<p class="panel">No candidates in this group.</p>',
     )
 
@@ -318,6 +453,15 @@ _PAGE_TEMPLATE: Final[str] = """<!doctype html>
            background: #ffd60a; color: #3a2f00; }}
   .note {{ font-size: 12px; color: #666; margin: 4px 0 0; }}
   @media (prefers-color-scheme: dark) {{ .note {{ color: #9a9aa2; }} }}
+  .cls {{ font-size: 11px; padding: 3px 8px; border-radius: 999px;
+          background: #e4e4ea; color: #333; }}
+  .verdict {{ margin-top: 10px; padding: 10px; border-radius: 8px;
+              border: 1px dashed rgba(128,128,128,.6); font-size: 12px; }}
+  .verdict .blank {{ font-family: ui-monospace, monospace; font-size: 11px;
+                     margin: 6px 0; line-height: 2; }}
+  .verdict ul {{ margin: 4px 0 8px; }}
+  .verdict summary {{ cursor: pointer; }}
+  @media (prefers-color-scheme: dark) {{ .cls {{ background: #33333c; color: #ddd; }} }}
   code {{ font-size: 12px; }}
 </style></head><body>
 <header>

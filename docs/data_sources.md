@@ -92,6 +92,63 @@ Lowercase, hyphenated, stable: `own-photos-ulyanovsk`, `wikimedia-commons`,
 | source_id | source_name | source_url_or_description | license | redistribution_allowed | commercial_use_allowed | modification_allowed | attribution_required | date_checked | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `autoria_numberplate_options` | AUTO.RIA Numberplate Options Dataset | Public dataset published by ARS Online OU; test split extracted locally for audit | CC BY 4.0 | yes | yes | yes | yes | 2026-09-10 | Copyright 2018–2024 ARS Online OU. Licence evidence: `license.txt` in the source repository (see below). **Licensing cleared; content review still open** — see `data/audits/autoria_test/`. Not imported. |
+| `roboflow_two_line_russian_license_plates` | two-line-russian-license-plates (Roboflow Universe) | https://universe.roboflow.com/fverwfgerwf/two-line-russian-license-plates/dataset/1 | CC BY 4.0 *as declared by the uploader* | **unclear** | unclear | unclear | yes | 2026-09-12 | **NEEDS_LICENSE_REVIEW.** The licence is declared by an anonymous re-uploader with no provenance for the underlying images, and the files carry strong evidence of screen capture (see below). Not imported. |
+
+### `roboflow_two_line_russian_license_plates` — licensing detail
+
+**Status: `NEEDS_LICENSE_REVIEW`** — not approved, not rejected.
+
+| Field | Value |
+| --- | --- |
+| Platform | Roboflow Universe |
+| Project name | `two-line-russian-license-plates` |
+| Workspace | `fverwfgerwf` |
+| Version | v1, exported 2026-02-10 |
+| Source URL | https://universe.roboflow.com/fverwfgerwf/two-line-russian-license-plates/dataset/1 |
+| Declared licence | CC BY 4.0 |
+| Local licence evidence | `data.yaml` (`license: CC BY 4.0`) and `README.dataset.txt` (`Provided by a Roboflow user` / `License: CC BY 4.0`) |
+| Attribution requirement | CC BY 4.0 requires attribution; no author name is given anywhere in the download — only the workspace handle `fverwfgerwf` |
+| Provenance status | **Undocumented, with contrary evidence** |
+| Redistribution status | **Unresolved** |
+
+**Why this is not cleared despite a CC BY 4.0 declaration.**
+
+The declaration is real and consistently stated in two files. But a licence is
+only as good as the licensor's right to grant it, and here there is no evidence
+the uploader held any rights in the images:
+
+- The uploader is an anonymous handle (`fverwfgerwf`) and the README says only
+  *"Provided by a Roboflow user"*. No photographer, no collection, no upstream
+  source is named.
+- **All 27 files carry the signature of screen captures, not photographs.**
+  Every filename embeds a capture timestamp, and all 27 fall inside an
+  **18½-minute window on 2026-02-10 (12:16:44 – 12:35:21)**. Every original was
+  **PNG** (`_png.rf.` in the Roboflow-rewritten names) — the format a screenshot
+  tool produces, not a camera. Image aspect ratios are arbitrary (0.75 … 2.52),
+  with only 5 of 27 near a standard camera ratio, which is what arbitrary crops
+  of a screen look like.
+
+The most plausible reading is that someone spent twenty minutes screenshotting
+Russian two-line plates from a website and uploaded the crops. If so, the
+uploader could not grant CC BY 4.0 over them, and the declaration is void
+regardless of good faith.
+
+This is exactly the trap this document already warns about: *a
+permissive-looking aggregate licence does not cover its contents*, and *if the
+images' own provenance is not documented, the dataset is unclear*. Our rule for
+unclear provenance is to stop.
+
+**What would resolve it**
+
+- The upstream source of the images identified, with its own licence, or
+- confirmation from the uploader that they created the images themselves.
+
+Failing either, the source should be **rejected** rather than left pending —
+27 images are not worth a provenance risk in a dataset we must publish under
+CC BY 4.0. The content review may proceed meanwhile
+(`data/review/roboflow_type1a/`), because knowing whether the images are even
+usable `type1a` examples is cheap and informs the decision; **no image may be
+imported while this row says `NEEDS_LICENSE_REVIEW`.**
 
 ### `autoria_numberplate_options` — licensing detail
 

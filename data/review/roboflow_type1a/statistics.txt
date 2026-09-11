@@ -1,0 +1,51 @@
+type1a review statistics - roboflow_two_line_russian_license_plates
+------------------------------------------------------------------------
+dataset        : C:\Users\User\Downloads\two-line-russian-license-plates.v1i.yolov8
+images         : 27
+annotation files: 27
+annotation boxes: 27
+invalid rows   : 0
+corrupt images : 0
+duplicate images (SHA-256): 0 group(s)
+images without labels     : 0
+labels without images     : 0
+
+Declared classes
+------------------------------------------------------------------------
+  0: license-plate  (27 box(es))
+
+Candidates
+------------------------------------------------------------------------
+  type1a candidates : 27
+  candidate_plate_type written: type1a_candidate
+  HUMAN-CONFIRMED type1a: 0   (nothing confirmed until reviewed)
+
+Box aspect ratios
+------------------------------------------------------------------------
+  min 0.87  median 1.64  max 1.85
+  Russian square/two-line plate is nominally 1.71; a one-line plate
+  is 4.64. A tight cluster near 1.71 is consistent with two-line
+  plates, but consistency is not confirmation -- a square crop or a
+  steeply angled one-line plate lands in the same place.
+
+Geometry flags
+------------------------------------------------------------------------
+  square_or_two_line_candidate       27
+  small_plate                         5
+
+Requires a person, per image
+------------------------------------------------------------------------
+  - Russian registration plate (not Ukrainian, Belarusian or other foreign)
+  - white plate with dark characters
+  - physically square / two-line plate, not a wide one-line plate
+  - characters actually arranged across two lines
+  - not a normal one-line plate seen at an angle
+  - not merely a square bounding box or a square crop
+  - not an excluded competition category (trailer, moto, military, diplomatic, transit)
+
+  ! flag: visible human face
+  ! flag: severe blur
+  ! flag: unreadable plate
+  ! flag: extreme crop (plate or vehicle cut off)
+  ! flag: annotation problem (box misplaced, too loose, too tight)
+

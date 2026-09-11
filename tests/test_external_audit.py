@@ -778,6 +778,44 @@ def test_classes_txt_is_read_as_names_not_annotations(tmp_path: Path) -> None:
     assert report.class_names() == {0: "plate", 1: "vehicle"}
 
 
+@pytest.mark.parametrize(
+    "name",
+    [
+        "README.dataset.txt",
+        "README.roboflow.txt",
+        "readme.md",
+        "LICENSE.txt",
+        "licence.md",
+        "COPYING",
+    ],
+)
+def test_multi_suffixed_paperwork_is_metadata_not_an_annotation(
+    tmp_path: Path, name: str
+) -> None:
+    """Roboflow ships README.dataset.txt; Path.stem would read 'README.dataset'."""
+    root = tmp_path / "d"
+    root.mkdir()
+    (root / name).write_text("License: CC BY 4.0\n", encoding="utf-8")
+
+    report = audit_dataset(root)
+
+    assert report.annotations == []
+    assert report.invalid_annotation_count() == 0
+    assert [meta.path for meta in report.metadata_files] == [name]
+
+
+def test_paperwork_named_like_a_label_is_still_a_label(tmp_path: Path) -> None:
+    """Only the leading segment counts -- 'license-plates.txt' is not a licence."""
+    root = tmp_path / "d"
+    write_image(root / "images" / "license-plates.jpg")
+    write_label(root / "labels" / "license-plates.txt", ["0 0.5 0.5 0.2 0.2"])
+
+    report = audit_dataset(root)
+
+    assert report.metadata_files == []
+    assert len(report.annotations) == 1
+
+
 def test_readme_txt_is_metadata_not_an_annotation(tmp_path: Path) -> None:
     root = tmp_path / "d"
     root.mkdir()
