@@ -199,7 +199,9 @@ Only these tags, separated by `|`:
   error, and a license it does not recognise is a warning for a person to
   resolve. The dataset is published under CC BY 4.0, so an image we may use but
   not redistribute cannot be in it.
-- Both are required for every real image. Synthetic images leave them empty.
+- Both are required for every real image. Synthetic rows written by the
+  generator carry `source=volga_synthetic_generator` and `license=CC BY 4.0`
+  (our own work); the validator does not require them for synthetic rows.
 - `is_synthetic` must match the folder: `images/real/` → `false`,
   `images/synthetic/` → `true`.
 

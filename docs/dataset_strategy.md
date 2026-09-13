@@ -178,8 +178,12 @@ almost no extra time.
 
 ### Synthetic
 
-The generator lives in `dataset/generator/` and is **not built yet** (no images
-are generated at this milestone). When it is, it should cover:
+The generator lives in `dataset/generator/`. **V1 was built on 2026-09-13 and
+is awaiting human visual review.** Only a 60-image development batch exists,
+outside `dataset/`. See `dataset/generator/README.md` for what V1 covers and
+its open issues. V1 composites onto procedural scenes, not real backgrounds,
+because no licensed background photographs exist yet. The requirements it is
+measured against:
 
 - All three target layouts, with `type1a` deliberately over-represented
   relative to its real-world frequency, since that is where real data is

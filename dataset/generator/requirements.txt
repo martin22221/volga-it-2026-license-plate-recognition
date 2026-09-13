@@ -1,0 +1,5 @@
+# Exact versions for byte-reproducible synthetic batches.  Other versions still
+# work, but JPEG encoding and resampling may differ at the byte level; every
+# batch manifest records the versions that produced it.
+numpy==2.5.3
+pillow==11.3.0

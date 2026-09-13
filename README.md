@@ -28,8 +28,11 @@ Target plate classes:
   only the header. This is deliberate: an untrained pipeline must never
   fabricate plate numbers.
 * The **format validator is real** and fully tested.
-* No models are trained, downloaded or bundled; no synthetic dataset has been
-  generated.
+* The **synthetic plate generator V1** (`dataset/generator/`) renders `type1`,
+  `type1a` and `type1b` plates with exact quad annotations. It is awaiting
+  human visual review; only a small development batch has been generated. See
+  [`dataset/generator/README.md`](dataset/generator/README.md).
+* No models are trained, downloaded or bundled.
 
 ## Folder structure
 
@@ -243,10 +246,23 @@ pipeline = Pipeline(detector=MyYoloDetector(...), classifier=..., ocr=...)
 * No OCR error correction, no plate-type-specific post-processing, no
   duplicate-detection/NMS logic yet.
 
+## Synthetic data
+
+```bash
+pip install -r requirements.txt
+python -m dataset.generator --output data/synthetic_dev/demo \
+    --per-class type1=20,type1a=20,type1b=20 --seed 20260913 --contact-sheet
+```
+
+The generator loads no external asset. The font, templates, backgrounds and
+vehicles are all drawn in code, so its output is ours to release under CC BY
+4.0. Development batches go under `data/synthetic_dev/`, which is git-ignored.
+The generator refuses to write into `dataset/` unless asked explicitly.
+
 ## Next steps
 
 1. Collect and annotate the real dataset per `docs/dataset_strategy.md`.
-2. Synthetic plate generator (`dataset/generator/`).
+2. Human review of the generator V1 demo batch, then full synthetic generation.
 3. Detector training (`training/`) and integration.
 4. Plate type classifier for `type1` / `type1a` / `type1b` / `other`.
 5. OCR model + calibrated confidences.
