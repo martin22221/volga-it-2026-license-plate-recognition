@@ -44,6 +44,7 @@ from .photometric import (
     precipitation,
     sensor_noise,
     shadow,
+    text_guard,
 )
 from .plate_text import PlateIdentitySampler, PlateText
 from .render import apply_dirt, render_plate, sample_style
@@ -452,7 +453,9 @@ def _render_attempt(
     for weather in ("rain", "snow"):
         if weather in effects_enabled:
             w_rng = stream(f"effect:{weather}")
-            image, effects[weather] = precipitation(image, w_rng, _u(w_rng, ranges[weather]["density"]), weather)
+            image, effects[weather] = precipitation(
+                image, w_rng, _u(w_rng, ranges[weather]["density"]), weather, protect=text_guard(ink)
+            )
     if "motion_blur" in effects_enabled:
         image, effects["motion_blur"] = motion_blur(image, stream("effect:motion_blur"), ranges["motion_blur"])
     if "defocus" in effects_enabled:

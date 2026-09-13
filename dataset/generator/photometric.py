@@ -128,8 +128,36 @@ def glare(image: np.ndarray, quad: np.ndarray, rng: np.random.Generator, ranges:
     }
 
 
-def precipitation(image: np.ndarray, rng: np.random.Generator, density: float, kind: str) -> EffectResult:
-    """Rain streaks or snow flakes over the whole frame, plus a light haze."""
+#: Highest opacity a precipitation particle may have over plate characters.
+#: Unprotected, a single near-opaque flake can erase a stroke on a small plate
+#: and turn one character into another (V2 QA: an ``O`` read as ``C``) while
+#: ``plate_num`` is unchanged.  At 0.35 a white particle over black ink leaves
+#: the stroke at about 0.37 luminance against a ~0.9 field -- veiled, never
+#: erased -- so every character keeps its identity.
+TEXT_PARTICLE_ALPHA = 0.35
+
+
+def text_guard(ink: np.ndarray) -> np.ndarray:
+    """Plate ink in output pixels, grown by one pixel to cover antialiased edges."""
+    grown = Image.fromarray((np.clip(ink, 0.0, 1.0) * 255.0 + 0.5).astype(np.uint8)).filter(ImageFilter.MaxFilter(3))
+    return np.asarray(grown, dtype=np.float32) / 255.0
+
+
+def precipitation(
+    image: np.ndarray,
+    rng: np.random.Generator,
+    density: float,
+    kind: str,
+    *,
+    protect: np.ndarray | None = None,
+) -> EffectResult:
+    """Rain streaks or snow flakes over the whole frame, plus a light haze.
+
+    ``protect`` (``H x W`` in [0, 1], normally :func:`text_guard` of the plate
+    ink) caps particle opacity at :data:`TEXT_PARTICLE_ALPHA` over characters,
+    so particles can veil a character but never change it.  It draws no random
+    numbers, so it changes nothing outside the protected pixels.
+    """
     height, width = image.shape[:2]
     layer = Image.new("L", (width, height), 0)
     draw = ImageDraw.Draw(layer)
@@ -154,9 +182,14 @@ def precipitation(image: np.ndarray, rng: np.random.Generator, density: float, k
             draw.ellipse((x - r, y - r, x + r, y + r), fill=int(rng.integers(140, 250)))
         streaks = np.asarray(layer.filter(ImageFilter.GaussianBlur(0.8)), np.float32) / 255.0
         haze = rng.uniform(0.05, 0.14)
+    record = {"density": round(density, 4), "particles": count, "haze": round(float(haze), 4)}
+    if protect is not None:
+        capped = np.minimum(streaks, TEXT_PARTICLE_ALPHA)
+        streaks = streaks + protect * (capped - streaks)
+        record["text_protected"] = True
     out = image * (1.0 - haze) + haze * 0.75
     out = out * (1.0 - streaks[..., None]) + streaks[..., None] * 0.9
-    return np.clip(out, 0.0, 1.0), {"density": round(density, 4), "particles": count, "haze": round(float(haze), 4)}
+    return np.clip(out, 0.0, 1.0), record
 
 
 def motion_blur(image: np.ndarray, rng: np.random.Generator, ranges: dict) -> EffectResult:

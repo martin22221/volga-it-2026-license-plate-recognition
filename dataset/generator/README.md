@@ -1,12 +1,12 @@
-# Synthetic plate generator (V2)
+# Synthetic plate generator (V2.1)
 
 Renders synthetic Russian registration plates — `type1`, `type1a`, `type1b` —
 mounted on procedural vehicles, with seeded geometric and photometric
 degradation, and writes images plus annotations in the `dataset/meta.csv`
 schema.
 
-**Status: V2, awaiting human visual review.** Do not generate the full
-training set until the V2 demo contact sheet has been approved.
+**Status: V2.1, awaiting human visual review.** Do not generate the full
+training set until the V2.1 demo contact sheet has been approved.
 
 ## V1 was superseded — read this first
 
@@ -28,6 +28,30 @@ the wrong character structure.** It printed the type 1 pattern (`A123BC77`,
 - The V1 option `--type1b-format` / `type1b_text_format` has been removed.
   The structure now follows from the plate type, and old configs that set it
   fail loudly.
+
+## V2.1 — precipitation label-integrity fix
+
+**Found:** focused QA of the V2 demo found that a single snowflake could erase
+a character's stroke on a small plate. In sample #42, `O935TB97`, the `O`
+read as `C`, but `plate_num` was unchanged.
+
+**Why the existing guards missed it:** snow and rain particles are drawn with
+an absolute pixel size and up to about 0.98 opacity after the plate is
+composited. They were not covered by the `#` occlusion labelling or by the
+plate-level contrast check.
+
+**Fix** (2.1.0):
+
+- Particle opacity is capped at `TEXT_PARTICLE_ALPHA = 0.35` over the plate's
+  character ink, which is warped into the image and grown by one pixel
+  (`photometric.text_guard`).
+- A capped particle can veil a stroke but never erase it, so every character
+  keeps its identity. No character is special-cased.
+- Snow and rain are otherwise unchanged: the same size, density and
+  placement, and fully visible off the characters.
+- The guard draws no random numbers. Samples without precipitation are
+  byte-identical to V2.
+- Regression tests are in `tests/test_generator_snow_integrity.py`.
 
 ## Quick start
 
