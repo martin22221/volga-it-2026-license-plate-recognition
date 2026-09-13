@@ -131,3 +131,15 @@ def test_condition_tags_follow_the_vocabulary() -> None:
         "dirt": {"strength": 0.1}, "glare": {"on_plate": False}, "motion_blur": {"length_px": 1.5},
     })
     assert calm == ("day",)
+
+
+def test_place_plate_honours_a_ground_line_when_it_can() -> None:
+    rng = np.random.default_rng(8)
+    relative = project_plate_corners(520, 112, yaw_deg=0, pitch_deg=0, roll_deg=0, px_per_mm=0.3, distance_ratio=8)
+    canvas = np.array([[0, 0], [156, 0], [156, 34], [0, 34]], dtype=float)
+    for _ in range(50):
+        placement = place_plate(canvas, relative, (640, 480), rng, margin=5, min_centre_y=300.0)
+        assert placement.quad.mean(axis=0)[1] >= 300.0 - 1e-9
+    # An unreachable line is ignored rather than pushing the plate out of frame.
+    placement = place_plate(canvas, relative, (640, 480), rng, margin=5, min_centre_y=10_000.0)
+    assert placement.quad[:, 1].max() <= 475

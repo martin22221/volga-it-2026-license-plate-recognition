@@ -13,7 +13,7 @@ import pytest
 from dataset.generator import OUTPUT_LICENSE, SOURCE_ID
 from dataset.generator.annotations import CONDITION_TAGS, META_COLUMNS
 from dataset.generator.generate import generate_dataset
-from dataset.generator.plate_text import is_competition_plate
+from dataset.generator.plate_text import is_plate_for_type
 from dataset.generator.sample import generate_sample, plan_dataset
 from src.dataset_meta import (
     ALLOWED_CONDITIONS,
@@ -135,7 +135,7 @@ def test_records_carry_seed_and_match_meta(batch: Path) -> None:
 def test_plate_numbers_are_valid_or_honestly_masked(batch: Path) -> None:
     for row, record in zip(_rows(batch), _records(batch)):
         full = record["plate_num_full"]
-        assert is_competition_plate(full) and is_valid_plate(full)
+        assert is_plate_for_type(full, row["plate_type"]) and is_valid_plate(full, row["plate_type"])
         label = row["plate_num"]
         assert len(label) == len(full)
         for index, (shown, actual) in enumerate(zip(label, full)):
@@ -184,7 +184,8 @@ def test_occluded_characters_are_labelled_unreadable() -> None:
     hidden_total = 0
     for plan in plan_dataset(config):
         sample = generate_sample(config, plan, image_name="x.jpg")
-        hidden = sample.record["effects"]["occlusion"]["hidden_positions"]
+        # A legibility retry may redraw the effects without occlusion.
+        hidden = sample.record["effects"].get("occlusion", {}).get("hidden_positions", [])
         hidden_total += len(hidden)
         assert [i for i, ch in enumerate(sample.annotation.plate_num) if ch == "#"] == hidden
         assert len(hidden) < len(plan.text.full)  # never every character

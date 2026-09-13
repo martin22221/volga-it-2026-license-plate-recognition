@@ -131,12 +131,15 @@ def test_plan_is_deterministic_and_seed_dependent() -> None:
     assert len({entry[2] for entry in first}) == 40  # identities unique
 
 
-def test_plan_uses_competition_format_unless_configured() -> None:
-    plans = plan_dataset(config_from_dict({"count": 30}))
-    assert {p.text.text_format for p in plans} == {"competition"}
-    gost = plan_dataset(config_from_dict({"count": 30, "type1b_text_format": "gost_1b"}))
-    assert {p.text.text_format for p in gost if p.plate_type == "type1b"} == {"gost_1b"}
-    assert {p.text.text_format for p in gost if p.plate_type != "type1b"} == {"competition"}
+def test_plan_structure_follows_the_plate_type() -> None:
+    plans = plan_dataset(config_from_dict({"count": 60}))
+    assert {p.text.text_format for p in plans if p.plate_type == "type1b"} == {"type1b"}
+    assert {p.text.text_format for p in plans if p.plate_type != "type1b"} == {"type1"}
+
+
+def test_the_v1_type1b_option_no_longer_exists() -> None:
+    with pytest.raises(ConfigError, match="unknown configuration key"):
+        config_from_dict({"type1b_text_format": "competition"})
 
 
 @pytest.mark.parametrize("level", ["easy", "medium", "hard"])

@@ -19,12 +19,6 @@ from typing import Any, Final, Mapping
 PLATE_TYPES: Final[tuple[str, ...]] = ("type1", "type1a", "type1b")
 DIFFICULTIES: Final[tuple[str, ...]] = ("easy", "medium", "hard")
 
-#: How a ``type1b`` plate's characters are composed.  ``competition`` is the
-#: mask the task and ``src/validator.py`` use for every class
-#: (``A123BC77``); ``gost_1b`` is the composition GOST R 50577-2018 section
-#: 3.3 gives for type 1B (``AB12377``), which that validator rejects.
-TEXT_FORMATS: Final[tuple[str, ...]] = ("competition", "gost_1b")
-
 FONT_PROVIDERS: Final[tuple[str, ...]] = ("stroke",)
 
 #: Optional effects, in the order the pipeline considers them.
@@ -57,6 +51,24 @@ EFFECT_RANGE_KEYS: Final[dict[str, tuple[str, ...]]] = {
     "heavy_noise": ("sigma",),
 }
 
+#: How much each effect erodes the plate's information.  A sample's enabled
+#: effects must fit its level's ``severity_budget``, so severe effects are not
+#: stacked: e.g. night + motion blur fits a hard budget, night + dirt + defocus
+#: does not.
+EFFECT_SEVERITY: Final[dict[str, float]] = {
+    "night": 1.5,
+    "low_light": 1.0,
+    "shadow": 0.5,
+    "glare": 1.0,
+    "dirt": 0.75,
+    "occlusion": 1.0,
+    "rain": 0.75,
+    "snow": 0.75,
+    "motion_blur": 1.25,
+    "defocus": 1.25,
+    "heavy_noise": 1.0,
+}
+
 #: Effects that cannot be combined; when both are drawn, the first is kept.
 EXCLUSIVE_EFFECTS: Final[tuple[tuple[str, str], ...]] = (
     ("night", "low_light"),
@@ -81,6 +93,11 @@ class DifficultyProfile:
     sample draws uniformly inside them.  ``distance_ratio`` is camera distance
     over plate width -- smaller values give stronger perspective
     (keystone) distortion at the same angle.
+
+    ``severity_budget`` caps the summed :data:`EFFECT_SEVERITY` of a sample's
+    effects.  ``min_plate_contrast`` is measured on the finished image --
+    ink against plate field, ``(field - ink) / (field + ink)`` of median
+    luminance -- and a sample below it has its effects redrawn.
     """
 
     px_per_mm: Range
@@ -96,6 +113,8 @@ class DifficultyProfile:
     jpeg_quality: tuple[int, int]
     double_jpeg_probability: float
     max_effects: int
+    severity_budget: float
+    min_plate_contrast: float
     effect_probability: Mapping[str, float]
     effect_range: Mapping[str, Mapping[str, Range]]
 
@@ -119,6 +138,8 @@ DEFAULT_DIFFICULTIES: Final[dict[str, DifficultyProfile]] = {
         jpeg_quality=(85, 95),
         double_jpeg_probability=0.0,
         max_effects=1,
+        severity_budget=1.25,
+        min_plate_contrast=0.50,
         effect_probability={
             "night": 0.10,
             "low_light": 0.05,
@@ -129,7 +150,7 @@ DEFAULT_DIFFICULTIES: Final[dict[str, DifficultyProfile]] = {
             "rain": 0.03,
             "snow": 0.02,
             "motion_blur": 0.05,
-            "defocus": 0.10,
+            "defocus": 0.08,
             "heavy_noise": 0.0,
         },
         effect_range={
@@ -141,91 +162,95 @@ DEFAULT_DIFFICULTIES: Final[dict[str, DifficultyProfile]] = {
             "occlusion": {"extent": (0.05, 0.10)},
             "rain": {"density": (0.20, 0.40)},
             "snow": {"density": (0.20, 0.40)},
-            "motion_blur": {"length_px": (2.0, 4.0)},
-            "defocus": {"radius_px": (0.5, 1.0)},
+            "motion_blur": {"length_px": (2.0, 3.5)},
+            "defocus": {"radius_px": (0.5, 0.9)},
             "heavy_noise": {"sigma": (0.02, 0.03)},
         },
     ),
     "medium": _profile(
-        px_per_mm=(0.17, 0.38),
+        px_per_mm=(0.18, 0.40),
         max_yaw_deg=30.0,
         max_pitch_deg=15.0,
         max_roll_deg=8.0,
         distance_ratio=(5.0, 15.0),
-        brightness=(0.80, 1.15),
-        contrast=(0.80, 1.15),
-        gamma=(0.85, 1.20),
-        white_balance=0.08,
-        noise_sigma=(0.004, 0.015),
-        jpeg_quality=(60, 90),
+        brightness=(0.82, 1.15),
+        contrast=(0.82, 1.12),
+        gamma=(0.88, 1.18),
+        white_balance=0.07,
+        noise_sigma=(0.004, 0.013),
+        jpeg_quality=(62, 90),
         double_jpeg_probability=0.10,
         max_effects=2,
+        severity_budget=2.0,
+        min_plate_contrast=0.38,
         effect_probability={
-            "night": 0.25,
-            "low_light": 0.15,
+            "night": 0.22,
+            "low_light": 0.12,
             "shadow": 0.30,
             "glare": 0.15,
             "dirt": 0.30,
-            "occlusion": 0.05,
+            "occlusion": 0.06,
             "rain": 0.08,
             "snow": 0.06,
-            "motion_blur": 0.20,
-            "defocus": 0.20,
-            "heavy_noise": 0.10,
+            "motion_blur": 0.18,
+            "defocus": 0.18,
+            "heavy_noise": 0.08,
         },
         effect_range={
-            "night": {"darkness": (0.28, 0.45), "plate_gain": (0.70, 0.95)},
-            "low_light": {"gain": (0.50, 0.70)},
-            "shadow": {"strength": (0.30, 0.50)},
-            "glare": {"strength": (0.30, 0.50), "radius": (0.30, 0.70)},
-            "dirt": {"strength": (0.25, 0.50)},
-            "occlusion": {"extent": (0.08, 0.20)},
-            "rain": {"density": (0.35, 0.70)},
-            "snow": {"density": (0.35, 0.70)},
-            "motion_blur": {"length_px": (3.0, 7.0)},
-            "defocus": {"radius_px": (0.8, 1.6)},
-            "heavy_noise": {"sigma": (0.03, 0.05)},
+            "night": {"darkness": (0.30, 0.48), "plate_gain": (0.75, 0.98)},
+            "low_light": {"gain": (0.52, 0.72)},
+            "shadow": {"strength": (0.28, 0.45)},
+            "glare": {"strength": (0.28, 0.48), "radius": (0.30, 0.65)},
+            "dirt": {"strength": (0.22, 0.45)},
+            "occlusion": {"extent": (0.07, 0.16)},
+            "rain": {"density": (0.30, 0.65)},
+            "snow": {"density": (0.30, 0.65)},
+            "motion_blur": {"length_px": (2.5, 6.0)},
+            "defocus": {"radius_px": (0.7, 1.4)},
+            "heavy_noise": {"sigma": (0.025, 0.045)},
         },
     ),
     "hard": _profile(
-        px_per_mm=(0.12, 0.26),
-        max_yaw_deg=50.0,
-        max_pitch_deg=25.0,
-        max_roll_deg=15.0,
-        distance_ratio=(3.5, 10.0),
-        brightness=(0.65, 1.25),
-        contrast=(0.65, 1.20),
-        gamma=(0.80, 1.35),
-        white_balance=0.12,
-        noise_sigma=(0.006, 0.022),
-        jpeg_quality=(35, 75),
-        double_jpeg_probability=0.25,
+        px_per_mm=(0.14, 0.28),
+        max_yaw_deg=45.0,
+        max_pitch_deg=22.0,
+        max_roll_deg=12.0,
+        distance_ratio=(4.0, 12.0),
+        brightness=(0.72, 1.20),
+        contrast=(0.72, 1.15),
+        gamma=(0.85, 1.28),
+        white_balance=0.10,
+        noise_sigma=(0.005, 0.018),
+        jpeg_quality=(45, 80),
+        double_jpeg_probability=0.20,
         max_effects=3,
+        severity_budget=2.75,
+        min_plate_contrast=0.30,
         effect_probability={
-            "night": 0.40,
+            "night": 0.35,
             "low_light": 0.20,
-            "shadow": 0.40,
-            "glare": 0.30,
-            "dirt": 0.45,
-            "occlusion": 0.15,
-            "rain": 0.15,
-            "snow": 0.12,
-            "motion_blur": 0.35,
-            "defocus": 0.30,
-            "heavy_noise": 0.25,
+            "shadow": 0.35,
+            "glare": 0.25,
+            "dirt": 0.40,
+            "occlusion": 0.12,
+            "rain": 0.12,
+            "snow": 0.10,
+            "motion_blur": 0.30,
+            "defocus": 0.25,
+            "heavy_noise": 0.20,
         },
         effect_range={
-            "night": {"darkness": (0.18, 0.35), "plate_gain": (0.55, 0.90)},
-            "low_light": {"gain": (0.38, 0.60)},
-            "shadow": {"strength": (0.40, 0.65)},
-            "glare": {"strength": (0.40, 0.62), "radius": (0.35, 0.80)},
-            "dirt": {"strength": (0.35, 0.70)},
-            "occlusion": {"extent": (0.12, 0.30)},
-            "rain": {"density": (0.50, 1.00)},
-            "snow": {"density": (0.50, 1.00)},
-            "motion_blur": {"length_px": (4.0, 11.0)},
-            "defocus": {"radius_px": (1.2, 2.4)},
-            "heavy_noise": {"sigma": (0.04, 0.07)},
+            "night": {"darkness": (0.24, 0.42), "plate_gain": (0.65, 0.95)},
+            "low_light": {"gain": (0.45, 0.65)},
+            "shadow": {"strength": (0.35, 0.55)},
+            "glare": {"strength": (0.35, 0.55), "radius": (0.30, 0.70)},
+            "dirt": {"strength": (0.30, 0.60)},
+            "occlusion": {"extent": (0.10, 0.22)},
+            "rain": {"density": (0.40, 0.85)},
+            "snow": {"density": (0.40, 0.85)},
+            "motion_blur": {"length_px": (3.0, 9.0)},
+            "defocus": {"radius_px": (1.0, 2.0)},
+            "heavy_noise": {"sigma": (0.03, 0.055)},
         },
     ),
 }
@@ -239,8 +264,8 @@ DEFAULT_CLASS_WEIGHTS: Final[dict[str, float]] = {
 
 DEFAULT_DIFFICULTY_WEIGHTS: Final[dict[str, float]] = {
     "easy": 0.35,
-    "medium": 0.40,
-    "hard": 0.25,
+    "medium": 0.45,
+    "hard": 0.20,
 }
 
 DEFAULT_IMAGE_SIZES: Final[tuple[tuple[int, int], ...]] = (
@@ -252,7 +277,7 @@ DEFAULT_IMAGE_SIZES: Final[tuple[tuple[int, int], ...]] = (
 
 #: Smallest character height, in output pixels, a plate may be rendered at.
 #: Below this the label would claim text nobody could read.
-DEFAULT_MIN_CHAR_HEIGHT_PX: Final[float] = 9.0
+DEFAULT_MIN_CHAR_HEIGHT_PX: Final[float] = 10.0
 
 
 @dataclass(frozen=True)
@@ -270,8 +295,9 @@ class GeneratorConfig:
     )
     image_sizes: tuple[tuple[int, int], ...] = DEFAULT_IMAGE_SIZES
     three_digit_region_probability: float = 0.35
-    type1b_text_format: str = "competition"
     max_images_per_plate: int = 1
+    #: An occluder may hide at most this many characters (they become ``#``).
+    max_hidden_characters: int = 2
     font: str = "stroke"
     supersample: int = 4
     min_char_height_px: float = DEFAULT_MIN_CHAR_HEIGHT_PX
@@ -365,6 +391,10 @@ def validate_profile(level: str, profile: DifficultyProfile) -> None:
     _check_probability(f"{prefix}.double_jpeg_probability", profile.double_jpeg_probability)
     if not isinstance(profile.max_effects, int) or profile.max_effects < 0:
         raise ConfigError(f"{prefix}.max_effects must be a non-negative integer")
+    if not isinstance(profile.severity_budget, (int, float)) or not 0 <= profile.severity_budget <= 20:
+        raise ConfigError(f"{prefix}.severity_budget must be within [0, 20]")
+    if not isinstance(profile.min_plate_contrast, (int, float)) or not 0 <= profile.min_plate_contrast < 1:
+        raise ConfigError(f"{prefix}.min_plate_contrast must be within [0, 1)")
 
     unknown = sorted(set(profile.effect_probability) - set(OPTIONAL_EFFECTS))
     if unknown:
@@ -430,11 +460,8 @@ def validate_config(config: GeneratorConfig) -> GeneratorConfig:
             raise ConfigError(f"image size {size!r} outside 128..4096 x 96..4096")
 
     _check_probability("three_digit_region_probability", config.three_digit_region_probability)
-    if config.type1b_text_format not in TEXT_FORMATS:
-        raise ConfigError(
-            f"type1b_text_format must be one of {list(TEXT_FORMATS)}, "
-            f"got {config.type1b_text_format!r}"
-        )
+    if not isinstance(config.max_hidden_characters, int) or not 0 <= config.max_hidden_characters <= 4:
+        raise ConfigError("max_hidden_characters must be an integer within [0, 4]")
     if not isinstance(config.max_images_per_plate, int) or config.max_images_per_plate < 1:
         raise ConfigError("max_images_per_plate must be an integer >= 1")
     if config.font not in FONT_PROVIDERS:

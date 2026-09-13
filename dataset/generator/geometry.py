@@ -116,8 +116,13 @@ def place_plate(
     rng: np.random.Generator,
     *,
     margin: float,
+    min_centre_y: float | None = None,
 ) -> Placement:
     """Translate ``relative_quad`` to a random position fully inside the image.
+
+    ``min_centre_y`` optionally keeps the plate centre at or below a line --
+    used to stand the vehicle on the scene's ground rather than in the sky.
+    It is ignored when it cannot be met with the plate still in frame.
 
     Raises ``ValueError`` if the quad cannot fit; the caller shrinks it.
     """
@@ -128,6 +133,8 @@ def place_plate(
     y_min, y_max = margin - lo[1], height - margin - hi[1]
     if x_min > x_max or y_min > y_max:
         raise ValueError("plate does not fit in the image")
+    if min_centre_y is not None and min_centre_y <= y_max:
+        y_min = max(y_min, min_centre_y)
     # Plates sit more often in the middle and lower part of a frame.
     centre = np.array(
         [

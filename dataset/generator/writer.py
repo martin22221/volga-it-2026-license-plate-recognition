@@ -4,7 +4,7 @@
 on it unchanged (``--dataset <output>``)::
 
     <output>/
-      images/synthetic/syn_<seed>_<index>.jpg
+      images/synthetic/syn_v<major>_<seed>_<index>.jpg
       meta.csv            dataset/meta.csv schema, one row per plate
       generation.jsonl    every parameter of every sample, incl. its seed
       manifest.json       config, versions, counts and SHA-256 of every file
@@ -44,7 +44,11 @@ class OutputError(Exception):
 
 
 def image_name(seed: int, index: int) -> str:
-    return f"syn_{seed}_{index:05d}.jpg"
+    """``syn_v<major>_<seed>_<index>.jpg`` -- the version keeps V1 artefacts
+    (``syn_<seed>_<index>.jpg``) distinguishable; the dataset validator
+    rejects those."""
+    major = GENERATOR_VERSION.split(".")[0]
+    return f"syn_v{major}_{seed}_{index:05d}.jpg"
 
 
 def _sha256(data: bytes) -> str:

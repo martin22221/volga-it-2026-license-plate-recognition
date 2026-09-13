@@ -17,6 +17,7 @@ from PIL import Image
 from .annotations import Annotation, derive_conditions, masked_plate_number, round_quad
 from .config import (
     DIFFICULTIES,
+    EFFECT_SEVERITY,
     EXCLUSIVE_EFFECTS,
     OPTIONAL_EFFECTS,
     PLATE_TYPES,
@@ -26,6 +27,8 @@ from .config import (
 )
 from .fonts import FontProvider, get_font_provider
 from .geometry import (
+    apply_homography,
+    homography,
     local_scale,
     pil_perspective_coefficients,
     place_plate,
@@ -50,6 +53,10 @@ from .templates import PLATE_SIZE_MM, build_layout
 
 #: Smallest label character on any layout is 58 mm tall.
 SMALLEST_CHAR_MM = 58.0
+
+#: Redraws of a sample's effects when the plate contrast falls below the
+#: level's ``min_plate_contrast``; after these, the sample is rendered clean.
+MAX_LEGIBILITY_ATTEMPTS = 3
 
 
 @dataclass(frozen=True)
@@ -94,14 +101,13 @@ def plan_dataset(config: GeneratorConfig) -> list[SamplePlan]:
     )
     plans = []
     for index, (plate_type, level) in enumerate(entries):
-        text_format = config.type1b_text_format if plate_type == "type1b" else "competition"
         plans.append(
             SamplePlan(
                 index=index,
                 sample_seed=derive_seed(config.seed, "sample", index),
                 plate_type=plate_type,
                 difficulty=level,
-                text=sampler.sample(text_format),
+                text=sampler.sample(plate_type),
             )
         )
     return plans
@@ -111,8 +117,9 @@ def select_effects(profile: DifficultyProfile, rng: np.random.Generator) -> list
     """Which optional effects this sample gets.
 
     One uniform draw per effect, always, so the stream stays aligned whatever
-    is enabled.  Exclusive pairs keep their first member, and at most
-    ``max_effects`` survive -- difficulty raises the ceiling, it does not stack
+    is enabled.  Exclusive pairs keep their first member; at most
+    ``max_effects`` survive, and their summed severity must fit the level's
+    ``severity_budget`` -- difficulty raises the ceiling, it does not stack
     every degradation on every image.
     """
     draws = rng.random(len(OPTIONAL_EFFECTS))
@@ -120,11 +127,16 @@ def select_effects(profile: DifficultyProfile, rng: np.random.Generator) -> list
     for first, second in EXCLUSIVE_EFFECTS:
         if first in enabled and second in enabled:
             enabled.remove(second)
-    cap_draw = rng.permutation(len(enabled))
-    if len(enabled) > profile.max_effects:
-        keep = sorted(int(i) for i in cap_draw[: profile.max_effects])
-        enabled = [enabled[i] for i in keep]
-    return enabled
+    # Admit effects in a random order while they fit the count cap and the
+    # severity budget; report them in pipeline order.
+    kept: list[str] = []
+    budget = profile.severity_budget
+    for i in rng.permutation(len(enabled)):
+        name = enabled[int(i)]
+        if len(kept) < profile.max_effects and EFFECT_SEVERITY[name] <= budget + 1e-9:
+            kept.append(name)
+            budget -= EFFECT_SEVERITY[name]
+    return [name for name in enabled if name in kept]
 
 
 def _u(rng: np.random.Generator, pair: tuple[float, float]) -> float:
@@ -166,8 +178,10 @@ def _legible_ranges(profile: DifficultyProfile, char_px: float) -> dict[str, dic
     return ranges
 
 
-def _warp_plane(canvas, matrix: np.ndarray, size: tuple[int, int]) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Warp the plane canvas (premultiplied) and its masks into the output."""
+def _warp_plane(
+    canvas, matrix: np.ndarray, size: tuple[int, int]
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Warp the plane canvas (premultiplied), its plate mask and ink into the output."""
     coefficients = pil_perspective_coefficients(matrix)
 
     def warp(channel: np.ndarray) -> np.ndarray:
@@ -179,7 +193,8 @@ def _warp_plane(canvas, matrix: np.ndarray, size: tuple[int, int]) -> tuple[np.n
     premultiplied = np.stack([warp(canvas.rgb[..., c] * canvas.alpha) for c in range(3)], axis=-1)
     premultiplied = np.clip(premultiplied, 0.0, alpha[..., None])
     plate_mask = np.clip(warp(canvas.plate_alpha), 0.0, 1.0)
-    return premultiplied, alpha, plate_mask
+    ink = np.clip(warp(canvas.ink), 0.0, 1.0)
+    return premultiplied, alpha, plate_mask, ink
 
 
 def _encode_jpeg(
@@ -254,60 +269,38 @@ def generate_sample(
     char_px = _text_scale_px(relative, width_mm, height_mm)
     ranges = _legible_ranges(profile, char_px)
 
-    # ---- plate -----------------------------------------------------------
+    # ---- plate, effects, scene: retried until the plate stays legible ------
     layout = build_layout(plan.plate_type, plan.text)
     style = sample_style(rngs.stream("style"), layout.field_colour)
     render_scale = float(np.clip(1.3 * local_scale(relative, width_mm, height_mm), 0.08, 3.0))
-    plate = render_plate(layout, style, font, render_scale, supersample=config.supersample)
-
-    effects_enabled = select_effects(profile, rngs.stream("effects"))
-    effects: dict[str, dict] = {}
-    if "dirt" in effects_enabled:
-        e_rng = rngs.stream("effect:dirt")
-        effects["dirt"] = apply_dirt(plate, e_rng, _u(e_rng, ranges["dirt"]["strength"]))
-
-    canvas = build_vehicle_panel(rngs.stream("panel"), plate, plan.plate_type)
-    hidden: set[int] = set()
-    if "occlusion" in effects_enabled:
-        e_rng = rngs.stream("effect:occlusion")
-        hidden, effects["occlusion"] = apply_occlusion(
-            canvas, plate.glyph_boxes, e_rng, _u(e_rng, ranges["occlusion"]["extent"])
-        )
-
-    placement = place_plate(canvas.plate_corners, relative, size, rngs.stream("placement"), margin=margin)
-
-    # ---- scene -----------------------------------------------------------
     scene, scene_record = background.render(rngs.stream("background"), size)
-    premultiplied, alpha, plate_mask = _warp_plane(canvas, placement.matrix, size)
-    image = premultiplied + scene * (1.0 - alpha[..., None])
+    light_record: dict = {}
+    attempt_log: list[dict] = []
+    for attempt in range(MAX_LEGIBILITY_ATTEMPTS + 1):
+        suffix = "" if attempt == 0 else f"#retry{attempt}"
+        final = attempt == MAX_LEGIBILITY_ATTEMPTS
+        # The last attempt drops every optional effect: a clean render is
+        # always legible, so the loop always ends with a truthful label.
+        effects_enabled = [] if final else select_effects(profile, rngs.stream("effects" + suffix))
+        rendered = _render_attempt(
+            config, plan, profile, ranges, rngs, suffix, effects_enabled,
+            layout=layout, style=style, font=font, render_scale=render_scale,
+            relative=relative, size=size, margin=margin, scene=scene, scene_record=scene_record,
+        )
+        contrast = rendered["contrast"]
+        attempt_log.append({"effects": sorted(rendered["effects"]), "plate_contrast": round(contrast, 4)})
+        if contrast >= profile.min_plate_contrast or final:
+            break
+    image = rendered["image"]
+    effects = rendered["effects"]
+    hidden = rendered["hidden"]
+    quad = rendered["quad"]
+    canvas_record = rendered["vehicle"]
+    light_record = rendered["lighting"]
+    noise_record = rendered["noise"]
+    plate_mask = rendered["plate_mask"]
+    effects_enabled = rendered["enabled"]
 
-    # ---- photometric -------------------------------------------------------
-    image, light_record = lighting(image, rngs.stream("lighting"), profile)
-    quad = placement.quad
-    if "night" in effects_enabled:
-        image, effects["night"] = night(image, plate_mask, quad, rngs.stream("effect:night"), ranges["night"])
-    if "low_light" in effects_enabled:
-        image, effects["low_light"] = low_light(image, rngs.stream("effect:low_light"), ranges["low_light"])
-    if "shadow" in effects_enabled:
-        image, effects["shadow"] = shadow(image, quad, rngs.stream("effect:shadow"), ranges["shadow"])
-    if "glare" in effects_enabled:
-        image, effects["glare"] = glare(image, quad, rngs.stream("effect:glare"), ranges["glare"])
-    for weather in ("rain", "snow"):
-        if weather in effects_enabled:
-            w_rng = rngs.stream(f"effect:{weather}")
-            image, effects[weather] = precipitation(
-                image, w_rng, _u(w_rng, ranges[weather]["density"]), weather
-            )
-    if "motion_blur" in effects_enabled:
-        image, effects["motion_blur"] = motion_blur(image, rngs.stream("effect:motion_blur"), ranges["motion_blur"])
-    if "defocus" in effects_enabled:
-        image, effects["defocus"] = defocus(image, rngs.stream("effect:defocus"), ranges["defocus"])
-    n_rng = rngs.stream("noise")
-    if "heavy_noise" in effects_enabled:
-        sigma, chroma = _u(n_rng, ranges["heavy_noise"]["sigma"]), True
-    else:
-        sigma, chroma = _u(n_rng, profile.noise_sigma), False
-    image, noise_record = sensor_noise(image, n_rng, sigma, chroma=chroma)
     jpeg_floor = SMALL_TEXT_JPEG_FLOOR if char_px < SMALL_TEXT_PX else 0
     image_bytes, jpeg_record = _encode_jpeg(image, rngs.stream("jpeg"), profile, min_quality=jpeg_floor)
 
@@ -351,8 +344,15 @@ def generate_sample(
             "ink_rgb": [round(c, 4) for c in style.ink_rgb],
             "stroke_scale": round(style.stroke_scale, 4),
             "emboss": round(style.emboss, 4),
+            "sheen": round(style.sheen, 4),
+            "bolts": style.bolt_rgb is not None,
         },
-        "vehicle": canvas.record,
+        "legibility": {
+            "plate_contrast": attempt_log[-1]["plate_contrast"],
+            "min_required": profile.min_plate_contrast,
+            "attempts": attempt_log,
+        },
+        "vehicle": canvas_record,
         "background": scene_record,
         "lighting": light_record,
         "effects": effects,
@@ -368,6 +368,113 @@ def generate_sample(
         plate_mask=plate_mask,
     )
 
+
+def plate_contrast(image: np.ndarray, plate_mask: np.ndarray, ink: np.ndarray) -> float:
+    """Ink-against-field contrast of the plate in the finished image.
+
+    ``(field - ink) / (field + ink)`` of median luminance, over pixels well
+    inside the plate: 1.0 is black on white, 0 means the characters have
+    vanished into the field.  Blur, darkness, glare and dirt all lower it.
+    """
+    luminance = image @ np.array([0.299, 0.587, 0.114], dtype=np.float32)
+    inside = plate_mask > 0.9
+    ink_px = inside & (ink > 0.6)
+    field_px = inside & (ink < 0.03)
+    if ink_px.sum() < 5 or field_px.sum() < 20:
+        return 0.0
+    ink_level = float(np.median(luminance[ink_px]))
+    field_level = float(np.median(luminance[field_px]))
+    return (field_level - ink_level) / (field_level + ink_level + 1e-6)
+
+
+def _render_attempt(
+    config: GeneratorConfig,
+    plan: SamplePlan,
+    profile: DifficultyProfile,
+    ranges: dict,
+    rngs: SampleRng,
+    suffix: str,
+    effects_enabled: list[str],
+    *,
+    layout,
+    style,
+    font: FontProvider,
+    render_scale: float,
+    relative: np.ndarray,
+    size: tuple[int, int],
+    margin: float,
+    scene: np.ndarray,
+    scene_record: dict,
+) -> dict:
+    """One pass of plate -> vehicle -> warp -> photometric effects."""
+
+    def stream(name: str) -> np.random.Generator:
+        return rngs.stream(name + suffix)
+
+    plate = render_plate(layout, style, font, render_scale, supersample=config.supersample, rng=rngs.stream("surface"))
+    effects: dict[str, dict] = {}
+    if "dirt" in effects_enabled:
+        e_rng = stream("effect:dirt")
+        effects["dirt"] = apply_dirt(plate, e_rng, _u(e_rng, ranges["dirt"]["strength"]))
+
+    canvas = build_vehicle_panel(rngs.stream("panel"), plate, plan.plate_type)
+    hidden: set[int] = set()
+    if "occlusion" in effects_enabled:
+        e_rng = stream("effect:occlusion")
+        hidden, effects["occlusion"] = apply_occlusion(
+            canvas, plate.glyph_boxes, e_rng, _u(e_rng, ranges["occlusion"]["extent"]),
+            max_hidden=config.max_hidden_characters,
+        )
+
+    # Stand the vehicle on the ground: its wheels (panel bottom centre) must
+    # project at or below the background's ground line.
+    to_relative = homography(canvas.plate_corners, relative)
+    panel_h, panel_w = canvas.alpha.shape
+    wheels_dy = float(apply_homography(to_relative, np.array([[panel_w / 2.0, float(panel_h)]]))[0, 1])
+    min_centre_y = scene_record.get("ground_y", 0) - wheels_dy + 0.02 * size[1]
+    placement = place_plate(
+        canvas.plate_corners, relative, size, rngs.stream("placement"), margin=margin, min_centre_y=min_centre_y
+    )
+    grounded = placement.quad.mean(axis=0)[1] >= min_centre_y - 1e-6
+    premultiplied, alpha, plate_mask, ink = _warp_plane(canvas, placement.matrix, size)
+    image = premultiplied + scene * (1.0 - alpha[..., None])
+
+    image, light_record = lighting(image, rngs.stream("lighting"), profile)
+    quad = placement.quad
+    if "night" in effects_enabled:
+        image, effects["night"] = night(image, plate_mask, quad, stream("effect:night"), ranges["night"])
+    if "low_light" in effects_enabled:
+        image, effects["low_light"] = low_light(image, stream("effect:low_light"), ranges["low_light"])
+    if "shadow" in effects_enabled:
+        image, effects["shadow"] = shadow(image, quad, stream("effect:shadow"), ranges["shadow"])
+    if "glare" in effects_enabled:
+        image, effects["glare"] = glare(image, quad, stream("effect:glare"), ranges["glare"])
+    for weather in ("rain", "snow"):
+        if weather in effects_enabled:
+            w_rng = stream(f"effect:{weather}")
+            image, effects[weather] = precipitation(image, w_rng, _u(w_rng, ranges[weather]["density"]), weather)
+    if "motion_blur" in effects_enabled:
+        image, effects["motion_blur"] = motion_blur(image, stream("effect:motion_blur"), ranges["motion_blur"])
+    if "defocus" in effects_enabled:
+        image, effects["defocus"] = defocus(image, stream("effect:defocus"), ranges["defocus"])
+    n_rng = stream("noise")
+    if "heavy_noise" in effects_enabled:
+        sigma, chroma = _u(n_rng, ranges["heavy_noise"]["sigma"]), True
+    else:
+        sigma, chroma = _u(n_rng, profile.noise_sigma), False
+    image, noise_record = sensor_noise(image, n_rng, sigma, chroma=chroma)
+    return {
+        "image": image,
+        "effects": effects,
+        "enabled": effects_enabled,
+        "hidden": hidden,
+        "quad": quad,
+        "vehicle": {**canvas.record, "grounded": bool(grounded)},
+        "lighting": light_record,
+        "noise": noise_record,
+        "plate_mask": plate_mask,
+        "contrast": plate_contrast(image, plate_mask, ink),
+    }
 
 __all__ = [
     "GeneratedSample",

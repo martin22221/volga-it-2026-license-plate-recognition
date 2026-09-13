@@ -25,10 +25,19 @@ from __future__ import annotations
 
 import csv
 import logging
+import re
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Final, Iterable, Iterator, Sequence
+
+from src.validator import (
+    ALLOWED_LETTERS,
+    FORMAT_BY_PLATE_TYPE,
+    TYPE1B_FORMAT,
+    TYPE1B_REGION_LENGTHS,
+    validate_plate,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -151,6 +160,24 @@ UNREADABLE_CHAR: Final[str] = "#"
 #: Deviation between the quad extent and the bbox tolerated before a warning,
 #: as a fraction of the corresponding bbox side.
 QUAD_BBOX_TOLERANCE: Final[float] = 0.25
+
+#: File names written by synthetic generator V1 (``syn_<seed>_<index>.jpg``).
+#: V1 was superseded on 2026-09-13: its ``type1b`` plates used the type 1
+#: character structure instead of GOST's ``MM 000 55``.  Its output is a
+#: development artefact and must never enter the dataset.  V2 and later name
+#: files ``syn_v<major>_<seed>_<index>.jpg``.
+SUPERSEDED_SYNTHETIC_NAME: Final[re.Pattern[str]] = re.compile(r"^syn_\d+_\d{5}\.jpg$")
+
+_WILDCARD_LETTER: Final[str] = "[" + "".join(sorted(ALLOWED_LETTERS)) + re.escape(UNREADABLE_CHAR) + "]"
+_WILDCARD_DIGIT: Final[str] = r"[\d" + re.escape(UNREADABLE_CHAR) + "]"
+#: Structure of each format with ``#`` allowed in any position.
+_MASKED_STRUCTURE: Final[dict[str, re.Pattern[str]]] = {
+    "type1": re.compile(rf"^{_WILDCARD_LETTER}{_WILDCARD_DIGIT}{{3}}{_WILDCARD_LETTER}{{2}}{_WILDCARD_DIGIT}{{2,3}}$"),
+    TYPE1B_FORMAT: re.compile(
+        rf"^{_WILDCARD_LETTER}{{2}}{_WILDCARD_DIGIT}{{3}}"
+        rf"{_WILDCARD_DIGIT}{{{min(TYPE1B_REGION_LENGTHS)},{max(TYPE1B_REGION_LENGTHS)}}}$"
+    ),
+}
 
 
 class Severity(str, Enum):
@@ -551,6 +578,15 @@ def _check_image_path(
         return
 
     synthetic = row.is_synthetic
+    if in_synthetic and SUPERSEDED_SYNTHETIC_NAME.fullmatch(Path(image).name):
+        report.add(
+            Severity.ERROR,
+            f"{image!r} was written by synthetic generator V1, which was superseded "
+            "(its type1b plates used the wrong character structure); V1 output is a "
+            "development artefact and must not enter the dataset",
+            row.line,
+            "image",
+        )
     if synthetic is True and in_real:
         report.add(
             Severity.WARNING,
@@ -605,6 +641,37 @@ def _check_plate_num(row: MetaRow, report: ValidationReport) -> None:
             row.line,
             "plate_num",
         )
+
+    if row.is_synthetic is True and plate_num and row.plate_type in FORMAT_BY_PLATE_TYPE:
+        _check_synthetic_grammar(row, report)
+
+
+def _check_synthetic_grammar(row: MetaRow, report: ValidationReport) -> None:
+    """A generated label must follow its plate type's structure exactly.
+
+    Only synthetic rows are checked: the generator knows the type it drew,
+    so a mismatch is always a generator bug -- e.g. V1's ``type1b`` plates in
+    the type 1 structure.  Real annotations record what a person saw and are
+    not second-guessed here.
+    """
+    plate_num, plate_type = row.plate_num, row.plate_type
+    fmt = FORMAT_BY_PLATE_TYPE[plate_type]
+    if UNREADABLE_CHAR in plate_num:
+        if _MASKED_STRUCTURE[fmt].fullmatch(plate_num):
+            return
+        reason = "does not fit the structure even allowing for '#'"
+    else:
+        result = validate_plate(plate_num, plate_type)
+        if result.is_valid:
+            return
+        reason = result.reason
+    report.add(
+        Severity.ERROR,
+        f"synthetic {plate_type} plate_num {plate_num!r} violates the {plate_type} "
+        f"structure: {reason}",
+        row.line,
+        "plate_num",
+    )
 
 
 def _check_booleans(row: MetaRow, report: ValidationReport) -> None:

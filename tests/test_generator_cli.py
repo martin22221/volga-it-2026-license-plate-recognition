@@ -59,7 +59,7 @@ def test_cli_with_config_file(tmp_path: Path) -> None:
         ["--difficulty-weights", "brutal=1"],
         ["--image-size", "big"],
         ["--difficulty", "extreme"],
-        ["--type1b-format", "unknown"],
+        ["--type1b-format", "competition"],  # removed in V2: type1b structure is fixed
     ],
 )
 def test_cli_rejects_invalid_arguments(tmp_path: Path, args: list[str]) -> None:

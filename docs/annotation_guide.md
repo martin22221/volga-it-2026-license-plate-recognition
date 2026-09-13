@@ -90,10 +90,13 @@ message rather than guessing.
 ## Writing `plate_num`
 
 - **Latin transliteration, uppercase, no spaces or hyphens.** `А123ВС77`
-  becomes `A123BC77`. Only the twelve letters `A B E K M H O P C T Y X` occur
-  on Russian plates; they are the Cyrillic letters that look identical to Latin
-  ones, so the transliteration is unambiguous. `src/validator.py` enforces this.
-- **Include the region code**, 2 or 3 digits, with no separator.
+  becomes `A123BC77`. A yellow `type1b` plate has a different structure,
+  `MM 000 55` (GOST R 50577-2018 §3.3): `АВ 123 77` becomes `AB12377`.
+  Only the twelve letters `A B E K M H O P C T Y X` occur on Russian plates;
+  they are the Cyrillic letters that look identical to Latin ones, so the
+  transliteration is unambiguous. `src/validator.py` enforces this.
+- **Include the region code**, 2 or 3 digits (2 on `type1b`), with no
+  separator.
 - Do not include the country code, the flag, or the small `RUS`.
 
 ### The `#` character

@@ -7,12 +7,12 @@ import re
 import numpy as np
 import pytest
 
-from dataset.generator.config import ConfigError
 from dataset.generator.plate_text import (
     LETTERS,
     PlateIdentitySampler,
     PlateText,
-    is_competition_plate,
+    is_standard_plate,
+    is_type1b_plate,
     sample_plate_text,
     sample_region,
 )
@@ -20,9 +20,9 @@ from dataset.generator.rng import derive_seed, make_rng
 from src.validator import ALLOWED_LETTERS, is_valid_plate
 
 
-def _draw(seed: int, n: int, fmt: str = "competition", p3: float = 0.35) -> list[str]:
+def _draw(seed: int, n: int, plate_type: str = "type1", p3: float = 0.35) -> list[str]:
     rng = make_rng(seed, "identity")
-    return [sample_plate_text(rng, fmt, p3).full for _ in range(n)]
+    return [sample_plate_text(rng, plate_type, p3).full for _ in range(n)]
 
 
 def test_letter_set_matches_competition_alphabet() -> None:
@@ -56,7 +56,7 @@ def test_generated_plates_pass_the_repository_validator() -> None:
     plates = _draw(20260913, 5000)
     invalid = [plate for plate in plates if not is_valid_plate(plate)]
     assert invalid == []
-    assert all(is_competition_plate(plate) for plate in plates)
+    assert all(is_standard_plate(plate) for plate in plates)
 
 
 def test_competition_mask_structure() -> None:
@@ -87,35 +87,41 @@ def test_three_digit_probability_is_respected() -> None:
     assert all(len(sample_region(rng, 1.0)) == 3 for _ in range(500))
 
 
-def test_competition_validator_agrees_with_src_validator_on_edge_cases() -> None:
-    cases = ["A123BC77", "A123BC777", "A123BC877", "A123BC00", "A123BC000", "A123BC7", "Z123BC77", "A12BC77"]
+def test_standard_structure_agrees_with_src_validator_on_edge_cases() -> None:
+    cases = ["A123BC77", "A123BC777", "A123BC877", "A123BC00", "A123BC000", "A123BC7", "Z123BC77", "A12BC77", "AB12377"]
     for case in cases:
-        assert is_competition_plate(case) == is_valid_plate(case), case
+        assert is_standard_plate(case) == is_valid_plate(case, "type1"), case
+
+
+def test_type1b_structure_agrees_with_src_validator_on_edge_cases() -> None:
+    cases = ["AB12377", "AB123777", "AB12300", "A123BC77", "AB1237", "ZB12377", "AB1234577", "XX00101"]
+    for case in cases:
+        assert is_type1b_plate(case) == is_valid_plate(case, "type1b"), case
 
 
 def test_sampler_avoids_duplicate_identities() -> None:
     sampler = PlateIdentitySampler(make_rng(9, "identity"), three_digit_probability=0.35, max_images_per_plate=1)
-    plates = [sampler.sample("competition").full for _ in range(3000)]
+    plates = [sampler.sample(plate_type).full for plate_type in ("type1", "type1a", "type1b") * 1000]
     assert len(set(plates)) == len(plates)
 
 
-def test_gost_1b_format_is_opt_in_and_differs_from_competition_mask() -> None:
+def test_type1b_draws_use_the_gost_1b_structure() -> None:
     rng = make_rng(4, "identity")
-    plates = [sample_plate_text(rng, "gost_1b", 0.35) for _ in range(300)]
+    plates = [sample_plate_text(rng, "type1b", 0.35) for _ in range(300)]
     for plate in plates:
         assert re.fullmatch(rf"[{LETTERS}]{{2}}\d{{3}}\d{{2}}", plate.full), plate.full
-        assert plate.series2 == ""
-        # Documented discrepancy: the repository validator rejects this layout.
-        assert not is_valid_plate(plate.full)
+        assert plate.series2 == "" and plate.text_format == "type1b"
+        assert is_valid_plate(plate.full, "type1b")
+        assert not is_valid_plate(plate.full, "type1")
 
 
-def test_unknown_text_format_is_rejected() -> None:
-    with pytest.raises(ConfigError):
+def test_unknown_plate_type_is_rejected() -> None:
+    with pytest.raises(ValueError):
         sample_plate_text(np.random.default_rng(0), "fancy", 0.3)
 
 
 def test_characters_positions_and_roles() -> None:
-    text = PlateText("A", "123", "BC", "777", "competition")
+    text = PlateText("A", "123", "BC", "777", "type1")
     chars = list(text.characters())
     assert [c for _, c, _ in chars] == list("A123BC777")
     assert [p for p, _, _ in chars] == list(range(9))

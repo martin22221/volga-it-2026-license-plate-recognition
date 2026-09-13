@@ -33,6 +33,11 @@ class PlateStyle:
     ink_rgb: tuple[float, float, float]
     stroke_scale: float
     emboss: float
+    #: Retroreflective sheeting: a faint diagonal sheen and fine grain.
+    sheen: float = 0.0
+    grain: float = 0.0
+    #: Mounting bolts: ``None`` for none, else the bolt head colour.
+    bolt_rgb: tuple[float, float, float] | None = None
 
 
 @dataclass
@@ -63,11 +68,26 @@ def sample_style(rng: np.random.Generator, field_colour: str) -> PlateStyle:
     else:  # pragma: no cover - guarded by templates
         raise ValueError(f"unknown field colour {field_colour!r}")
     ink_level = float(rng.uniform(0.03, 0.12))
+    bolt_draw = rng.random()
+    bolt_rgb: tuple[float, float, float] | None
+    if bolt_draw < 0.35:
+        bolt_rgb = None
+    elif bolt_draw < 0.65:
+        tone = float(rng.uniform(0.55, 0.8))  # zinc / chrome
+        bolt_rgb = (tone, tone, tone * 1.02)
+    elif bolt_draw < 0.85:
+        tone = float(rng.uniform(0.05, 0.15))  # black plastic cap
+        bolt_rgb = (tone, tone, tone)
+    else:
+        bolt_rgb = tuple(float(c) * 0.92 for c in field)  # type: ignore[assignment]  # field-coloured cap
     return PlateStyle(
         field_rgb=field,  # type: ignore[arg-type]
         ink_rgb=(ink_level, ink_level, ink_level * float(rng.uniform(0.9, 1.1))),
-        stroke_scale=float(rng.uniform(0.92, 1.08)),
-        emboss=float(rng.uniform(0.0, 0.12)),
+        stroke_scale=float(rng.uniform(0.94, 1.06)),
+        emboss=float(rng.uniform(0.03, 0.14)),
+        sheen=float(rng.uniform(0.0, 0.08)),
+        grain=float(rng.uniform(0.004, 0.018)),
+        bolt_rgb=bolt_rgb,
     )
 
 
@@ -91,6 +111,7 @@ def render_plate(
     px_per_mm: float,
     *,
     supersample: int = 4,
+    rng: np.random.Generator | None = None,
 ) -> RenderedPlate:
     """Render ``layout`` at ``px_per_mm`` (the plate's own resolution)."""
     width = max(16, int(round(layout.width * px_per_mm)))
@@ -122,7 +143,7 @@ def render_plate(
     glyph_boxes: list[tuple[int, str, float, float, float, float]] = []
     for glyph in layout.glyphs:
         stroke_px = glyph.stroke * style.stroke_scale * sx
-        font.draw(draw, glyph.char, box(glyph.x, glyph.y, glyph.width, glyph.height), stroke_px)
+        font.draw(ink, glyph.char, box(glyph.x, glyph.y, glyph.width, glyph.height), stroke_px)
         if glyph.position is not None:
             glyph_boxes.append(
                 (
@@ -146,11 +167,33 @@ def render_plate(
         # thin outline around the flag
         draw.rectangle(box(flag.x, flag.y, flag.width, flag.height), outline=255, width=max(1, int(round(0.8 * sx))))
 
+    bolt_layers: list[tuple[np.ndarray, np.ndarray]] = []
+    if style.bolt_rgb is not None and layout.bolt_sites:
+        head = Image.new("L", big, 0)
+        rim = Image.new("L", big, 0)
+        for bx, by, br in layout.bolt_sites:
+            cx, cy, r = bx * sx, by * sy, br * sx
+            ImageDraw.Draw(rim).ellipse((cx - r, cy - r, cx + r, cy + r), fill=255)
+            inner = r * 0.78
+            ImageDraw.Draw(head).ellipse((cx - inner, cy - inner, cx + inner, cy + inner), fill=255)
+        colour = np.asarray(style.bolt_rgb, dtype=np.float32)
+        bolt_layers = [(_to_float(rim, factor), colour * 0.55), (_to_float(head, factor), colour)]
+
     alpha = _to_float(shape, factor)
     ink_mask = _to_float(ink, factor)
 
     rgb = np.empty((height, width, 3), dtype=np.float32)
     rgb[...] = np.asarray(style.field_rgb, dtype=np.float32)
+    if style.sheen > 0 or style.grain > 0:
+        # Retroreflective sheeting: a soft diagonal sheen, darker towards the
+        # embossed rim, plus fine grain.
+        ys, xs = np.mgrid[0:height, 0:width].astype(np.float32)
+        diagonal = (xs / max(width, 1) + ys / max(height, 1)) / 2.0
+        rgb *= (1.0 + style.sheen * (0.5 - diagonal))[..., None]
+        edge = np.minimum(np.minimum(xs, width - 1 - xs) / max(width, 1), np.minimum(ys, height - 1 - ys) / max(height, 1))
+        rgb *= (1.0 - 0.06 * np.exp(-edge * 60.0))[..., None]
+        if rng is not None and style.grain > 0:
+            rgb += rng.normal(0.0, style.grain, size=(height, width, 1)).astype(np.float32)
     for mask, colour in flag_layers:
         rgb += mask[..., None] * (np.asarray(colour, dtype=np.float32) - rgb)
     if style.emboss > 0:
@@ -161,6 +204,8 @@ def render_plate(
         rgb *= (1.0 - style.emboss * np.clip(shade - ink_mask, 0, 1))[..., None]
         rgb += style.emboss * np.clip(lit - ink_mask, 0, 1)[..., None] * (1.0 - rgb)
     rgb += ink_mask[..., None] * (np.asarray(style.ink_rgb, dtype=np.float32) - rgb)
+    for mask, colour in bolt_layers:
+        rgb += mask[..., None] * (colour - rgb)
 
     return RenderedPlate(
         rgb=np.clip(rgb, 0.0, 1.0),

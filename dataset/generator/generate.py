@@ -31,7 +31,6 @@ from . import GENERATOR_NAME, GENERATOR_VERSION
 from .config import (
     DIFFICULTIES,
     PLATE_TYPES,
-    TEXT_FORMATS,
     ConfigError,
     GeneratorConfig,
     load_config,
@@ -107,8 +106,6 @@ def build_config(args: argparse.Namespace) -> GeneratorConfig:
         changes["difficulty_weights"] = parse_mapping(args.difficulty_weights, DIFFICULTIES, float)
     if args.image_size:
         changes["image_sizes"] = tuple(parse_size(size) for size in args.image_size)
-    if args.type1b_format is not None:
-        changes["type1b_text_format"] = args.type1b_format
     return validate_config(replace(config, **changes))
 
 
@@ -192,7 +189,6 @@ def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--difficulty", choices=DIFFICULTIES, default=None, help="generate a single difficulty")
     parser.add_argument("--difficulty-weights", default=None, metavar="easy=W,medium=W,hard=W", help="difficulty mix")
     parser.add_argument("--image-size", action="append", default=None, metavar="WxH", help="output size; repeatable")
-    parser.add_argument("--type1b-format", choices=TEXT_FORMATS, default=None, help="type1b character composition")
     parser.add_argument("--workers", type=int, default=1, help="parallel processes (output is identical)")
     parser.add_argument("--overwrite", action="store_true", help="replace a batch previously written here")
     parser.add_argument("--contact-sheet", action="store_true", help="also build review/contact_sheet.html")

@@ -178,9 +178,11 @@ almost no extra time.
 
 ### Synthetic
 
-The generator lives in `dataset/generator/`. **V1 was built on 2026-09-13 and
-is awaiting human visual review.** Only a 60-image development batch exists,
-outside `dataset/`. See `dataset/generator/README.md` for what V1 covers and
+The generator lives in `dataset/generator/`. **V1 (2026-09-13) was superseded
+the same day, after human review.** Its `type1b` plates used the type 1
+character structure instead of GOST's `MM 000 55`. V1 output is a development
+artefact that the dataset validator rejects. **V2 is awaiting human visual
+review**; only 60-image development batches exist, outside `dataset/`. See `dataset/generator/README.md` for what V1 covers and
 its open issues. V1 composites onto procedural scenes, not real backgrounds,
 because no licensed background photographs exist yet. The requirements it is
 measured against:

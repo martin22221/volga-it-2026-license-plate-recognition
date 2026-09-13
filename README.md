@@ -28,9 +28,11 @@ Target plate classes:
   only the header. This is deliberate: an untrained pipeline must never
   fabricate plate numbers.
 * The **format validator is real** and fully tested.
-* The **synthetic plate generator V1** (`dataset/generator/`) renders `type1`,
+* The **synthetic plate generator V2** (`dataset/generator/`) renders `type1`,
   `type1a` and `type1b` plates with exact quad annotations. It is awaiting
-  human visual review; only a small development batch has been generated. See
+  human visual review; only small development batches have been generated.
+  V1 was superseded because its `type1b` plates used the wrong character
+  structure, and its output must never enter the dataset. See
   [`dataset/generator/README.md`](dataset/generator/README.md).
 * No models are trained, downloaded or bundled.
 
@@ -136,15 +138,20 @@ car_0001.jpg;A123BC77;type1;0.910
 
 ## Plate format validator
 
-Implemented in `src/validator.py`:
+Implemented in `src/validator.py`. There are two character structures, per
+GOST R 50577-2018 §3.3:
 
 ```
-[LETTER][DIGIT][DIGIT][DIGIT][LETTER][LETTER][REGION]
+type1 / type1a:  [LETTER][DIGIT][DIGIT][DIGIT][LETTER][LETTER][REGION]   A123BC77
+type1b:          [LETTER][LETTER][DIGIT][DIGIT][DIGIT][REGION]           AB12377
 ```
 
 * Allowed letters: `A B E K M H O P C T Y X`.
-* `REGION` is 2 or 3 digits; a 3-digit region must start with `1`, `2` or `7`;
-  an all-zero region is rejected.
+* Type 1 / 1A `REGION` is 2 or 3 digits; a 3-digit region must start with `1`,
+  `2` or `7`; an all-zero region is rejected. Type 1B regions have 2 digits
+  (GOST shows 1B only as `MM 000 55`).
+* `validate_plate(text)` accepts either structure;
+  `validate_plate(text, plate_type)` demands the structure of that type.
 * Normalisation upper-cases the text, removes spaces/hyphens/underscores and
   folds the twelve Cyrillic look-alike letters (А, В, Е, К, М, Н, О, Р, С, Т,
   У, Х) onto their Latin forms. No other substitutions are made — OCR
@@ -250,7 +257,7 @@ pipeline = Pipeline(detector=MyYoloDetector(...), classifier=..., ocr=...)
 
 ```bash
 pip install -r requirements.txt
-python -m dataset.generator --output data/synthetic_dev/demo \
+python -m dataset.generator --output data/synthetic_dev/v2_demo \
     --per-class type1=20,type1a=20,type1b=20 --seed 20260913 --contact-sheet
 ```
 
@@ -262,7 +269,7 @@ The generator refuses to write into `dataset/` unless asked explicitly.
 ## Next steps
 
 1. Collect and annotate the real dataset per `docs/dataset_strategy.md`.
-2. Human review of the generator V1 demo batch, then full synthetic generation.
+2. Human review of the generator V2 demo batch, then full synthetic generation.
 3. Detector training (`training/`) and integration.
 4. Plate type classifier for `type1` / `type1a` / `type1b` / `other`.
 5. OCR model + calibrated confidences.

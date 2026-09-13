@@ -13,8 +13,10 @@ from dataset.generator.plate_text import PlateText
 from dataset.generator.render import PlateStyle, render_plate, sample_style
 from dataset.generator.templates import DIGIT, LETTER, ONE_LINE, PLATE_SIZE_MM, TWO_LINE, build_layout
 
-TYPE1 = PlateText("A", "123", "BC", "77", "competition")
-TYPE1_3 = PlateText("M", "908", "XY", "799", "competition")
+TYPE1 = PlateText("A", "123", "BC", "77", "type1")
+TYPE1_3 = PlateText("M", "908", "XY", "799", "type1")
+TYPE1B = PlateText("AB", "123", "", "77", "type1b")
+TEXT_FOR = {"type1": TYPE1, "type1a": TYPE1, "type1b": TYPE1B}
 FONT = StrokeFontProvider()
 
 
@@ -48,7 +50,7 @@ def test_glyph_points_lie_in_the_unit_box() -> None:
 @pytest.mark.parametrize("char", list(PLATE_CHARACTERS))
 def test_glyph_ink_stays_inside_its_box(char: str) -> None:
     mask = Image.new("L", (200, 200), 0)
-    FONT.draw(ImageDraw.Draw(mask), char, (50, 40, 110, 160), stroke_px=10)
+    FONT.draw(mask, char, (50, 40, 110, 160), stroke_px=10)
     ink = np.asarray(mask) > 0
     assert ink.sum() > 300, char
     ys, xs = np.nonzero(ink)
@@ -58,7 +60,7 @@ def test_glyph_ink_stays_inside_its_box(char: str) -> None:
 def test_glyphs_are_distinct() -> None:
     def raster(char: str) -> np.ndarray:
         mask = Image.new("L", (60, 90), 0)
-        FONT.draw(ImageDraw.Draw(mask), char, (5, 5, 55, 85), stroke_px=7)
+        FONT.draw(mask, char, (5, 5, 55, 85), stroke_px=7)
         return np.asarray(mask) > 127
 
     rasters = {char: raster(char) for char in PLATE_CHARACTERS}
@@ -143,31 +145,38 @@ def test_type1a_is_not_a_squashed_type1() -> None:
     assert two.width / two.height < 2.0 < one.width / one.height
 
 
-def test_type1a_rejects_gost_1b_text() -> None:
+def test_type1a_rejects_type1b_text() -> None:
     with pytest.raises(ValueError):
-        build_layout("type1a", PlateText("AB", "123", "", "77", "gost_1b"))
+        build_layout("type1a", TYPE1B)
 
 
 # ------------------------------------------------------------------ type1b
 
 
 def test_type1b_uses_one_line_geometry_with_yellow_field() -> None:
-    layout = build_layout("type1b", TYPE1)
+    layout = build_layout("type1b", TYPE1B)
     assert layout.field_colour == "yellow"
     assert (layout.width, layout.height) == (520.0, 112.0)
     assert layout.line_count == 1
     assert PLATE_SIZE_MM["type1b"] == PLATE_SIZE_MM["type1"]
 
 
-def test_type1b_gost_format_lays_out_letters_first() -> None:
-    text = PlateText("AB", "123", "", "77", "gost_1b")
-    layout = build_layout("type1b", text)
+def test_type1b_lays_out_two_letters_before_the_number() -> None:
+    layout = build_layout("type1b", TYPE1B)
     labels = sorted(layout.label_glyphs, key=lambda g: g.x)
     assert "".join(g.char for g in labels) == "AB12377"
+    assert [g.char.isalpha() for g in labels[:5]] == [True, True, False, False, False]
+
+
+def test_type1b_layout_refuses_the_type1_structure() -> None:
+    with pytest.raises(ValueError):
+        build_layout("type1b", TYPE1)
+    with pytest.raises(ValueError):
+        build_layout("type1", TYPE1B)
 
 
 def _field_colour(plate_type: str, seed: int) -> np.ndarray:
-    layout = build_layout(plate_type, TYPE1)
+    layout = build_layout(plate_type, TEXT_FOR[plate_type])
     style = sample_style(np.random.default_rng(seed), layout.field_colour)
     plate = render_plate(layout, style, FONT, 1.0, supersample=2)
     field = (plate.ink < 0.02) & (plate.alpha > 0.99)
