@@ -3,7 +3,53 @@
 Focused review of the two rare competition classes, `type1a` (white square /
 two-line) and `type1b` (yellow one-line transport). Prepared 2026-09-11.
 
-**Nothing is human-confirmed yet. Nothing has been imported.**
+**Nothing has been imported.**
+
+## Human review outcome — recorded 2026-09-13
+
+A human reviewed both candidate pages (`rare_candidates.html`, 89 shape
+candidates, and `yellow_candidates.html`, 54 colour candidates).
+
+| Result | Value |
+| --- | --- |
+| Human-confirmed `type1a` | **0** |
+| Human-confirmed `type1b` | **0** |
+| Typical finding | Ordinary one-line plates whose shape or colour came from perspective, crop, lighting, dirt or a colour cast |
+
+- **Yellow candidates:** none confirmed as `type1b`. This matches the warning
+  below that the measured colours were warm tan/khaki rather than saturated
+  yellow. The single strong `type1b` suggestion (`images/25202.jpg`) was not
+  confirmed either.
+- **Square / ambiguous candidates:** none confirmed as `type1a`. This matches
+  the angle-heavy aspect-ratio smear.
+
+**Scope and limits.**
+
+- The verdict was reached for the candidate sets as a whole. Per-row verdicts
+  were not recorded, so the `human_plate_type` column in `rare_candidates.csv`
+  is left empty on purpose and not back-filled.
+- The stats file's `human_confirmed_type1a` / `human_confirmed_type1b` = 0
+  remain accurate.
+- This review does **not** show that the split consists of Russian `type1`
+  plates. Country and plate type have not been classified across the 2564
+  images, and AUTO.RIA is a Ukrainian marketplace.
+
+**Consequence.**
+
+- AUTO.RIA is **not a rare-class source**.
+- It remains a candidate for generic plate detection and robustness.
+- It is a candidate for `type1` / OCR only after country/type filtering.
+- Its possible use as foreign/out-of-scope `other` examples is a separate
+  evaluation.
+
+The registry entry in
+[`../../../docs/data_sources.md`](../../../docs/data_sources.md) carries the
+same status.
+
+---
+
+*The rest of this document was written before the review and is kept
+unchanged.*
 
 ```bash
 python scripts/build_rare_review.py "C:\Users\User\Downloads\test\test" \

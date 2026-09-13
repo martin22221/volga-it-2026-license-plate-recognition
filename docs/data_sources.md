@@ -91,7 +91,7 @@ Lowercase, hyphenated, stable: `own-photos-ulyanovsk`, `wikimedia-commons`,
 
 | source_id | source_name | source_url_or_description | license | redistribution_allowed | commercial_use_allowed | modification_allowed | attribution_required | date_checked | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `autoria_numberplate_options` | AUTO.RIA Numberplate Options Dataset | Public dataset published by ARS Online OU; test split extracted locally for audit | CC BY 4.0 | yes | yes | yes | yes | 2026-09-10 | Copyright 2018–2024 ARS Online OU. Licence evidence: `license.txt` in the source repository (see below). **Licensing cleared; content review still open** — see `data/audits/autoria_test/`. Not imported. |
+| `autoria_numberplate_options` | AUTO.RIA Numberplate Options Dataset | Public dataset published by ARS Online OU; test split extracted locally for audit | CC BY 4.0 | yes | yes | yes | yes | 2026-09-10 | Copyright 2018–2024 ARS Online OU. Licence evidence: `license.txt` in the source repository (see below). **Licensing cleared. Rare-class review completed 2026-09-13 for the generated candidate sets: 0 confirmed `type1a`, 0 confirmed `type1b`.** Candidate for generic plate detection / robustness only; **not approved wholesale for OCR or `type1` training** — country/type filtering still required. Not imported. See below and `data/audits/autoria_test_review/`. |
 | `roboflow_two_line_russian_license_plates` | two-line-russian-license-plates (Roboflow Universe) | https://universe.roboflow.com/fverwfgerwf/two-line-russian-license-plates/dataset/1 | CC BY 4.0 *as declared by the project* | **no** | unclear | unclear | yes | 2026-09-12 | **REJECTED_FOR_SUBMISSION_PROVENANCE** (2026-09-12). Project declares CC BY 4.0, but no evidence establishes the provenance chain of the underlying 27 photographs. Not approved for the competition dataset or for training. Files kept locally for reference/visual review only. Reconsiderable on new evidence. |
 
 ### `roboflow_two_line_russian_license_plates` — licensing detail
@@ -236,6 +236,51 @@ imported, not before.
    the source repository, not from our local copy. **When importing, archive a
    verbatim copy of `license.txt` alongside the imported images**, so our
    provenance chain does not depend on a file we never kept.
+
+#### Content review status — recorded 2026-09-13
+
+| | |
+| --- | --- |
+| Licence / provenance | **Cleared** on the CC BY 4.0 evidence above |
+| Rare-class review | **Completed** for the generated candidate sets (test split only) |
+| Confirmed `type1a` from review | **0** |
+| Confirmed `type1b` from review | **0** |
+| Country / type classification of the whole split | **Not done** |
+| Import status | **Not imported** |
+
+**What was reviewed.** A human reviewed the rare-class contact sheets built by
+`scripts/build_rare_review.py`: the 89 shape candidates (46
+`square_or_two_line_candidate` + 43 `ambiguous_shape`, drawn from the seeded
+200-image sample) and the 54 colour candidates (14 over the yellow threshold +
+40 most-yellow shown anyway, scanned across all 2564 test images).
+
+**Findings.**
+
+- No reviewed yellow candidate was confirmed as `type1b`.
+- No reviewed square/ambiguous candidate was confirmed as `type1a`.
+- Most reviewed candidates appeared to be ordinary one-line plates whose
+  apparent shape or colour came from perspective, cropping, lighting, dirt or a
+  colour cast.
+
+The verdict was reached at the level of the candidate sets. Per-row verdicts
+were not recorded, so `human_plate_type` in `rare_candidates.csv` is
+deliberately left empty rather than back-filled.
+
+**What this does *not* establish.** It does **not** establish that the 2564
+test images are Russian `type1` plates. AUTO.RIA is a Ukrainian marketplace,
+and the split has not been classified by country or plate type. Images outside
+the candidate sets were not reviewed individually.
+
+**Permitted next uses (each still requires its own step before import):**
+
+| Use | Status |
+| --- | --- |
+| Generic plate detection / robustness | Plausible candidate |
+| `type1` / OCR training | **Not approved wholesale.** Only after country/type filtering |
+| Foreign / out-of-scope negatives for `other` | To be evaluated separately |
+| `type1a` / `type1b` | **Not a useful source.** None found |
+
+Faces must still be checked and blurred before any image is imported.
 
 ## Rules
 

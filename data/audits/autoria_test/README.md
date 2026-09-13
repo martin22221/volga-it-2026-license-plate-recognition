@@ -54,12 +54,20 @@ rights holder's statement about the dataset itself.
 
 ## Status
 
-**Licensing cleared. Content review open. Not approved, not imported.**
+**Licensing cleared. Rare-class review completed (2026-09-13). Not approved
+wholesale, not imported.**
 
-The remaining blocker is the plate-type question: the single class `0` is
-unnamed, nothing in the data says what it marks, and it certainly does not
-encode our `type1a` / `type1b` distinction. A human visual review is under way
-— see [`../autoria_test_review/`](../autoria_test_review/).
+The single class `0` is unnamed, and nothing in the data says what it marks.
+It does not encode our `type1a` / `type1b` distinction.
+
+A human review of the generated rare-class candidate sets found **0 `type1a`
+and 0 `type1b`**. Most candidates looked like ordinary one-line plates, with
+their apparent shape or colour coming from perspective, crop, lighting, dirt or
+a colour cast. The split has **not** been classified by country or type. It is
+a candidate for generic plate detection, and for `type1` only after filtering.
+See [`../autoria_test_review/RARE_CLASSES.md`](../autoria_test_review/RARE_CLASSES.md)
+and the registry entry in
+[`../../../docs/data_sources.md`](../../../docs/data_sources.md).
 
 Next steps are in
 [`../../../docs/external_dataset_workflow.md`](../../../docs/external_dataset_workflow.md).

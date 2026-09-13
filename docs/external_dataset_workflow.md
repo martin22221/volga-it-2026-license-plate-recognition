@@ -226,6 +226,14 @@ validator exits `0`.
 
 ## Status
 
-Nothing has been downloaded, audited, approved or imported. The tooling exists
-so that when a candidate appears, the inspection is mechanical and only the
-judgement calls need a person.
+Nothing has been imported into `dataset/`.
+
+Per-source status lives in [`data_sources.md`](data_sources.md). As of
+2026-09-13:
+
+- **`autoria_numberplate_options`**
+  - The test split has been audited, and licensing is cleared.
+  - The rare-class review is complete and found no `type1a` or `type1b`.
+  - The split is not approved wholesale.
+- **`roboflow_two_line_russian_license_plates`** was audited and then rejected
+  on provenance.

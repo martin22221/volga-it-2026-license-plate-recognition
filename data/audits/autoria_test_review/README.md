@@ -125,7 +125,15 @@ pixels. Every one needs eyes:
 
 A focused review of the rare classes now exists, adding plate-colour
 measurement across all 2564 images: see [`RARE_CLASSES.md`](RARE_CLASSES.md).
-143 unique candidate images, 0 human-confirmed.
+It covers 143 unique candidate images.
+
+**Human review completed 2026-09-13:** 0 `type1a` and 0 `type1b` confirmed.
+The candidates were mostly one-line plates distorted by perspective, lighting,
+dirt or a colour cast.
+
+This 200-image sample's own per-image columns (`human_plate_type`,
+`has_visible_face`) were not filled in. Country and plate type across the split
+remain unclassified.
 
 ## Related
 
