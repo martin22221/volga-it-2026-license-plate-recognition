@@ -20,7 +20,7 @@ from __future__ import annotations
 from typing import Final
 
 GENERATOR_NAME: Final[str] = "volga-synthetic-plate-generator"
-GENERATOR_VERSION: Final[str] = "2.1.0"
+GENERATOR_VERSION: Final[str] = "2.2.0"
 
 #: ``source`` written into every ``meta.csv`` row the generator produces.
 #: Registered in ``docs/data_sources.md``; never an external dataset's id.

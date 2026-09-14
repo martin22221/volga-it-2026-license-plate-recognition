@@ -79,12 +79,12 @@
         "night": 0.1,
         "low_light": 0.05,
         "shadow": 0.15,
-        "glare": 0.05,
-        "dirt": 0.1,
+        "glare": 0.1,
+        "dirt": 0.12,
         "occlusion": 0.0,
-        "rain": 0.03,
-        "snow": 0.02,
-        "motion_blur": 0.05,
+        "rain": 0.06,
+        "snow": 0.07,
+        "motion_blur": 0.15,
         "defocus": 0.08,
         "heavy_noise": 0.0
       },
@@ -117,8 +117,8 @@
             0.35
           ],
           "radius": [
-            0.25,
-            0.5
+            0.15,
+            0.35
           ]
         },
         "dirt": {
@@ -147,8 +147,8 @@
         },
         "motion_blur": {
           "length_px": [
-            2.0,
-            3.5
+            3.0,
+            4.5
           ]
         },
         "defocus": {
@@ -203,15 +203,15 @@
       "severity_budget": 2.0,
       "min_plate_contrast": 0.38,
       "effect_probability": {
-        "night": 0.22,
+        "night": 0.5,
         "low_light": 0.12,
         "shadow": 0.3,
-        "glare": 0.15,
-        "dirt": 0.3,
+        "glare": 0.28,
+        "dirt": 0.38,
         "occlusion": 0.06,
-        "rain": 0.08,
-        "snow": 0.06,
-        "motion_blur": 0.18,
+        "rain": 0.16,
+        "snow": 0.19,
+        "motion_blur": 0.34,
         "defocus": 0.18,
         "heavy_noise": 0.08
       },
@@ -244,8 +244,8 @@
             0.48
           ],
           "radius": [
-            0.3,
-            0.65
+            0.15,
+            0.4
           ]
         },
         "dirt": {
@@ -274,7 +274,7 @@
         },
         "motion_blur": {
           "length_px": [
-            2.5,
+            3.0,
             6.0
           ]
         },
@@ -330,15 +330,15 @@
       "severity_budget": 2.75,
       "min_plate_contrast": 0.3,
       "effect_probability": {
-        "night": 0.35,
+        "night": 0.55,
         "low_light": 0.2,
         "shadow": 0.35,
-        "glare": 0.25,
-        "dirt": 0.4,
+        "glare": 0.32,
+        "dirt": 0.45,
         "occlusion": 0.12,
-        "rain": 0.12,
-        "snow": 0.1,
-        "motion_blur": 0.3,
+        "rain": 0.18,
+        "snow": 0.2,
+        "motion_blur": 0.38,
         "defocus": 0.25,
         "heavy_noise": 0.2
       },
@@ -371,8 +371,8 @@
             0.55
           ],
           "radius": [
-            0.3,
-            0.7
+            0.18,
+            0.45
           ]
         },
         "dirt": {

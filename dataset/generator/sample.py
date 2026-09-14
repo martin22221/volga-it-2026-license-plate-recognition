@@ -466,6 +466,10 @@ def _render_attempt(
     else:
         sigma, chroma = _u(n_rng, profile.noise_sigma), False
     image, noise_record = sensor_noise(image, n_rng, sigma, chroma=chroma)
+    if chroma:
+        # Heavy noise is an optional effect like the others: record it in the
+        # effects provenance too (``noise`` keeps the always-on sensor noise).
+        effects["heavy_noise"] = dict(noise_record)
     return {
         "image": image,
         "effects": effects,

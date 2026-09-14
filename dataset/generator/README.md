@@ -1,12 +1,12 @@
-# Synthetic plate generator (V2.1)
+# Synthetic plate generator (V2.2)
 
 Renders synthetic Russian registration plates — `type1`, `type1a`, `type1b` —
 mounted on procedural vehicles, with seeded geometric and photometric
 degradation, and writes images plus annotations in the `dataset/meta.csv`
 schema.
 
-**Status: V2.1, awaiting human visual review.** Do not generate the full
-training set until the V2.1 demo contact sheet has been approved.
+**Status: 2.2.0, awaiting Pilot B review.** Do not generate the full
+training set until Pilot B has been approved.
 
 ## V1 was superseded — read this first
 
@@ -28,6 +28,32 @@ the wrong character structure.** It printed the type 1 pattern (`A123BC77`,
 - The V1 option `--type1b-format` / `type1b_text_format` has been removed.
   The structure now follows from the plate type, and old configs that set it
   fail loudly.
+
+## 2.2.0 — provenance fix and adverse-condition coverage
+
+This release follows the Pilot A review (1,000 images, 2026-09-14).
+
+**Provenance.** Heavy chroma noise was applied but never listed in a record's
+`effects`; the noise step wrote only to `noise`. It is now recorded in
+`effects["heavy_noise"]` whenever it is applied. Images are byte-identical,
+and no random draws changed.
+
+**Coverage.** Only default effect probabilities and two ranges changed.
+Severities, budgets, caps and the 35/45/20 mix are untouched. The targets for
+the full default mix are night 20–25 %, and rain, snow, glare on the plate and
+tagged (≥ 3 px) motion blur 7–10 % each.
+
+- Night now comes from medium (0.50) and hard (0.55). Night's severity (1.5)
+  never fits the easy budget (1.25), so easy has no night.
+- Rain, snow, glare and motion blur probabilities were raised.
+- Dirt was raised slightly to keep its share against the extra effects.
+- Glare radii were narrowed to localised hotspots. Whole-plate washes were
+  mostly rejected by the legibility check, so glare rarely survived.
+- Easy and medium motion-blur lengths now start at the 3 px tag threshold.
+
+**Trade-off.** Medium images now carry more effects: 4.5 % are effect-free
+(14 % before), and mean severity rose from 1.17 to 1.45. The legibility
+floors are unchanged.
 
 ## V2.1 — precipitation label-integrity fix
 
