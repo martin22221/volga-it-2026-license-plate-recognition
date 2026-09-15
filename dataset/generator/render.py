@@ -9,7 +9,8 @@ pixel coordinates.  Downstream geometry relies on that.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import math
+from dataclasses import dataclass, field
 
 import numpy as np
 from PIL import Image, ImageDraw
@@ -40,6 +41,26 @@ class PlateStyle:
     bolt_rgb: tuple[float, float, float] | None = None
 
 
+@dataclass(frozen=True)
+class GlyphCell:
+    """How one label character was drawn: its cell and stroke in supersampled pixels.
+
+    Enough to redraw that character -- or any other -- exactly as the plate
+    renderer drew it (:func:`glyph_ink`).
+    """
+
+    position: int
+    char: str
+    box: tuple[float, float, float, float]  # x0, y0, x1, y1, supersampled canvas pixels
+    stroke: float  # supersampled pixels
+    factor: int  # supersampling factor
+
+    @property
+    def stroke_px(self) -> float:
+        """Stroke width in plate (canvas) pixels."""
+        return self.stroke / self.factor
+
+
 @dataclass
 class RenderedPlate:
     """A rendered plate and where its characters are, in canvas pixels."""
@@ -50,6 +71,7 @@ class RenderedPlate:
     glyph_boxes: list[tuple[int, str, float, float, float, float]]  # position, char, x0, y0, x1, y1
     width: int
     height: int
+    glyph_cells: list[GlyphCell] = field(default_factory=list)
 
 
 def sample_style(rng: np.random.Generator, field_colour: str) -> PlateStyle:
@@ -141,10 +163,13 @@ def render_plate(
         draw.rectangle(box(rect.x, rect.y, rect.width, rect.height), fill=255)
 
     glyph_boxes: list[tuple[int, str, float, float, float, float]] = []
+    glyph_cells: list[GlyphCell] = []
     for glyph in layout.glyphs:
         stroke_px = glyph.stroke * style.stroke_scale * sx
-        font.draw(ink, glyph.char, box(glyph.x, glyph.y, glyph.width, glyph.height), stroke_px)
+        cell_box = box(glyph.x, glyph.y, glyph.width, glyph.height)
+        font.draw(ink, glyph.char, cell_box, stroke_px)
         if glyph.position is not None:
+            glyph_cells.append(GlyphCell(glyph.position, glyph.char, cell_box, stroke_px, factor))
             glyph_boxes.append(
                 (
                     glyph.position,
@@ -214,7 +239,26 @@ def render_plate(
         glyph_boxes=glyph_boxes,
         width=width,
         height=height,
+        glyph_cells=glyph_cells,
     )
+
+
+def glyph_ink(font: FontProvider, cell: GlyphCell, char: str, pad: int = 0) -> tuple[np.ndarray, tuple[int, int]]:
+    """``char`` drawn alone in ``cell``, as :func:`render_plate` draws, at plate resolution.
+
+    Returns the ink patch and the plate pixel of its top-left corner.  The
+    patch covers the cell plus ``pad`` empty pixels on every side; it is
+    aligned to the supersampling grid, so drawing ``cell.char`` reproduces
+    that character's share of the plate's ``ink``.
+    """
+    f = cell.factor
+    x0, y0, x1, y1 = cell.box
+    px0, py0 = math.floor(x0 / f) - pad, math.floor(y0 / f) - pad
+    px1, py1 = math.ceil(x1 / f) + pad, math.ceil(y1 / f) + pad
+    local = Image.new("L", ((px1 - px0) * f, (py1 - py0) * f), 0)
+    ox, oy = px0 * f, py0 * f
+    font.draw(local, char, (x0 - ox, y0 - oy, x1 - ox, y1 - oy), cell.stroke)
+    return _to_float(local, f), (px0, py0)
 
 
 def smooth_noise(rng: np.random.Generator, height: int, width: int, cells: tuple[int, int]) -> np.ndarray:

@@ -19,12 +19,14 @@ through the plate's physical size.  A test checks that ``type1`` and
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Protocol, Sequence
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
-from .render import RenderedPlate, smooth_noise
+from .fonts import FontProvider
+from .occlusion_labels import OcclusionJudge
+from .render import GlyphCell, RenderedPlate, smooth_noise
 
 BODY_PALETTE: tuple[tuple[float, float, float], ...] = (
     (0.93, 0.93, 0.92),  # white
@@ -424,32 +426,29 @@ def _occluder_mask(canvas: PlaneCanvas, rng: np.random.Generator, extent: float)
 
 def apply_occlusion(
     canvas: PlaneCanvas,
-    glyph_boxes: list[tuple[int, str, float, float, float, float]],
+    glyph_cells: Sequence[GlyphCell],
     rng: np.random.Generator,
     extent: float,
     *,
+    font: FontProvider,
     max_hidden: int = 2,
-    hidden_threshold: float = 0.35,
 ) -> tuple[set[int], dict]:
     """Cover part of the plate with an opaque object; return hidden positions.
 
-    A character counts as hidden when more than ``hidden_threshold`` of its box
-    is covered; hidden characters are labelled ``#``.  An occluder hiding
-    more than ``max_hidden`` characters is shrunk and redrawn, so occlusion
-    stays a hard example rather than an unreadable one.
+    Whether a character stays readable is decided from its ink, not its box
+    (:mod:`.occlusion_labels`): too much ink covered, identifying strokes
+    covered, or a remainder that reads as another character makes it hidden,
+    labelled ``#``.  An occluder hiding more than ``max_hidden`` characters
+    is shrunk and redrawn, so occlusion stays a hard example rather than an
+    unreadable one.  The occluder's random draws do not depend on the rule.
     """
-    ox, oy = canvas.plate_origin
+    judge = OcclusionJudge(glyph_cells, font)
     attempts = 0
     while True:
         attempts += 1
         occluder, kind, colour = _occluder_mask(canvas, rng, extent)
-        hidden: set[int] = set()
-        for position, _char, x0, y0, x1, y1 in glyph_boxes:
-            xa, xb = int(ox + x0), int(np.ceil(ox + x1))
-            ya, yb = int(oy + y0), int(np.ceil(oy + y1))
-            covered = float(occluder[ya:yb, xa:xb].mean()) if xb > xa and yb > ya else 0.0
-            if covered > hidden_threshold:
-                hidden.add(position)
+        assessed = judge.assess(occluder, canvas.plate_origin)
+        hidden = {character.position for character in assessed if not character.readable}
         if len(hidden) <= max_hidden or attempts >= 6:
             break
         extent *= 0.7
@@ -459,4 +458,10 @@ def apply_occlusion(
     canvas.alpha = np.maximum(canvas.alpha, occluder)
     canvas.plate_alpha *= 1.0 - occluder
     canvas.ink *= 1.0 - occluder
-    return hidden, {"kind": kind, "extent": round(extent, 4), "attempts": attempts, "hidden_positions": sorted(hidden)}
+    return hidden, {
+        "kind": kind,
+        "extent": round(extent, 4),
+        "attempts": attempts,
+        "hidden_positions": sorted(hidden),
+        "characters": [character.record() for character in assessed],
+    }

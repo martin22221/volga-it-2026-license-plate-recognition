@@ -1,12 +1,14 @@
-# Synthetic plate generator (V2.2)
+# Synthetic plate generator (V2.3)
 
 Renders synthetic Russian registration plates — `type1`, `type1a`, `type1b` —
 mounted on procedural vehicles, with seeded geometric and photometric
 degradation, and writes images plus annotations in the `dataset/meta.csv`
 schema.
 
-**Status: 2.2.0, awaiting Pilot B review.** Do not generate the full
-training set until Pilot B has been approved.
+**Status: 2.3.0, awaiting review of the occlusion fix.** The 2.2.0
+production batch (`data/synthetic_production/v2_2_seed2026091401_n12000/`)
+is kept unchanged as evidence and must not be promoted. Do not generate the
+replacement production batch until the fix has been approved.
 
 ## V1 was superseded — read this first
 
@@ -28,6 +30,80 @@ the wrong character structure.** It printed the type 1 pattern (`A123BC77`,
 - The V1 option `--type1b-format` / `type1b_text_format` has been removed.
   The structure now follows from the plate type, and old configs that set it
   fail loudly.
+
+## 2.3.0 — occlusion label-integrity fix
+
+**Found:** QA of the 2.2.0 production batch found sample #9880, a hard
+type1a plate with the full text `O366EO126`, labelled `O#66EO126`.
+
+- A white snow clump covered 27 % of the `O`'s ink, all of it the right
+  stroke. The `O` read as `C` but kept its label.
+- 2.2.0 hid a character (`#`) only when an occluder covered more than 35 % of
+  its **bounding box**. Glyph ink fills only part of that box, so box coverage
+  says little about what is still legible.
+- Across the batch's 426 occluded images, 94 visible characters in 88 labels
+  had lost their identifying information while keeping their label. For 29
+  of them, a template reader already read the remainder as another
+  character: `O→C`, `3→8`, `6→3`, `B→E`, `X→K` and others.
+
+**Fix** (`occlusion_labels.py`): a character keeps its label only if all of
+these hold.
+
+1. **At most 50 % of its ink is covered** (`MAX_INK_COVERED`).
+2. **At least 70 % of what separates it from every alternative stays
+   visible** (`MIN_EVIDENCE_RETAINED`).
+   - The alternatives are the other letters for a letter position, and the
+     other digits for a digit position.
+   - The "evidence" against an alternative is the absolute difference of the
+     two ink masks, each blurred by 0.5 stroke widths.
+   - Covering ink the character has and the alternative lacks (the right
+     stroke of `O` against `C`) removes evidence. So does covering the gap
+     where the alternative has ink (the opening of `C` against `O`).
+3. **It still reads as itself.** A template reader (cross-correlation at 0.35
+   stroke widths) must prefer the true character by at least half of its
+   unoccluded margin (`MIN_READER_MARGIN`).
+   - It is checked twice: once with the covered pixels shown as plate field,
+     like a snow clump on a white plate, and once shown as ink, like a dark
+     tow bar.
+
+Otherwise the character is `#`.
+
+- The rule is measured inside the character's own cell, from the stroke font's
+  masks drawn exactly as the renderer drew them (`render.glyph_ink`).
+- No character, sample or plate type is special-cased.
+- It draws no random numbers, and the occluder is drawn as before.
+- An occluder that would hide more than `max_hidden_characters` is still
+  shrunk and redrawn.
+- Each occluded record now lists every character the occluder touches in
+  `effects.occlusion.characters`: the share of ink covered, the evidence
+  retained against the closest alternative, and the reader margin and rival.
+
+**Why these thresholds:** they were calibrated on 53,181 random bar, blob and
+edge occlusions: every plate character, all four cell sizes, 0.22–1.5 px/mm,
+two seeds. Two readers that are not part of the rule served as independent
+checks: cross-correlation at 0.2 stroke widths, and an L1-distance reader.
+
+- They misread **none** of the characters the rule keeps.
+- None of the 4,009 clearly readable cases was masked.
+- **An ink-only threshold cannot do this.** Keeping every character with at
+  most 10 % of its ink covered still kept 67 that the readers misread, because
+  some strokes that tell two characters apart hold very little ink.
+- The ink ceiling is a backstop for characters that are simply mostly gone.
+- The margin is conservative on purpose. `docs/annotation_guide.md`: "A wrong
+  character is worse than a `#`."
+
+**Effect:**
+
+- Samples without occlusion are byte-identical to 2.2.0.
+- An occluded sample keeps its image unless the new rule hides more than
+  `max_hidden_characters` on the first occluder, which then gets shrunk and
+  redrawn. Otherwise only its label and record change.
+- On the 2.2.0 production batch, re-judged in memory on the same occluders,
+  88 labels change. All the changes go from visible to `#`; no `#` becomes
+  visible.
+- Regression tests are in `tests/test_generator_occlusion_integrity.py`. They
+  include #9880 itself and a negative control that swaps the 2.2.0 box rule
+  back in.
 
 ## 2.2.0 — provenance fix and adverse-condition coverage
 
@@ -197,7 +273,7 @@ approximations, kept as named constants in `templates.py`.
 - Softer hard ranges: plate scale 0.14–0.28 px/mm, the smallest character at
   least 10 px, yaw up to 45°, JPEG quality 45–80.
 - Occlusion hides at most 2 characters; larger occluders are shrunk and
-  redrawn.
+  redrawn. Which characters are hidden follows from their ink (2.3.0, above).
 - Unchanged from V1: blur is capped relative to character size, motion blur
   and defocus are mutually exclusive, glare stays below clipping strength,
   and dirt is never opaque.
@@ -241,6 +317,7 @@ against the warped plate mask.
 | `templates.py` | Explicit millimetre geometry per layout; bolt sites. |
 | `render.py` | Layout → antialiased RGBA plate with sheeting texture and bolts; plate-space dirt. |
 | `scene.py` | `BackgroundProvider` protocol, procedural backgrounds, parametric vehicles, occlusion. |
+| `occlusion_labels.py` | Which characters an occluder leaves readable: the ink-based `#` rule. |
 | `geometry.py` | Camera model, homographies, placement, quad checks. |
 | `photometric.py` | Lighting, night, low light, shadow, glare, rain/snow, motion blur, defocus, noise. |
 | `sample.py` | Plans the batch; renders one sample, with the severity budget and legibility retries. |

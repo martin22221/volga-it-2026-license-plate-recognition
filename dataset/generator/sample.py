@@ -423,8 +423,8 @@ def _render_attempt(
     if "occlusion" in effects_enabled:
         e_rng = stream("effect:occlusion")
         hidden, effects["occlusion"] = apply_occlusion(
-            canvas, plate.glyph_boxes, e_rng, _u(e_rng, ranges["occlusion"]["extent"]),
-            max_hidden=config.max_hidden_characters,
+            canvas, plate.glyph_cells, e_rng, _u(e_rng, ranges["occlusion"]["extent"]),
+            font=font, max_hidden=config.max_hidden_characters,
         )
 
     # Stand the vehicle on the ground: its wheels (panel bottom centre) must
