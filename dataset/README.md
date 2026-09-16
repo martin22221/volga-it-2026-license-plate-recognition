@@ -23,7 +23,72 @@ dataset/
 
 `meta.csv` is authoritative. `labels/` may hold per-image files in a trainer's
 native format (for example one `.txt` per image), but they are *derived* from
-`meta.csv` and must be regenerated rather than edited by hand.
+`meta.csv` and must be regenerated rather than edited by hand. It is empty
+today: no trainer consumes it yet.
+
+## Contents
+
+| | Images | Rows in `meta.csv` |
+| --- | --- | --- |
+| `images/synthetic/` | 12,000 | 12,000 |
+| `images/real/` | 0 | 0 |
+| **total** | **12,000** | **12,000** |
+
+**Real-data acquisition and curation is the next dataset stage.** Nothing here
+satisfies the competition's real-image minimums — see
+[`../docs/dataset_strategy.md`](../docs/dataset_strategy.md) for the targets.
+`images/real/` is deliberately empty; no real photograph has been collected,
+and none is invented.
+
+### The synthetic set
+
+Every synthetic image comes from one audited batch of our own generator.
+
+| | |
+| --- | --- |
+| Generator | `generator/`, version **2.3.0**, commit `066b305` |
+| Seed | **2026091401** (master seed; every sample's seed is derived from it) |
+| Images | **12,000** — `type1` 2,400, `type1a` 4,200, `type1b` 5,400 |
+| Difficulty mix | easy 4,200, medium 5,400, hard 2,400 |
+| Promoted | 2026-09-16, from `data/synthetic_production/v2_3_seed2026091401_n12000/` |
+| License | CC BY 4.0, our own work; `source=volga_synthetic_generator` |
+
+**How they were made.** Plates are rendered from explicit GOST millimetre
+templates and a built-in stroke font, mounted on procedural vehicle panels,
+placed by a camera model (yaw, pitch, roll, distance), then degraded by a
+seeded photometric pipeline: night, low light, shadow, glare, rain, snow,
+motion blur, defocus, sensor and heavy noise, dirt, occlusion and JPEG
+compression. The generator loads **no external asset** — no font file, texture,
+template image or photograph — so the output is redistributable under CC BY 4.0
+without any third-party analysis. `dataset/generator/README.md` documents the
+layouts, the difficulty budgets and the legibility guards.
+
+**Labels are what the pixels show.** A character an occluder makes unreadable
+or ambiguous is labelled `#`, decided from the character's own ink
+(`generator/occlusion_labels.py`, 2.3.0). 334 characters across 222 images
+carry a `#`.
+
+**Audit status** (the full record stays with the batch, under its `review/`):
+
+- strict validator: 0 errors, 0 warnings;
+- label-integrity QA of all 12,000: 11,184 PASS, 816 QUESTIONABLE, **0 FAIL**;
+- provenance and reproduction: all 12,000 re-render byte-identically, 0 mismatches;
+- duplicates: 0 exact, 0 near-duplicates, 12,000 unique plate numbers;
+- occlusion labelling: 0 genuine label-integrity failures;
+- the batch is sealed (`production_seal.json`, SHA-256 of every file) and is
+  kept immutable as the evidence behind these numbers.
+
+**Rebuilding the images.** They are not in git (see below). Regenerate the
+batch with the recorded command, then copy `images/synthetic/` across:
+
+```bash
+python -m dataset.generator --output data/synthetic_production/v2_3_seed2026091401_n12000 \
+    --per-class type1=2400,type1a=4200,type1b=5400 --seed 2026091401 --workers 8
+```
+
+Identical output needs the pinned `numpy` and `Pillow` from
+`generator/requirements.txt`; each batch manifest records the versions that
+produced it.
 
 ## Annotation format
 

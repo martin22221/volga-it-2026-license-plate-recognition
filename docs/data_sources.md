@@ -95,6 +95,29 @@ Lowercase, hyphenated, stable: `own-photos-ulyanovsk`, `wikimedia-commons`,
 | `volga_synthetic_generator` | Volga-IT 2026 synthetic plate generator (this repository) | `dataset/generator/` — procedural rendering; loads no font file, texture, template image or photograph | own work, released as CC BY 4.0 | yes | yes | yes | yes | 2026-09-13 | Every generator asset is produced in code: the built-in stroke font (`dataset/generator/glyphs.py`), the plate geometry templates, procedural backgrounds and vehicle panels. Each batch manifest records `external_assets: []`. Output rows carry `source=volga_synthetic_generator`, `license=CC BY 4.0`, `is_synthetic=true`. Any future third-party asset (e.g. a plate font or licensed backgrounds) needs its own row here first. |
 | `roboflow_two_line_russian_license_plates` | two-line-russian-license-plates (Roboflow Universe) | https://universe.roboflow.com/fverwfgerwf/two-line-russian-license-plates/dataset/1 | CC BY 4.0 *as declared by the project* | **no** | unclear | unclear | yes | 2026-09-12 | **REJECTED_FOR_SUBMISSION_PROVENANCE** (2026-09-12). Project declares CC BY 4.0, but no evidence establishes the provenance chain of the underlying 27 photographs. Not approved for the competition dataset or for training. Files kept locally for reference/visual review only. Reconsiderable on new evidence. |
 
+### `volga_synthetic_generator` — the promoted batch
+
+The 12,000 synthetic images in `dataset/images/synthetic/` all come from one
+batch, promoted on **2026-09-16** after human review:
+
+| | |
+| --- | --- |
+| Generator version | 2.3.0, commit `066b305` |
+| Seed | 2026091401 |
+| Source batch (sealed, immutable) | `data/synthetic_production/v2_3_seed2026091401_n12000/` |
+| Images | 12,000 — `type1` 2,400, `type1a` 4,200, `type1b` 5,400 |
+| External assets | none; the batch manifest records `external_assets: []` |
+| License | CC BY 4.0, our own work |
+
+Nothing was composited from a third-party image, font or texture, so the batch
+clears the redistribution gate on its own. The batch's `review/` folder holds
+the validator report, the QA results, the provenance cross-check and the
+human-review sheets; `production_seal.json` fixes the SHA-256 of every file in
+it, and the promoted copies are byte-identical to it.
+
+Earlier batches (generator V1, V2, V2.1, the pilots and the 2.2.0 production
+batch) were **not** promoted and stay outside `dataset/`.
+
 ### `roboflow_two_line_russian_license_plates` — licensing detail
 
 **Status: `REJECTED_FOR_SUBMISSION_PROVENANCE`** — decided 2026-09-12.

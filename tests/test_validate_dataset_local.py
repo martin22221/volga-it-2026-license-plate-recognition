@@ -197,11 +197,26 @@ def test_absent_meta_csv_exits_one(tmp_path: Path, capsys: pytest.CaptureFixture
     assert "does not exist" in capsys.readouterr().err
 
 
-def test_committed_dataset_skeleton_validates() -> None:
-    """The empty dataset checked into the repository must pass as-is."""
+def test_committed_dataset_meta_validates() -> None:
+    """The dataset checked into the repository must pass as-is.
+
+    Only ``meta.csv`` and the folder structure are committed; the images are
+    rebuilt (see ``dataset/README.md``), so the schema is validated without the
+    file-existence check, and the files are checked only when they are present.
+    """
     root = Path(__file__).resolve().parents[1] / "dataset"
-    report = validate_meta(root / "meta.csv", root)
+    report = validate_meta(root / "meta.csv", root, check_files=False)
 
     assert report.is_valid
-    assert report.stats.total_rows == 0
     assert "VALID" in cli.build_report_text(report)
+    stats = report.stats
+    # The promoted synthetic set (generator 2.3.0, seed 2026091401); no real images yet.
+    assert stats.total_rows == stats.synthetic_rows == 12_000
+    assert stats.real_rows == 0
+    assert stats.by_plate_type == {"type1": 2_400, "type1a": 4_200, "type1b": 5_400}
+    assert stats.by_source == {"volga_synthetic_generator": 12_000}
+    assert stats.by_license == {"CC BY 4.0": 12_000}
+
+    if any((root / "images" / "synthetic").glob("*.jpg")):
+        present = validate_meta(root / "meta.csv", root)
+        assert present.is_valid and not present.stats.missing_files

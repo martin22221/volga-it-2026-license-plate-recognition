@@ -178,14 +178,25 @@ almost no extra time.
 
 ### Synthetic
 
-The generator lives in `dataset/generator/`. **V1 (2026-09-13) was superseded
-the same day, after human review.** Its `type1b` plates used the type 1
-character structure instead of GOST's `MM 000 55`. V1 output is a development
-artefact that the dataset validator rejects. **V2 is awaiting human visual
-review**; only 60-image development batches exist, outside `dataset/`. See `dataset/generator/README.md` for what V1 covers and
-its open issues. V1 composites onto procedural scenes, not real backgrounds,
-because no licensed background photographs exist yet. The requirements it is
-measured against:
+The generator lives in `dataset/generator/`. **12,000 synthetic images from
+generator 2.3.0 (seed 2026091401) were reviewed and promoted into
+`dataset/images/synthetic/` on 2026-09-16**, which meets the synthetic target
+above: `type1` 2,400, `type1a` 4,200, `type1b` 5,400. The audited, sealed source
+batch stays at `data/synthetic_production/v2_3_seed2026091401_n12000/`; its
+`review/` folder holds the validator report, the QA results (0 FAIL), the
+provenance cross-check and the human-review sheets.
+
+Earlier generator versions are development history, kept for reproducibility
+and never promoted: **V1 (2026-09-13) was superseded the same day** — its
+`type1b` plates used the type 1 character structure instead of GOST's
+`MM 000 55`, and the dataset validator rejects V1 output; **2.2.0's production
+batch (2026-09-14) was held**, because occlusion could leave a character
+labelled as itself after its identifying stroke had been erased. 2.3.0 decides
+that from the character's ink. See `dataset/generator/README.md`.
+
+The generator composites onto procedural scenes, not real backgrounds, because
+no licensed background photographs exist yet. The requirements it is measured
+against:
 
 - All three target layouts, with `type1a` deliberately over-represented
   relative to its real-world frequency, since that is where real data is
