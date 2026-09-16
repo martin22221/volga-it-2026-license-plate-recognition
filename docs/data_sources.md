@@ -95,6 +95,34 @@ Lowercase, hyphenated, stable: `own-photos-ulyanovsk`, `wikimedia-commons`,
 | `volga_synthetic_generator` | Volga-IT 2026 synthetic plate generator (this repository) | `dataset/generator/` — procedural rendering; loads no font file, texture, template image or photograph | own work, released as CC BY 4.0 | yes | yes | yes | yes | 2026-09-13 | Every generator asset is produced in code: the built-in stroke font (`dataset/generator/glyphs.py`), the plate geometry templates, procedural backgrounds and vehicle panels. Each batch manifest records `external_assets: []`. Output rows carry `source=volga_synthetic_generator`, `license=CC BY 4.0`, `is_synthetic=true`. Any future third-party asset (e.g. a plate font or licensed backgrounds) needs its own row here first. |
 | `roboflow_two_line_russian_license_plates` | two-line-russian-license-plates (Roboflow Universe) | https://universe.roboflow.com/fverwfgerwf/two-line-russian-license-plates/dataset/1 | CC BY 4.0 *as declared by the project* | **no** | unclear | unclear | yes | 2026-09-12 | **REJECTED_FOR_SUBMISSION_PROVENANCE** (2026-09-12). Project declares CC BY 4.0, but no evidence establishes the provenance chain of the underlying 27 photographs. Not approved for the competition dataset or for training. Files kept locally for reference/visual review only. Reconsiderable on new evidence. |
 
+### Decisions
+
+Every candidate source carries one of these, written by a person into
+`data/real_staging/source_records/<source_id>.json` and repeated in the `notes`
+column above. The intake tooling checks the decision against the rights
+recorded beside it; it never makes one. See
+[`real_data_intake.md`](real_data_intake.md) for the record's fields and the
+consistency rules.
+
+| Decision | May enter `dataset/` | May train | May redistribute |
+| --- | --- | --- | --- |
+| `PENDING` | no | no | no |
+| `ACCEPT_FOR_SUBMISSION` | **yes** | yes | yes, under CC BY 4.0 |
+| `TRAINING_ONLY_IF_LEGAL` | no | yes, if lawful and noted | no |
+| `REFERENCE_ONLY` | no | no | no |
+| `REJECT` | no | no | no |
+
+`ACCEPT_FOR_SUBMISSION` requires all of: redistribution, modification and
+commercial use permitted; a licence that allows redistribution (NC, ND and SA
+are rejected outright); recorded provenance evidence and a licence-evidence
+URL; the required attribution text; and a completed privacy review.
+
+**A hosting platform's licence label is not ownership.** A dataset marked
+CC BY on a platform states what its uploader claims, not what the photographer
+granted. Without evidence of the chain from the photographer, provenance is
+unclear — and unclear provenance is rejected for submission, as
+`roboflow_two_line_russian_license_plates` was.
+
 ### `volga_synthetic_generator` — the promoted batch
 
 The 12,000 synthetic images in `dataset/images/synthetic/` all come from one

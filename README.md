@@ -28,12 +28,18 @@ Target plate classes:
   only the header. This is deliberate: an untrained pipeline must never
   fabricate plate numbers.
 * The **format validator is real** and fully tested.
-* The **synthetic plate generator V2** (`dataset/generator/`) renders `type1`,
-  `type1a` and `type1b` plates with exact quad annotations. It is awaiting
-  human visual review; only small development batches have been generated.
-  V1 was superseded because its `type1b` plates used the wrong character
-  structure, and its output must never enter the dataset. See
+* The **synthetic plate generator 2.3.0** (`dataset/generator/`) renders
+  `type1`, `type1a` and `type1b` plates with exact quad annotations. Its
+  audited 12,000-image batch (seed 2026091401) was reviewed and **promoted into
+  `dataset/`**: 0 validator errors, 0 QA FAILs, 0 provenance and reproduction
+  mismatches. V1 was superseded because its `type1b` plates used the wrong
+  character structure, and its output must never enter the dataset. See
   [`dataset/generator/README.md`](dataset/generator/README.md).
+* **Real images: none yet.** The real-data stage is set up — targets, split
+  policy, source-acceptance rules, staging and intake tooling — but nothing has
+  been collected, downloaded or imported. See
+  [`docs/real_data_plan.md`](docs/real_data_plan.md) and
+  [`docs/real_data_intake.md`](docs/real_data_intake.md).
 * No models are trained, downloaded or bundled.
 
 ## Folder structure
@@ -54,11 +60,14 @@ volga-it-2026-license-plate-recognition/
     jpeg_dc.py       # baseline-JPEG DC reader (1/8-scale, stdlib only)
     plate_color.py   # conservative plate colour / yellow heuristic
     rare_review.py   # type1a / type1b candidate pages
+    real_intake.py   # real-image source records + staged-source audit
+    real_splits.py   # deterministic, group-aware train/val/holdout splits
   training/          # (empty) training scripts for detector/classifier/OCR
   dataset/           # the training dataset we build ourselves
     images/real/     # collected photographs, git-ignored
     images/synthetic/# generated images, git-ignored
     labels/          # derived per-image labels, git-ignored
+    splits/          # frozen real train/val/holdout manifest
     generator/       # generator configs, fonts, templates
     meta.csv         # the annotation source of truth
     README.md        # format and legal rules
@@ -68,17 +77,23 @@ volga-it-2026-license-plate-recognition/
     audit_external_dataset.py   # inspect a third-party dataset, imports nothing
     sample_review_set.py        # build a reproducible human-review sample
     build_rare_review.py        # focused type1a / type1b candidate review
+    audit_real_source.py        # inspect a staged real source, approves nothing
+    plan_real_splits.py         # freeze and audit the real split manifest
   configs/           # (empty) model and run configuration files
   models/            # (empty) trained weights, git-ignored
   data/
     official_debug/  # official debug images from the organisers
     external/        # staging for third-party datasets, git-ignored
+    real_staging/    # real-image intake; photos git-ignored, records committed
+    synthetic_production/  # sealed generator batches, git-ignored
     outputs/         # generated CSVs
   tests/             # pytest suite
   docs/
     dataset_strategy.md   # what to collect and how much
     data_sources.md       # source registry (licenses, provenance)
     annotation_guide.md   # how to annotate
+    real_data_plan.md     # real targets, splits, mixing, readiness checklist
+    real_data_intake.md   # staging, source acceptance, privacy, workflow
     external_dataset_workflow.md  # audit -> review -> approve -> import
   run.py             # CLI entry point
   requirements.txt
@@ -173,12 +188,25 @@ Exit code `0` = valid, `1` = validation errors. The report gives image and
 annotation totals, real/synthetic split, counts by plate type and by condition,
 missing files, duplicates, and source/license coverage.
 
-No images have been collected yet. The dataset is submitted and published under
-**CC BY 4.0**, so every real image needs a documented source and a license that
-permits redistribution on those terms — NC, ND, SA and unclear licenses are
-rejected, and the validator enforces this. The official 30-image debug set is
-never copied into `dataset/`. See
-[`dataset/README.md`](dataset/README.md),
+It currently holds **12,000 synthetic images and no real ones**: `type1` 2,400,
+`type1a` 4,200, `type1b` 5,400, from generator 2.3.0 (seed 2026091401). The
+image files are not committed — only `meta.csv`, the structure and the docs —
+and are rebuilt with the command in [`dataset/README.md`](dataset/README.md).
+
+Real-image work is staged, never collected straight into `dataset/`:
+
+```bash
+python scripts/audit_real_source.py data/real_staging/incoming/<source_id>
+python scripts/plan_real_splits.py --check
+```
+
+The dataset is submitted and published under **CC BY 4.0**, so every real image
+needs a documented source and a license that permits redistribution on those
+terms — NC, ND, SA and unclear licenses are rejected, and the validator
+enforces this. The official 30-image debug set is never copied into `dataset/`.
+See [`dataset/README.md`](dataset/README.md),
+[`docs/real_data_plan.md`](docs/real_data_plan.md),
+[`docs/real_data_intake.md`](docs/real_data_intake.md),
 [`docs/dataset_strategy.md`](docs/dataset_strategy.md),
 [`docs/data_sources.md`](docs/data_sources.md) and
 [`docs/annotation_guide.md`](docs/annotation_guide.md).
@@ -268,8 +296,9 @@ The generator refuses to write into `dataset/` unless asked explicitly.
 
 ## Next steps
 
-1. Collect and annotate the real dataset per `docs/dataset_strategy.md`.
-2. Human review of the generator V2 demo batch, then full synthetic generation.
+1. Acquire and annotate real images per `docs/real_data_plan.md` and
+   `docs/real_data_intake.md`; rare classes (`type1a`, `type1b`) first.
+2. Freeze the real splits and pass the readiness checklist.
 3. Detector training (`training/`) and integration.
 4. Plate type classifier for `type1` / `type1a` / `type1b` / `other`.
 5. OCR model + calibrated confidences.

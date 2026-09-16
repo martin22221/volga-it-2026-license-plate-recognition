@@ -7,6 +7,14 @@ Related: [`../dataset/README.md`](../dataset/README.md) (format and legal
 rules), [`data_sources.md`](data_sources.md) (source registry),
 [`annotation_guide.md`](annotation_guide.md) (how to label).
 
+**For the real-data stage started 2026-09-16, read
+[`real_data_plan.md`](real_data_plan.md) first** — it carries the competition
+minimums repeated below *and* our higher engineering targets, the
+train/val/holdout policy, the synthetic/real mixing plan and the checklist that
+gates the first training run. [`real_data_intake.md`](real_data_intake.md) is
+the staging workflow that feeds it. This document remains the field guide: what
+to photograph, where, and in what conditions.
+
 ## Standing constraints
 
 - The official 30-image debug set is **unavailable** — the organizer's
@@ -225,12 +233,24 @@ backgrounds we photographed ourselves.
 
 ## Workflow
 
-1. Register the source in `docs/data_sources.md` **before** collecting from it,
-   and check its license terms then, not later.
-2. Collect. Blur faces. Store under `dataset/images/real/<source_id>/`.
-3. Annotate per `docs/annotation_guide.md`, appending rows to `meta.csv`.
-4. Run `python scripts/validate_dataset_local.py` and fix every error.
-5. Review the report's condition and plate-type tables against the targets
+Superseded in detail by [`real_data_intake.md`](real_data_intake.md), which
+adds the staging step: **images are never collected straight into `dataset/`**.
+In outline:
+
+1. Register the source in `docs/data_sources.md` and write its record in
+   `data/real_staging/source_records/` **before** collecting from it, and check
+   its license terms then, not later.
+2. Collect. Stage under `data/real_staging/incoming/<source_id>/`. Blur faces
+   and fill in the privacy review there.
+3. Annotate per `docs/annotation_guide.md` into the staging folder's
+   `meta.csv`, and record leakage groups in `groups.csv`.
+4. Audit with `python scripts/audit_real_source.py <staging dir>`; fix
+   everything it reports as blocking.
+5. A person decides the source. Only then promote into
+   `dataset/images/real/<source_id>/`, append to `dataset/meta.csv`, and freeze
+   the split with `scripts/plan_real_splits.py`.
+6. Run `python scripts/validate_dataset_local.py --strict` and fix every error.
+7. Review the report's condition and plate-type tables against the targets
    above, and steer the next collection session at whatever is thinnest.
 
 ## Decisions on record

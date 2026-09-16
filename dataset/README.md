@@ -15,6 +15,7 @@ dataset/
 │   ├── real/        photographs collected from documented sources
 │   └── synthetic/    images produced by our own generator
 ├── labels/           per-image label files (optional mirror of meta.csv)
+├── splits/           frozen train/val/holdout manifest for real images
 ├── generator/        synthetic image generator: configs, fonts, templates
 ├── meta.csv          the single source of truth for every annotation
 ├── README.md         this file

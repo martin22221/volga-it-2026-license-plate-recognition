@@ -69,6 +69,16 @@ data/**
 !data/review/*/review.csv
 !data/review/*/statistics.txt
 
+# Real-image staging (data/real_staging/): photographs, their annotations and
+# their privacy reviews never enter git -- they are personal data under review
+# and their rights are not settled until a person decides. The provenance
+# records and the intake audit reports are metadata only, and they are the
+# paper trail for every accept/reject, so they are committed.
+!data/real_staging/source_records/*.json
+!data/real_staging/audits/*.json
+!data/real_staging/audits/*.txt
+!data/real_staging/audits/*.md
+
 # ---- Collected dataset images ----
 # The structure, meta.csv, the generator and the docs are committed.
 # The image files themselves are not; they are rebuilt from meta.csv

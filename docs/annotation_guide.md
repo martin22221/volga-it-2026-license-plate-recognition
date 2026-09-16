@@ -193,8 +193,59 @@ Only these tags, separated by `|`:
 - `rain` / `snow` — visible precipitation, wetness or droplets, on the plate or
   the lens.
 
+## Faces and privacy
+
+Do this **before** the image enters `dataset/images/real/`, never afterwards.
+
+- **Blur or cover every identifiable face** where the licence or applicable
+  privacy rules require it. Blur the face, not the plate.
+- **Reject images centred on identifiable people.** We photograph vehicles. A
+  passer-by in a street scene is fine; a portrait with a car behind them is
+  not, and blurring does not make it fine.
+- **Blurring does not change where the image came from.** The row keeps the
+  original `source` and `license`, and the privacy review records what was
+  changed. Never use an edit to obscure an image's origin.
+- Record one `privacy_review.csv` row per image during intake, even when the
+  answer is "nothing needed": `image;faces_present;action;reviewer;date`, with
+  `action` one of `none_needed`, `blurred`, `covered`, `rejected`. Marking
+  `faces_present=yes` with `action=none_needed` is a blocking finding in the
+  intake audit.
+
+Other people's property is visible in any street photograph — house numbers,
+shop names, faces on advertisements. Judge what a reasonable person would
+object to being republished under CC BY 4.0, and when in doubt leave the image
+out.
+
+## Leakage groups
+
+Real images also get a **group** in the intake folder's `groups.csv`
+(`image;group`). The group is what keeps the holdout honest: everything sharing
+a group is forced into the same train/val/holdout split.
+
+Give the same group to every image of **one capture session or burst, one
+video, one vehicle, one physical plate**, and to any crop derived from the same
+original. Six photographs of the same taxi from six angles are *one* group, not
+six. When in doubt, group more coarsely — a group that is too large costs a
+little balance, while one that is too small leaks a plate into the holdout and
+quietly inflates every number measured there.
+
+See [`../dataset/splits/README.md`](../dataset/splits/README.md).
+
+## Never auto-label
+
+A detector's or OCR's output is **a suggestion to a human annotator, never an
+annotation**. Model output may pre-fill a box for a person to correct; the
+person is what makes it an annotation. Never describe model-labelled data as
+manually annotated, and never train on labels that were produced by the model
+being trained.
+
 ## Provenance
 
+- Real images are annotated in their staging folder
+  (`data/real_staging/incoming/<source_id>/meta.csv`) and only reach
+  `dataset/meta.csv` after the intake audit and a human decision — see
+  [`real_data_intake.md`](real_data_intake.md).
+- `is_synthetic` is `false` for every real image, and the folder must match.
 - `source` — the `source_id` from [`data_sources.md`](data_sources.md).
   Register the source there *before* annotating its images.
 - `license` — the **exact** license, e.g. `CC BY 4.0`, not "Creative Commons"
