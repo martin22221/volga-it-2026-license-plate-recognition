@@ -385,20 +385,25 @@ model work.
 
 ## Next action, once approved
 
-1. Write the source record (this is the only step that touches the repository):
+**Approved 2026-09-17. Step 1 is done; step 2 is waiting on the camera.** The
+field checklist is [`capture_session_type1a.md`](capture_session_type1a.md).
 
-   ```bash
-   python scripts/audit_real_source.py --blank-record team-capture-2026-09 > \
-       data/real_staging/source_records/team-capture-2026-09.json
-   ```
+1. ~~Write the source record~~ — **done 2026-09-17**, at
+   `data/real_staging/source_records/team-capture-2026-09.json`, with the
+   staging folder and the `meta.csv` / `groups.csv` / `privacy_review.csv`
+   headers prepared beside it. Creator = the team member who shoots; licence =
+   CC BY 4.0; evidence = "original camera files retained";
+   `privacy_review: not_started`; `decision: PENDING` until the session is
+   reviewed. The intake audit already reads the record and reports no problem
+   with it — its only blocking finding is that no image exists yet, which is
+   the correct state.
 
-   Fill in: creator = the team member who shoots; licence = CC BY 4.0;
-   evidence = "original camera files retained"; `privacy_review: not_started`;
-   `decision: PENDING` until the session is reviewed.
-
-2. Shoot one session targeting square/two-line plates — imports, pickups, SUVs,
-   trailers, agricultural and construction vehicles — with deliberate variety in
-   angle, distance and lighting, and both plate lines readable in most frames.
+2. **← we are here.** Shoot one session targeting square/two-line plates —
+   imports, pickups, SUVs, trailers, agricultural and construction vehicles —
+   with deliberate variety in angle, distance and lighting, and both plate lines
+   readable in most frames. Scenes, counts, condition quotas, the rules on what
+   not to photograph and where the files go are in
+   [`capture_session_type1a.md`](capture_session_type1a.md).
 
 3. Stage into
    `data/real_staging/incoming/team-capture-2026-09/images/real/team-capture-2026-09/`,

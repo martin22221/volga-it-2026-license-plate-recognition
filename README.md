@@ -40,6 +40,10 @@ Target plate classes:
   been collected, downloaded or imported. See
   [`docs/real_data_plan.md`](docs/real_data_plan.md) and
   [`docs/real_data_intake.md`](docs/real_data_intake.md).
+  **Acquisition #1 is approved and waiting on the camera:** one targeted
+  `type1a` capture session, staged as `team-capture-2026-09`. The source record
+  and staging folder are prepared; the field checklist is
+  [`docs/capture_session_type1a.md`](docs/capture_session_type1a.md).
 * No models are trained, downloaded or bundled.
 
 ## Folder structure
@@ -95,6 +99,7 @@ volga-it-2026-license-plate-recognition/
     real_data_plan.md     # real targets, splits, mixing, readiness checklist
     real_data_source_research.md  # public real-image sources: findings + decisions
     real_data_intake.md   # staging, source acceptance, privacy, workflow
+    capture_session_type1a.md     # acquisition #1: the field checklist
     external_dataset_workflow.md  # audit -> review -> approve -> import
   run.py             # CLI entry point
   requirements.txt
@@ -297,8 +302,9 @@ The generator refuses to write into `dataset/` unless asked explicitly.
 
 ## Next steps
 
-1. Acquire and annotate real images per `docs/real_data_plan.md` and
-   `docs/real_data_intake.md`; rare classes (`type1a`, `type1b`) first.
+1. **Shoot capture session 1** per `docs/capture_session_type1a.md` — the
+   approved acquisition #1, targeting `type1a`. Then annotate and run the intake
+   per `docs/real_data_intake.md`; rare classes (`type1a`, `type1b`) first.
 2. Freeze the real splits and pass the readiness checklist.
 3. Detector training (`training/`) and integration.
 4. Plate type classifier for `type1` / `type1a` / `type1b` / `other`.

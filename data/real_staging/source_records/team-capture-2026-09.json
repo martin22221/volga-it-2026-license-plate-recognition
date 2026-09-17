@@ -1,0 +1,20 @@
+{
+ "source_id": "team-capture-2026-09",
+ "source_name": "Team capture session 2026-09 - targeted type1a collection",
+ "source_reference": "photographed by the project team from publicly accessible space; session 1 of the type1a collection plan in docs/real_data_source_research.md. Exact places and dates are recorded per capture group in capture_log.csv inside the staging folder once the session is shot.",
+ "original_creator": "Martin Petkov (project team)",
+ "upstream_source": "photographed by us - no upstream host, no third-party chain",
+ "stated_license": "CC BY 4.0",
+ "license_evidence_url": "own work; the grant is ours to make. Evidence is the original camera files, retained unmodified at data/real_staging/incoming/team-capture-2026-09/originals/ (not committed) with their EXIF intact.",
+ "redistribution_allowed": "yes",
+ "modification_allowed": "yes",
+ "commercial_use_allowed": "yes",
+ "attribution_required": "yes",
+ "attribution_text": "Volga-IT 2026 license plate dataset (c) 2026 Martin Petkov, licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).",
+ "provenance_evidence": "We are the photographer and the copyright holder. The rights are held outright and granted directly; nothing is inherited from a platform or a prior licensor. The originals are retained for audit, and every derived file (privacy blur, resize) keeps this source and license.",
+ "privacy_review": "not_started",
+ "decision": "PENDING",
+ "decided_by": "Martin Petkov",
+ "date_checked": "2026-09-17",
+ "notes": "Acquisition #1, approved 2026-09-17 on the recommendation in commit 0dafaa7. Record written BEFORE the session, as docs/real_data_intake.md requires (register the source before collecting from it). NO PHOTOGRAPHS EXIST YET: the staging folder is prepared and empty, and the session is waiting on the human capture checklist in docs/capture_session_type1a.md. decision stays PENDING until the images are shot, the privacy pass is done and the intake audit has been read by a person; only then may it become ACCEPT_FOR_SUBMISSION. The rights fields above are already final - they are statements about our own work and do not depend on what the session yields. Update after the session: privacy_review, decision, and source_reference if anyone other than the named creator shoots part of it (a second photographer is a second source_id, not a second name in this field)."
+}

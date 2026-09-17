@@ -23,6 +23,11 @@ registry and the rights gate), [`annotation_guide.md`](annotation_guide.md)
 | Synthetic (generator 2.3.0, seed 2026091401) | 12,000 | 12,000 |
 | Real | **0** | **0** |
 
+**Acquisition #1 is approved and staged, not yet shot.** One targeted `type1a`
+capture session, `source_id` `team-capture-2026-09`, expected to yield 40–80
+images across 15–30 unique vehicles. The source record and staging folder exist;
+the field checklist is [`capture_session_type1a.md`](capture_session_type1a.md).
+
 ## 1. Targets
 
 Two columns, and they are not the same thing.

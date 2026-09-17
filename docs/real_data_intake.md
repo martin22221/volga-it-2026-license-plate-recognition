@@ -4,11 +4,15 @@ How a real photograph gets from "someone has it" to `dataset/images/real/`,
 and what stops it on the way.
 
 **Nothing has been through this process yet.** No real image has been
-acquired, downloaded or imported.
+acquired, downloaded or imported. One source is registered and staged awaiting
+its photographs: `team-capture-2026-09`, acquisition #1, `decision: PENDING` —
+see [`capture_session_type1a.md`](capture_session_type1a.md).
 
 Related: [`real_data_plan.md`](real_data_plan.md) (targets, splits, training
 mix, readiness), [`real_data_source_research.md`](real_data_source_research.md)
-(the source survey and its decisions), [`data_sources.md`](data_sources.md) (the registry),
+(the source survey and its decisions),
+[`capture_session_type1a.md`](capture_session_type1a.md) (the field checklist
+for acquisition #1), [`data_sources.md`](data_sources.md) (the registry),
 [`annotation_guide.md`](annotation_guide.md) (labelling),
 [`../dataset/README.md`](../dataset/README.md) (format and legal rules).
 
