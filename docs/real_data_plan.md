@@ -8,7 +8,9 @@ policy; [`real_data_intake.md`](real_data_intake.md) is the workflow that puts
 images through it. Written 2026-09-16, after the 12,000-image synthetic batch
 was audited and promoted.
 
-Related: [`dataset_strategy.md`](dataset_strategy.md) (acquisition scenes and
+Related: [`real_data_source_research.md`](real_data_source_research.md) (which
+public sources were investigated and what each was decided to be),
+[`dataset_strategy.md`](dataset_strategy.md) (acquisition scenes and
 the condition distribution), [`data_sources.md`](data_sources.md) (source
 registry and the rights gate), [`annotation_guide.md`](annotation_guide.md)
 (how to label), [`../dataset/splits/README.md`](../dataset/splits/README.md)

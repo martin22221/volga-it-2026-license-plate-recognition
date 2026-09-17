@@ -93,6 +93,7 @@ volga-it-2026-license-plate-recognition/
     data_sources.md       # source registry (licenses, provenance)
     annotation_guide.md   # how to annotate
     real_data_plan.md     # real targets, splits, mixing, readiness checklist
+    real_data_source_research.md  # public real-image sources: findings + decisions
     real_data_intake.md   # staging, source acceptance, privacy, workflow
     external_dataset_workflow.md  # audit -> review -> approve -> import
   run.py             # CLI entry point

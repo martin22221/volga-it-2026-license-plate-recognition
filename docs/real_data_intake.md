@@ -7,7 +7,8 @@ and what stops it on the way.
 acquired, downloaded or imported.
 
 Related: [`real_data_plan.md`](real_data_plan.md) (targets, splits, training
-mix, readiness), [`data_sources.md`](data_sources.md) (the registry),
+mix, readiness), [`real_data_source_research.md`](real_data_source_research.md)
+(the source survey and its decisions), [`data_sources.md`](data_sources.md) (the registry),
 [`annotation_guide.md`](annotation_guide.md) (labelling),
 [`../dataset/README.md`](../dataset/README.md) (format and legal rules).
 
@@ -96,6 +97,53 @@ answer:
 - `provenance_evidence` is not empty and `license_evidence_url` is present;
 - the required attribution text is recorded, if attribution is required;
 - the privacy review is `completed` or `not_required`.
+
+### Contributed photographs: the grant
+
+Someone outside the team offering us their photographs is the one case where
+the rights are clean but the *evidence* of them is easy to get wrong. The
+photographer holds the copyright, so they can grant exactly what we need — and
+a chat message saying "yeah, use them" grants nothing we could show anyone.
+
+Send this, and keep the reply verbatim:
+
+> I'd like to include your photograph(s) in a public dataset for the Volga-IT
+> 2026 competition. The dataset is **published under CC BY 4.0**, which means
+> anyone may copy, modify and use the images commercially, with credit. We
+> crop, resize and blur faces where needed. Please reply confirming:
+>
+> 1. You took these photographs yourself.
+> 2. You grant them under **CC BY 4.0**, understanding they will be published
+>    and cannot be withdrawn once released.
+> 3. The credit line you want (name, handle, or "anonymous").
+> 4. No identifiable person is the subject of the images.
+
+Each answer maps onto a field of the source record — the point of asking in
+this order:
+
+| Their answer | Source-record field |
+| --- | --- |
+| "I took them" | `original_creator`, and `upstream_source` = "photographed by the contributor" |
+| "I grant CC BY 4.0" | `stated_license` = `CC BY 4.0`; the three gate fields all `yes` |
+| The credit line | `attribution_required` = `yes`, `attribution_text` = their exact wording |
+| "no identifiable person" | `privacy_review` — their statement, not a substitute for our own pass |
+| Where the reply is kept | `license_evidence_url`, e.g. "email from the contributor, 2026-09-20, archived at …" |
+
+Rules that decide the awkward cases:
+
+- **A partial grant is not a grant.** If any of the four is missing, the
+  decision stays `PENDING` and the images stay in `incoming/`.
+- **"Anonymous" is a valid credit line**; a missing one is not. CC BY requires
+  attribution, so `attribution_text` must say something, even if it is
+  "anonymous contributor".
+- **Their privacy answer does not replace ours.** We still review every image
+  and still fill in `privacy_review.csv`. They are stating intent, and we are
+  the ones publishing.
+- **A photograph they found is not a photograph they took.** If the answer to
+  (1) is anything other than a plain yes — "a friend sent it", "it's from a
+  group chat" — the source is `REJECT`, whatever the friend would say.
+- **Archive the reply itself**, not a summary of it. The record cites where it
+  is kept; the paper trail is the message.
 
 ### Rules that decide most cases
 

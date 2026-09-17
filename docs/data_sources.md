@@ -95,6 +95,10 @@ Lowercase, hyphenated, stable: `own-photos-ulyanovsk`, `wikimedia-commons`,
 | `volga_synthetic_generator` | Volga-IT 2026 synthetic plate generator (this repository) | `dataset/generator/` — procedural rendering; loads no font file, texture, template image or photograph | own work, released as CC BY 4.0 | yes | yes | yes | yes | 2026-09-13 | Every generator asset is produced in code: the built-in stroke font (`dataset/generator/glyphs.py`), the plate geometry templates, procedural backgrounds and vehicle panels. Each batch manifest records `external_assets: []`. Output rows carry `source=volga_synthetic_generator`, `license=CC BY 4.0`, `is_synthetic=true`. Any future third-party asset (e.g. a plate font or licensed backgrounds) needs its own row here first. |
 | `roboflow_two_line_russian_license_plates` | two-line-russian-license-plates (Roboflow Universe) | https://universe.roboflow.com/fverwfgerwf/two-line-russian-license-plates/dataset/1 | CC BY 4.0 *as declared by the project* | **no** | unclear | unclear | yes | 2026-09-12 | **REJECTED_FOR_SUBMISSION_PROVENANCE** (2026-09-12). Project declares CC BY 4.0, but no evidence establishes the provenance chain of the underlying 27 photographs. Not approved for the competition dataset or for training. Files kept locally for reference/visual review only. Reconsiderable on new evidence. |
 
+The candidate survey behind these decisions — which public datasets were
+investigated, what each actually contains and why most were rejected — is in
+[`real_data_source_research.md`](real_data_source_research.md).
+
 ### Decisions
 
 Every candidate source carries one of these, written by a person into
