@@ -145,6 +145,16 @@ INCOMPATIBLE_LICENSE_TOKENS: Final[dict[str, str]] = {
     "noderivs": "no-derivatives",
     "sa": "share-alike",
     "sharealike": "share-alike",
+    # Copyleft licences outside the Creative Commons family. They permit
+    # redistribution and then require the result to carry the same licence,
+    # which is the ShareAlike problem under another name: our dataset is
+    # published under plain CC BY 4.0 and cannot carry them. Wikimedia Commons
+    # serves a steady trickle of both, so naming them beats leaving them to
+    # fall through as "unrecognised".
+    "gfdl": "copyleft (GNU Free Documentation License)",
+    "gpl": "copyleft (GNU General Public License)",
+    "lgpl": "copyleft (GNU Lesser General Public License)",
+    "fal": "copyleft (Free Art License)",
 }
 
 TRUE_VALUES: Final[frozenset[str]] = frozenset({"true", "1", "yes", "y"})

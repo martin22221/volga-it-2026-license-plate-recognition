@@ -1,5 +1,28 @@
 # Capture session 1 — `type1a`
 
+> ## Status: DEFERRED — `WAITING_FOR_HUMAN_CAPTURE` (2026-09-19)
+>
+> **This acquisition is not the active one, and nothing here has been
+> cancelled.** It was prepared in full on 2026-09-17 and stopped at the point
+> where a camera is required. It stays available as a fallback.
+>
+> **Why it was deferred.** The competition scores us on genuine Russian
+> `type1a` and `type1b` plates, and the participant is in **Bulgaria**. Local
+> self-capture cannot realistically collect Russian rare-class plates at any
+> useful scale: the vehicles are not on the street here. The constraint is
+> geography, not effort, and no amount of shooting in Sofia fixes it.
+>
+> **What replaced it.** Online discovery of already-published, per-image
+> licensed photographs — see
+> [`online_source_discovery.md`](online_source_discovery.md). That pass found
+> real, verified Russian `type1b` photographs under CC0 and CC BY, which is
+> exactly what a local camera could not reach.
+>
+> **What would revive it.** A team member travelling to Russia, or a
+> contributor there who can shoot to this checklist. The source record
+> `team-capture-2026-09` stays `PENDING`, its staging folder stays in place,
+> and everything below still applies the day someone can use it.
+
 The field checklist for **real-data acquisition #1**, approved 2026-09-17 on the
 recommendation in [`real_data_source_research.md`](real_data_source_research.md)
 (commit `0dafaa7`): one targeted team capture session for square / two-line

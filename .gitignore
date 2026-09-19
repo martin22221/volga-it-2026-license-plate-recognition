@@ -79,6 +79,16 @@ data/**
 !data/real_staging/audits/*.txt
 !data/real_staging/audits/*.md
 
+# Online-discovery candidate manifests: URLs, licences, per-candidate verdicts
+# and the reasons for them. Metadata about photographs we have NOT acquired, so
+# they carry no image and no personal data, and they are the paper trail for
+# what was searched and what was decided. Committed. The review thumbnails that
+# go with them (data/real_staging/review/) are NOT -- they are copies of other
+# people's photographs, fetched only so a person can judge the plate class.
+!data/real_staging/manifests/*.csv
+!data/real_staging/manifests/*.json
+!data/real_staging/manifests/*.md
+
 # ---- Collected dataset images ----
 # The structure, meta.csv, the generator and the docs are committed.
 # The image files themselves are not; they are rebuilt from meta.csv

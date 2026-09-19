@@ -8,6 +8,7 @@ images are small generated rectangles.
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -404,8 +405,55 @@ def test_cli_prints_a_blank_record(capsys: pytest.CaptureFixture[str]) -> None:
     assert printed["source_id"] == "new-source" and printed["decision"] == "PENDING"
 
 
-def test_the_staging_area_holds_no_images_yet() -> None:
-    """Nothing has been acquired: the committed staging tree is empty."""
+#: Where discovery may leave copies of other people's photographs: review
+#: thumbnails and contact sheets, so a person can judge a plate class by eye.
+#: It is gitignored, and nothing may be promoted out of it without an intake.
+REVIEW_SUBTREE = ("review",)
+
+IMAGE_SUFFIXES = (".jpg", ".jpeg", ".png", ".bmp")
+
+
+def _staging_images() -> list[Path]:
     staging = Path(__file__).resolve().parents[1] / "data" / "real_staging"
-    images = [p for p in staging.rglob("*") if p.is_file() and p.suffix.lower() in (".jpg", ".jpeg", ".png", ".bmp")]
-    assert images == []
+    return [
+        p
+        for p in staging.rglob("*")
+        if p.is_file() and p.suffix.lower() in IMAGE_SUFFIXES
+    ]
+
+
+def test_no_photograph_has_been_acquired_into_staging() -> None:
+    """Nothing is acquired: staging holds no image outside the review area.
+
+    Discovery is allowed to fetch review thumbnails, because a plate class can
+    only be settled by looking. Those live under ``review/`` and are gitignored.
+    An image anywhere else in staging means something was acquired without going
+    through ``docs/real_data_intake.md``.
+    """
+    staging = Path(__file__).resolve().parents[1] / "data" / "real_staging"
+    stray = [
+        p
+        for p in _staging_images()
+        if p.relative_to(staging).parts[:1] != REVIEW_SUBTREE
+    ]
+    assert stray == []
+
+
+def test_no_photograph_in_staging_is_committed() -> None:
+    """The review material is held locally and never enters the repository."""
+    repo = Path(__file__).resolve().parents[1]
+    tracked = subprocess.run(
+        ["git", "ls-files", "--", "data/real_staging"],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if tracked.returncode != 0:  # pragma: no cover - not a git checkout
+        pytest.skip("not a git checkout")
+    committed_images = [
+        line
+        for line in tracked.stdout.splitlines()
+        if line.strip() and Path(line).suffix.lower() in IMAGE_SUFFIXES
+    ]
+    assert committed_images == []
