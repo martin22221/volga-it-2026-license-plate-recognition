@@ -77,6 +77,50 @@ PRIVACY_STATES: tuple[str, ...] = ("not_started", "in_progress", "completed", "n
 PRIVACY_ACTIONS: tuple[str, ...] = ("none_needed", "blurred", "covered", "rejected")
 
 IMAGE_SUFFIXES: tuple[str, ...] = (".jpg", ".jpeg", ".png", ".bmp")
+
+#: A staging folder keeps the untouched file it received in ``originals/``,
+#: beside the working copy that gets blurred, annotated and eventually promoted
+#: (the convention the capture-session staging README sets out: "straight off
+#: the camera, EXIF intact, never edited, never deleted"). The audit is about
+#: what would be promoted, so it reads the working copies only. Auditing both
+#: would report every original and its working copy as an exact duplicate, and
+#: every original as an image with no annotation and no privacy review.
+PRESERVED_ORIGINALS_DIR: str = "originals"
+
+
+def _is_preserved_original(path: Path, root: Path) -> bool:
+    """Is this the untouched original kept beside a working copy?"""
+    try:
+        parts = path.relative_to(root).parts
+    except ValueError:  # pragma: no cover - path outside the staging folder
+        return False
+    return PRESERVED_ORIGINALS_DIR in parts[:-1]
+
+
+#: A source whose rights sit on each file rather than on the collection -- a
+#: hand-picked set of Wikimedia Commons photographs, say -- has no single
+#: licence to state. Its record lists every distinct licence its files carry,
+#: separated by ";", and the per-file licence travels with the image in the
+#: source's acquisition record.
+#:
+#: This is not a way round the gate. A list passes only if **every** licence in
+#: it would pass on its own, so one ShareAlike entry fails the whole source, and
+#: an empty list fails too. It only lets an honestly mixed source say so,
+#: instead of being forced to overstate one licence for all its files.
+LICENSE_LIST_SEPARATOR: str = ";"
+
+
+def stated_licenses(value: str) -> list[str]:
+    """The distinct licences a source record states, in order."""
+    return [part.strip() for part in (value or "").split(LICENSE_LIST_SEPARATOR) if part.strip()]
+
+
+def all_licenses_redistributable(value: str) -> bool:
+    """Is every licence this record states individually redistributable?"""
+    parts = stated_licenses(value)
+    return bool(parts) and all(is_redistributable_license(part) for part in parts)
+
+
 #: Thumbnail correlation above which two images are reported as near-duplicates.
 NEAR_DUPLICATE_THRESHOLD: float = 0.97
 
@@ -183,9 +227,13 @@ def record_problems(data: Mapping[str, object]) -> list[str]:
             clash = license_incompatibility(licence)
             if clash:
                 problems.append(f"decision {SUBMITTABLE} but the license is incompatible: {clash}")
-            elif not is_redistributable_license(licence):
+            elif not all_licenses_redistributable(licence):
+                unrecognised = [
+                    part for part in stated_licenses(licence) if not is_redistributable_license(part)
+                ]
                 problems.append(
-                    f"decision {SUBMITTABLE} but license {licence!r} is not recognised as redistributable; "
+                    f"decision {SUBMITTABLE} but license {licence!r} is not recognised as redistributable "
+                    f"({', '.join(repr(part) for part in unrecognised)}); "
                     "a person must resolve it before submission"
                 )
         if not get("provenance_evidence"):
@@ -385,7 +433,13 @@ def audit_staged_source(
         if audit.record.source_id and audit.record.source_id != root.name:
             audit.notes.append(f"source record id {audit.record.source_id!r} differs from the folder name {root.name!r}")
 
-    files = sorted(p for p in root.rglob("*") if p.is_file() and p.suffix.lower() in IMAGE_SUFFIXES)
+    files = sorted(
+        p
+        for p in root.rglob("*")
+        if p.is_file()
+        and p.suffix.lower() in IMAGE_SUFFIXES
+        and not _is_preserved_original(p, root)
+    )
     audit.images = [inspect_image(path, root) for path in files]
     names = [image.path for image in audit.images]
 
@@ -450,7 +504,7 @@ def audit_staged_source(
         },
         "license": {
             "stated": audit.record.get("stated_license") if audit.record else None,
-            "redistributable": is_redistributable_license(audit.record.get("stated_license")) if audit.record else None,
+            "redistributable": all_licenses_redistributable(audit.record.get("stated_license")) if audit.record else None,
             "incompatibility": license_incompatibility(audit.record.get("stated_license")) if audit.record else None,
         },
     }
@@ -547,6 +601,10 @@ def dataset_hashes(meta_path: Path, root: Path) -> dict[str, str]:
 __all__ = [
     "DECISIONS",
     "IMAGE_SUFFIXES",
+    "LICENSE_LIST_SEPARATOR",
+    "all_licenses_redistributable",
+    "stated_licenses",
+    "PRESERVED_ORIGINALS_DIR",
     "NEAR_DUPLICATE_THRESHOLD",
     "PERMISSIONS",
     "PRIVACY_ACTIONS",

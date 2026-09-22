@@ -1,0 +1,20 @@
+{
+ "source_id": "wikimedia_commons_curated",
+ "source_name": "Wikimedia Commons - individually curated Russian vehicle photographs",
+ "source_reference": "https://commons.wikimedia.org/ - 22 individually selected files, one row each in data/real_staging/incoming/wikimedia_commons_curated/acquisition_record.csv (original URL, file page, creator, licence, licence URL, SHA-256, acquisition timestamp). Selected by the discovery pass documented in docs/online_source_discovery.md and recorded in data/real_staging/manifests/online_candidates_2026-09-19.csv.",
+ "original_creator": "per file; 6 photographers: Artyom Svetlov; Retired electrician; SmallSonMarex; Администрация Ростова-на-Дону.; Андрей Осиновский; Юрий Д.К.",
+ "upstream_source": "Wikimedia Commons, uploaded by the photographers themselves. Each file page was read directly and re-verified at acquisition time; no third-party mirror or aggregator was used.",
+ "stated_license": "CC0; CC BY 4.0",
+ "license_evidence_url": "each file page in acquisition_record.csv:file_page_url; licence URL per file in acquisition_record.csv:license_url",
+ "redistribution_allowed": "yes",
+ "modification_allowed": "yes",
+ "commercial_use_allowed": "yes",
+ "attribution_required": "yes",
+ "attribution_text": "per file, in acquisition_record.csv:attribution. CC0 and public-domain files impose no legal requirement; the creator is credited anyway.",
+ "provenance_evidence": "Each file page on Wikimedia Commons states its licence and author. At acquisition the licence, author, media type and size were read again from the Commons API and compared with the approved record; all 22 still matched, and the downloaded bytes were checked against the SHA-1 Commons publishes. Two further candidates whose public-domain claim could not be verified at an original source were held back at discovery and never acquired.",
+ "privacy_review": "completed",
+ "decision": "PENDING",
+ "decided_by": "",
+ "date_checked": "2026-09-22",
+ "notes": "22 acquired, 21 annotated, 1 rejected on privacy (wcc_0018: people-centred press photograph). Annotation found one class disagreement with the discovery manifest: wcc_0011 subject plate is type1, not type1b (the type1b is the car behind). Decision stays PENDING until a person reviews the contact sheets; nothing is promoted into dataset/. The rights here sit on each file, not on the collection: stated_license lists every licence present and the per-file licence is carried in acquisition_record.csv. Both listed licences are individually redistributable under CC BY 4.0."
+}

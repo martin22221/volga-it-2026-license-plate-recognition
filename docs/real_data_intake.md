@@ -3,10 +3,14 @@
 How a real photograph gets from "someone has it" to `dataset/images/real/`,
 and what stops it on the way.
 
-**Nothing has been through this process yet.** No real image has been
-acquired, downloaded or imported. One source is registered and staged awaiting
-its photographs: `team-capture-2026-09`, acquisition #1, `decision: PENDING` —
-see [`capture_session_type1a.md`](capture_session_type1a.md).
+**Status, 2026-09-22.** One source has now been through acquisition and intake
+and is **waiting for a human review**; nothing has been promoted, so
+`dataset/images/real/` is still empty.
+
+| Source | Acquisition | State |
+| --- | --- | --- |
+| `wikimedia_commons_curated` | #2, online discovery | **22 acquired, 21 annotated, 1 rejected on privacy.** `decision: PENDING` — staged, audited, contact sheets built, awaiting review. See [`acquisition_wikimedia_commons.md`](acquisition_wikimedia_commons.md). |
+| `team-capture-2026-09` | #1, targeted `type1a` capture | `decision: PENDING`, **DEFERRED** — no photographs; the participant is in Bulgaria. See [`capture_session_type1a.md`](capture_session_type1a.md). |
 
 Related: [`real_data_plan.md`](real_data_plan.md) (targets, splits, training
 mix, readiness), [`real_data_source_research.md`](real_data_source_research.md)

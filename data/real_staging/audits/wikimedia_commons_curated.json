@@ -1,0 +1,356 @@
+{
+ "source_id": "wikimedia_commons_curated",
+ "root": "data\\real_staging\\incoming\\wikimedia_commons_curated",
+ "decision": "PENDING",
+ "record_problems": [
+  "decided_by is empty"
+ ],
+ "summary": {
+  "images": 22,
+  "formats": {
+   "jpeg": 22
+  },
+  "extensions": {
+   ".jpg": 22
+  },
+  "width": {
+   "min": 1024,
+   "median": 3600,
+   "max": 6432
+  },
+  "height": {
+   "min": 682,
+   "median": 2448,
+   "max": 4192
+  },
+  "megapixels_median": 8.64,
+  "total_mb": 72.51,
+  "corrupt": [],
+  "warnings": {},
+  "exact_duplicate_groups": [],
+  "already_in_dataset": [],
+  "near_duplicate_pairs": [],
+  "annotations": {
+   "meta_csv": "data\\real_staging\\incoming\\wikimedia_commons_curated\\meta.csv",
+   "rows": 24,
+   "annotated_images": 21,
+   "images_without_annotation": [
+    "images/real/wikimedia_commons_curated/wcc_0018.jpg"
+   ],
+   "rows_without_image": [],
+   "by_plate_type": {
+    "type1": 12,
+    "type1b": 12
+   },
+   "unique_plate_numbers": 24,
+   "plate_numbers_with_hash": 0,
+   "background_rows": 0,
+   "validator_errors": [],
+   "validator_warnings": [],
+   "real_rows": 24,
+   "synthetic_rows": 0
+  },
+  "privacy": {
+   "file": "data\\real_staging\\incoming\\wikimedia_commons_curated\\privacy_review.csv",
+   "reviewed": 22,
+   "unreviewed": [],
+   "actions": {
+    "none_needed": 12,
+    "blurred": 9,
+    "rejected": 1
+   },
+   "unresolved": [],
+   "rejected": [
+    "images/real/wikimedia_commons_curated/wcc_0018.jpg"
+   ],
+   "bad_rows": []
+  },
+  "splits": {
+   "assigned": {},
+   "unassigned": [
+    "images/real/wikimedia_commons_curated/wcc_0001.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0002.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0003.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0004.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0005.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0006.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0007.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0008.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0009.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0010.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0011.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0012.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0013.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0014.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0015.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0016.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0017.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0018.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0019.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0020.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0021.jpg",
+    "images/real/wikimedia_commons_curated/wcc_0022.jpg"
+   ],
+   "images_without_group": [],
+   "groups_spanning_splits": []
+  },
+  "license": {
+   "stated": "CC0; CC BY 4.0",
+   "redistributable": true,
+   "incompatibility": null
+  }
+ },
+ "blocking": [
+  "source record: decided_by is empty",
+  "1 image(s) without an annotation row"
+ ],
+ "notes": [
+  "1 image(s) rejected by the privacy review; do not promote them",
+  "the decision is a person's; this tool only checks the record against the rights written in it"
+ ],
+ "promotable": false,
+ "images": [
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0001.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 6432,
+   "height": 4112,
+   "size_bytes": 12879706,
+   "sha256": "cbeb7af1d1d482594b111cc38d1ac50ea8adaa79207ea1b568538ac49cfd11dd",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0002.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 5520,
+   "height": 4192,
+   "size_bytes": 8170340,
+   "sha256": "d96663fa0f0195b526391b44df2adc9fd0007c6c8fe5152c49f12e32243944e6",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0003.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 3600,
+   "height": 2400,
+   "size_bytes": 2464584,
+   "sha256": "5cd97173d79f30c965ee94863aad594b443b764c5d5f8909742c9ad86a437099",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0004.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 4627,
+   "height": 3085,
+   "size_bytes": 5497369,
+   "sha256": "de5da2cab5d021974377288dcc9994cd5b18f49c0668c7b4892abec1a5bb3f21",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0005.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 3790,
+   "height": 2656,
+   "size_bytes": 2336001,
+   "sha256": "aa6459e85487df5acfa178aacef9b1a8a9a81152a5ed4794e4501e990458a8c7",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0006.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 3848,
+   "height": 2566,
+   "size_bytes": 2959190,
+   "sha256": "743e91f2ada54738cb57841c5d047676ab0ca94cc102ba2a779fbf6d7422b333",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0007.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 3600,
+   "height": 2401,
+   "size_bytes": 2278022,
+   "sha256": "1a45280018b4a63ae5bb66a8cbe4e792603c372b8a2a3090b9e87ae60aff8ae9",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0008.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 3600,
+   "height": 2401,
+   "size_bytes": 2956357,
+   "sha256": "81e8e9f90268d38b0dabae02526cca0054cd000e65af7f7fd74a3cc0ded3bd5e",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0009.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 1967,
+   "height": 1311,
+   "size_bytes": 1216861,
+   "sha256": "3aa520c638c9d263e380b497714333c6018094a9435d4a23c09ef54bba400cce",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0010.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 4732,
+   "height": 2662,
+   "size_bytes": 3760947,
+   "sha256": "3b1385fc4100bea4d8597a420dc41a50c060c5d33d1d7a57a1816af2cc867749",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0011.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 4408,
+   "height": 2939,
+   "size_bytes": 2956497,
+   "sha256": "981e002de4c3c9aed0528b14023149e2a69bee96cec1501ef8049c5e08047a1b",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0012.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 4227,
+   "height": 2818,
+   "size_bytes": 2360774,
+   "sha256": "1aefefb85d91ce7235865005d5a4f3ec19cf86ab7093794713248872a1672c9d",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0013.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 3600,
+   "height": 2401,
+   "size_bytes": 2200016,
+   "sha256": "093d17557e051847484c1316d83fc0b4647f205c418a3aeb88a5e5c1883c7971",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0014.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 4471,
+   "height": 3353,
+   "size_bytes": 3267199,
+   "sha256": "273c7926c1e450c4209cafbcc5004c131bebdf2f8950f2ba46bbe9fdfb6213a2",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0015.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 1280,
+   "height": 833,
+   "size_bytes": 340278,
+   "sha256": "6abec07e88e0594123f24b4f8bd3460a6341b9ef1a27e0e71e68cdd7ebd327ee",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0016.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 4608,
+   "height": 3072,
+   "size_bytes": 3146460,
+   "sha256": "ac0a65da1fcbc8610944490d91a0914cf6e4e417a803c99ec2dca4de8932f834",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0017.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 3264,
+   "height": 2448,
+   "size_bytes": 3613143,
+   "sha256": "442c8194f50bf2b3fce20f3c758cc3254c1811d5ed8303f26d34cff11b9452da",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0018.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 1024,
+   "height": 682,
+   "size_bytes": 344845,
+   "sha256": "ecffaa51fac2fba5e1ccfac5cf3b2338043122646338b4cc39f3b8f62d39edde",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0019.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 3064,
+   "height": 1538,
+   "size_bytes": 2756488,
+   "sha256": "074e80473fc6b4018da957bad77935608e0c700339e9ee4995275ef98512748a",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0020.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 2919,
+   "height": 1747,
+   "size_bytes": 1225120,
+   "sha256": "f23cf06d9ceb9e8b72204e342cfa8149a322e88e9ddc6d2b9f1583aa240f2da9",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0021.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 2713,
+   "height": 1893,
+   "size_bytes": 2885481,
+   "sha256": "cdd71fe90a84b25c1f6b2ef840a9ab9d67b0f3b0b32a2b0e773478831107201a",
+   "problems": [],
+   "warnings": []
+  },
+  {
+   "path": "images/real/wikimedia_commons_curated/wcc_0022.jpg",
+   "extension": ".jpg",
+   "format": "jpeg",
+   "width": 3264,
+   "height": 2448,
+   "size_bytes": 2890845,
+   "sha256": "10c79e8b4e054cedb56960b716f037cbc4f396435aae672bce3670d650fd9229",
+   "problems": [],
+   "warnings": []
+  }
+ ]
+}

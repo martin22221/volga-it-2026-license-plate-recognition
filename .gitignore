@@ -89,6 +89,16 @@ data/**
 !data/real_staging/manifests/*.json
 !data/real_staging/manifests/*.md
 
+# The acquisition record: one row per photograph actually fetched, carrying the
+# original URL, file page, creator, exact licence, required attribution,
+# acquisition timestamp and SHA-256. It is the per-file half of the provenance
+# paper trail the source record points at -- metadata only, no image and no
+# personal data -- and without it the chain of rights lives on one machine.
+# Committed. The photographs it describes, their annotations and their privacy
+# reviews stay out, per the rule above.
+!data/real_staging/incoming/*/acquisition_record.csv
+!data/real_staging/incoming/*/held.json
+
 # ---- Collected dataset images ----
 # The structure, meta.csv, the generator and the docs are committed.
 # The image files themselves are not; they are rebuilt from meta.csv

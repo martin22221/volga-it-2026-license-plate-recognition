@@ -23,10 +23,48 @@ registry and the rights gate), [`annotation_guide.md`](annotation_guide.md)
 | Synthetic (generator 2.3.0, seed 2026091401) | 12,000 | 12,000 |
 | Real | **0** | **0** |
 
-**Acquisition #1 is approved and staged, not yet shot.** One targeted `type1a`
-capture session, `source_id` `team-capture-2026-09`, expected to yield 40–80
-images across 15–30 unique vehicles. The source record and staging folder exist;
-the field checklist is [`capture_session_type1a.md`](capture_session_type1a.md).
+**Acquisition #1 is DEFERRED**, not cancelled. One targeted `type1a` capture
+session, `source_id` `team-capture-2026-09`. The participant is in Bulgaria and
+Russian rare-class plates are not on the street there; the source record,
+staging folder and field checklist stay in place for the day someone can shoot
+to them. See [`capture_session_type1a.md`](capture_session_type1a.md).
+
+**Acquisition #2 is acquired and staged, awaiting human review.** 22 Wikimedia
+Commons photographs, `source_id` `wikimedia_commons_curated`, `decision:
+PENDING`: 21 annotated (12 `type1`, 12 `type1b` plates), 1 rejected on privacy.
+Nothing is promoted, so the table above still reads 0.
+See [`acquisition_wikimedia_commons.md`](acquisition_wikimedia_commons.md).
+
+### `type1a` is synthetic-only for now — a decision, not a conclusion
+
+**Real `type1a` acquisition has produced zero images, and we are proceeding
+without it for the time being.** The reasoning, so it does not have to be
+reconstructed later:
+
+- **Online discovery found no `type1a` photograph at all** — 0 of 5,813 Commons
+  titles surveyed, after three independent attempts (search and category walk, a
+  geometry filter over two-line crops, and a targeted hunt through 179 scenes of
+  the Japanese and grey imports most likely to carry a square plate). Every
+  readable plate was one-line. See
+  [`online_source_discovery.md`](online_source_discovery.md).
+- **Self/team capture is deferred for geography**, as above. It is the only
+  route that has ever looked credible for this class.
+- **So `type1a` remains synthetic-only for now.** The generator produces it, and
+  the 12,000-image synthetic batch is rare-class-heavy by design.
+
+Three things this decision is **not**:
+
+- It is **not** a claim that no real `type1a` data exists or can ever be found.
+  It says that two specific routes, pursued properly, did not yield any.
+- It is **not** permanent. If model evaluation shows the classifier or the OCR
+  failing on real `type1a` in a way synthetic data cannot fix, real `type1a`
+  acquisition is reopened — a contributor in Russia, a licensed archive, or a
+  direct approach to a transport photographer.
+- It is **not** a licence to improvise. **Foreign square plates are never
+  relabelled as Russian `type1a`.** Japanese, Armenian and other square or
+  two-line plates are a different standard, and a square plate photographed
+  abroad is not a Russian one. The discovery pass already rejected an Armenian
+  plate and a Gostekhnadzor tractor plate on exactly this ground.
 
 ## 1. Targets
 

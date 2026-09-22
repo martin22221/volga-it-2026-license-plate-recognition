@@ -3,10 +3,18 @@
 Targeted discovery of **already-published, individually licensed photographs**
 of real Russian vehicles, run 2026-09-19, after self-capture was deferred.
 
-**Nothing was acquired.** No photograph entered `dataset/`, no full-resolution
-file was downloaded, and no model was trained. What was fetched is metadata,
-plus small review thumbnails kept in staging so a person could judge the plate
-class by eye. The output is a **candidate manifest**, not a dataset.
+**This pass acquired nothing.** Its output is a **candidate manifest**, not a
+dataset: what it fetched was metadata, plus small review thumbnails kept in
+staging so a person could judge a plate class by eye. No photograph entered
+`dataset/` and no model was trained.
+
+> **Superseded in part, 2026-09-22.** A person then approved acquisition of the
+> 22 candidates this pass marked `ACCEPT_FOR_SUBMISSION`, and they were
+> downloaded and taken through intake — see
+> [`acquisition_wikimedia_commons.md`](acquisition_wikimedia_commons.md) and
+> "What happened next" below. The numbers in this document remain those of the
+> discovery pass on 2026-09-19; intake revised one of its class calls. Still
+> nothing in `dataset/`.
 
 Related: [`real_data_source_research.md`](real_data_source_research.md) (the
 2026-09-17 survey this continues), [`real_data_intake.md`](real_data_intake.md)
@@ -302,9 +310,18 @@ The sheets a person should actually open, in `sheets/`:
 - **`plate_reading` in the notes is a reading for review, not an annotation.**
   Annotation happens at intake, on the full-resolution file, by hand.
 
-## What happens next
+## What happened next
 
-Acquisition is **not** approved by this document. If a person approves it:
+**Acquisition #2 was approved on 2026-09-22 and the 22 ACCEPT_FOR_SUBMISSION
+candidates were acquired.** All 22 downloaded, all still matching the licence
+they were approved under. Intake then annotated 21 of them (24 plates: 12
+`type1`, 12 `type1b`) and rejected one on privacy, and found that **`wcc_0011`
+was not the class this pass recorded** — its subject plate is white `type1`,
+and the `type1b` belongs to the car behind it. That is the review-resolution
+limit of this pass showing up, and the reason a full-resolution intake exists.
+Nothing is promoted. See [`acquisition_wikimedia_commons.md`](acquisition_wikimedia_commons.md).
+
+The sequence that was followed:
 
 1. Register `wikimedia_commons_curated` in [`data_sources.md`](data_sources.md)
    — one `source_id`, with per-image creator and licence carried in the

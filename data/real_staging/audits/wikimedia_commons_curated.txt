@@ -1,0 +1,22 @@
+Staged source: wikimedia_commons_curated
+  folder            : data\real_staging\incoming\wikimedia_commons_curated
+  decision (person) : PENDING
+  images            : 22  formats {'jpeg': 22}  72.51 MB
+  dimensions        : width {'min': 1024, 'median': 3600, 'max': 6432}  height {'min': 682, 'median': 2448, 'max': 4192}  median 8.64 MP
+  corrupt           : 0
+  exact duplicates  : 0 group(s); already in dataset: 0
+  near duplicates   : 0 pair(s)
+  annotations       : 24 row(s) over 21 image(s); types {'type1': 12, 'type1b': 12}; unique plates 24
+  annotation checks : 0 error(s), 0 warning(s)
+  privacy review    : 22 reviewed, 0 unreviewed, 0 unresolved, actions {'none_needed': 12, 'blurred': 9, 'rejected': 1}
+  splits            : {}; unassigned 22; groups spanning splits 0
+  license           : 'CC0; CC BY 4.0' redistributable=True
+
+Blocking (2):
+  - source record: decided_by is empty
+  - 1 image(s) without an annotation row
+Notes (2):
+  - 1 image(s) rejected by the privacy review; do not promote them
+  - the decision is a person's; this tool only checks the record against the rights written in it
+
+Verdict: NOT PROMOTABLE (this tool never promotes and never approves a source)

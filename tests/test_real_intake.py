@@ -422,21 +422,27 @@ def _staging_images() -> list[Path]:
     ]
 
 
-def test_no_photograph_has_been_acquired_into_staging() -> None:
-    """Nothing is acquired: staging holds no image outside the review area.
+def test_every_staged_photograph_belongs_to_a_registered_source() -> None:
+    """A photograph may sit in staging only under a source that is registered.
 
-    Discovery is allowed to fetch review thumbnails, because a plate class can
-    only be settled by looking. Those live under ``review/`` and are gitignored.
-    An image anywhere else in staging means something was acquired without going
-    through ``docs/real_data_intake.md``.
+    Staging is no longer empty: acquisition #2 brought in the approved Wikimedia
+    Commons candidates. What must stay true is that nothing arrives anonymously.
+    An image under ``incoming/<source_id>/`` is only accounted for when that
+    folder carries the ``source_record.json`` the intake workflow requires, and
+    the only other place an image may live is the gitignored ``review/`` area,
+    where discovery keeps thumbnails so a person can judge a plate class.
     """
     staging = Path(__file__).resolve().parents[1] / "data" / "real_staging"
-    stray = [
-        p
-        for p in _staging_images()
-        if p.relative_to(staging).parts[:1] != REVIEW_SUBTREE
-    ]
-    assert stray == []
+    unaccounted: list[str] = []
+    for image in _staging_images():
+        parts = image.relative_to(staging).parts
+        if parts[:1] == REVIEW_SUBTREE:
+            continue
+        if parts[0] == "incoming" and len(parts) > 2:
+            if (staging / "incoming" / parts[1] / "source_record.json").is_file():
+                continue
+        unaccounted.append(str(image.relative_to(staging)))
+    assert unaccounted == []
 
 
 def test_no_photograph_in_staging_is_committed() -> None:
@@ -457,3 +463,143 @@ def test_no_photograph_in_staging_is_committed() -> None:
         if line.strip() and Path(line).suffix.lower() in IMAGE_SUFFIXES
     ]
     assert committed_images == []
+
+
+# --------------------------------------------------------------------------
+# preserved originals
+# --------------------------------------------------------------------------
+
+
+def _stage(root: Path, *, with_original: bool) -> Path:
+    """A minimal staged source: one working copy, optionally its original."""
+    from src.real_intake import blank_record
+
+    src = "demo"
+    work = root / "images" / "real" / src
+    work.mkdir(parents=True)
+    Image.new("RGB", (80, 40), (200, 200, 200)).save(work / "d_0001.jpg")
+    if with_original:
+        originals = root / "originals"
+        originals.mkdir()
+        Image.new("RGB", (80, 40), (200, 200, 200)).save(originals / "Original Name.jpg")
+
+    record = blank_record(src)
+    record.update(
+        source_name="demo",
+        source_reference="demo",
+        original_creator="demo",
+        upstream_source="demo",
+        stated_license="CC0",
+        license_evidence_url="https://example.invalid/licence",
+        redistribution_allowed="yes",
+        modification_allowed="yes",
+        commercial_use_allowed="yes",
+        attribution_required="no",
+        attribution_text="",
+        provenance_evidence="demo",
+        privacy_review="completed",
+        decided_by="tester",
+        date_checked="2026-09-22",
+    )
+    (root / "source_record.json").write_text(json.dumps(record), encoding="utf-8")
+    return root
+
+
+def test_the_untouched_original_is_not_audited_as_a_second_image(tmp_path: Path) -> None:
+    """``originals/`` holds the file as received; the audit reads working copies.
+
+    Auditing both would report every original and its working copy as an exact
+    duplicate, and every original as an image with no annotation and no privacy
+    review -- none of which is a real finding.
+    """
+    from src.real_intake import audit_staged_source
+
+    plain = audit_staged_source(_stage(tmp_path / "plain", with_original=False))
+    kept = audit_staged_source(_stage(tmp_path / "kept", with_original=True))
+
+    assert len(plain.images) == len(kept.images) == 1
+    assert [i.path for i in kept.images] == ["images/real/demo/d_0001.jpg"]
+    assert kept.summary["exact_duplicate_groups"] == []
+
+
+def test_a_file_named_originals_is_still_audited(tmp_path: Path) -> None:
+    """Only the directory is special, not the word."""
+    from src.real_intake import audit_staged_source
+
+    root = _stage(tmp_path / "s", with_original=False)
+    Image.new("RGB", (80, 40)).save(root / "images" / "real" / "demo" / "originals.jpg")
+    audit = audit_staged_source(root)
+    assert "images/real/demo/originals.jpg" in [i.path for i in audit.images]
+
+
+# --------------------------------------------------------------------------
+# per-file licences
+# --------------------------------------------------------------------------
+
+
+def test_a_source_may_state_every_licence_its_files_carry() -> None:
+    from src.real_intake import all_licenses_redistributable, stated_licenses
+
+    assert stated_licenses("CC0; CC BY 4.0") == ["CC0", "CC BY 4.0"]
+    assert all_licenses_redistributable("CC0; CC BY 4.0")
+
+
+def test_one_bad_licence_fails_the_whole_list() -> None:
+    from src.real_intake import all_licenses_redistributable
+
+    assert not all_licenses_redistributable("CC0; CC BY-SA 4.0")
+    assert not all_licenses_redistributable("CC BY 4.0; CC BY-NC 2.0")
+
+
+def test_an_empty_licence_list_is_not_redistributable() -> None:
+    from src.real_intake import all_licenses_redistributable
+
+    assert not all_licenses_redistributable("")
+    assert not all_licenses_redistributable("   ;  ")
+
+
+def test_a_mixed_licence_source_can_be_accepted_when_every_licence_passes() -> None:
+    from src.real_intake import record_problems
+
+    from src.real_intake import blank_record
+
+    record = blank_record("mixed")
+    record.update(
+        source_name="mixed",
+        source_reference="mixed",
+        original_creator="mixed",
+        upstream_source="mixed",
+        stated_license="CC0; CC BY 4.0",
+        license_evidence_url="https://example.invalid/l",
+        redistribution_allowed="yes",
+        modification_allowed="yes",
+        commercial_use_allowed="yes",
+        attribution_required="yes",
+        attribution_text="per file",
+        provenance_evidence="per file",
+        privacy_review="completed",
+        decision="ACCEPT_FOR_SUBMISSION",
+        decided_by="tester",
+        date_checked="2026-09-22",
+    )
+    assert record_problems(record) == []
+
+    # A ShareAlike entry anywhere in the list fails the whole source. It is
+    # caught by the incompatibility check, which names the reason rather than
+    # the licence string.
+    record["stated_license"] = "CC0; CC BY-SA 4.0"
+    assert any("incompatible" in p and "share-alike" in p for p in record_problems(record))
+
+    # An entry that is merely unrecognised is named, so a person can resolve it.
+    record["stated_license"] = "CC0; free to use"
+    assert any("'free to use'" in p for p in record_problems(record))
+
+
+def test_nothing_has_been_promoted_into_the_official_dataset() -> None:
+    """Staging is not promotion. ``dataset/images/real/`` stays empty until a
+    person approves a source, per step 9 of ``docs/real_data_intake.md``."""
+    real = Path(__file__).resolve().parents[1] / "dataset" / "images" / "real"
+    promoted = [
+        p for p in real.rglob("*") if p.is_file() and p.suffix.lower() in IMAGE_SUFFIXES
+    ]
+    assert promoted == []
