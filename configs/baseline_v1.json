@@ -5,7 +5,6 @@
     "docs/baseline_v1.md says why each was made.",
     "Nothing in this file trains anything; scripts/train_*.py read it."
   ],
-
   "experiment": {
     "name": "baseline_v1",
     "dataset_version": "v1",
@@ -15,24 +14,31 @@
     "output_root": "runs",
     "naming": "runs/<component>/<experiment>_<YYYYMMDD>_<seed>/"
   },
-
-  "classes": ["type1", "type1a", "type1b", "other"],
-
+  "classes": [
+    "type1",
+    "type1a",
+    "type1b",
+    "other"
+  ],
   "detector": {
     "component": "detector",
-    "family": "yolov8n-pose",
-    "reason": "one pass gives the box and the four plate corners, which we have exact labels for; the corners rectify the crop before OCR",
+    "family": "torchvision ssdlite320_mobilenet_v3_large",
+    "license_code": "BSD-3-Clause (torchvision)",
+    "license_weights": "BSD-3-Clause file terms; torchvision disclaims dataset-derived terms -- see docs/baseline_v1.md",
+    "reason": "the only actively maintained permissive candidate, and it adds no dependency we do not already need; AGPL families are excluded by policy",
     "num_object_classes": 1,
     "object_class_name": "plate",
-    "keypoints": 4,
-    "keypoint_order": "plate top-left, top-right, bottom-right, bottom-left (clockwise), matching meta.csv quad_1..4",
     "input_size": 640,
+    "_comment_input": "torchvision's SSD takes its input size at construction; 640 rather than the pretrained 320 because plates are small and distant in our scenes",
+    "pretrained_weights": "COCO (torchvision SSDLite320_MobileNet_V3_Large_Weights.COCO_V1)",
+    "pretrained": true,
+    "_comment_pretrained": "set false to train from scratch: zero third-party weight provenance, at the cost of synthetic-to-real transfer. See docs/baseline_v1.md section 3.4.",
     "epochs": 60,
     "batch_size": 16,
     "optimizer": "SGD",
     "lr0": 0.01,
     "lrf": 0.01,
-    "momentum": 0.937,
+    "momentum": 0.9,
     "weight_decay": 0.0005,
     "warmup_epochs": 3,
     "patience": 15,
@@ -44,21 +50,30 @@
       "degrees": 5.0,
       "translate": 0.1,
       "scale": 0.4,
-      "fliplr": 0.0,
-      "mosaic": 0.5
+      "fliplr": 0.0
+    },
+    "fallback": {
+      "_comment": "Agreed in advance so the switch is a measurement, not a judgement call after seeing results.",
+      "trigger": "recall on plates narrower than 80 px in synthetic:val below 0.85",
+      "model": "torchvision fasterrcnn_mobilenet_v3_large_fpn",
+      "license_code": "BSD-3-Clause (torchvision)"
     },
     "train_split": "synthetic:train",
     "val_split": "synthetic:val",
     "test_split": "synthetic:test"
   },
-
   "recognizer": {
     "component": "recognizer",
-    "family": "small-cnn + BiGRU + CTC, with a type-classification head",
-    "reason": "one backbone serves both heads; the type head sees the same crop the reader does, so colour and aspect are available to it",
+    "family": "small-cnn + BiGRU + CTC, with type-classification and corner-regression heads",
+    "reason": "one backbone serves three heads; the type head and the corner head see the same crop the reader does, so colour, aspect and geometry are all available to them",
     "input_height": 48,
     "input_width": 192,
-    "backbone_channels": [32, 64, 128, 256],
+    "backbone_channels": [
+      32,
+      64,
+      128,
+      256
+    ],
     "rnn_hidden": 128,
     "rnn_layers": 2,
     "num_chars": 23,
@@ -75,16 +90,19 @@
     "patience": 10,
     "crop": {
       "_comment": "type1a is two lines; the upper band and the lower band are cut apart and placed side by side, so a single left-to-right reader handles every class.",
-      "rectify_with_quad": true,
+      "rectify_with_quad": "predicted-by-corner-head",
       "margin_fraction": 0.08,
       "two_line_unroll": true,
-      "two_line_split_fraction": 0.5
+      "two_line_split_fraction": 0.5,
+      "_comment_rectify": "v1 order: detect box -> crop with margin -> corner head -> perspective warp -> read. The corner head trains on ground-truth crops, so it is supervised from the first epoch."
     },
     "train_split": "synthetic:train",
     "val_split": "synthetic:val",
-    "test_split": "synthetic:test"
+    "test_split": "synthetic:test",
+    "corner_head_outputs": 8,
+    "corner_loss_weight": 0.25,
+    "_comment_corner_head": "The detector selected for v1 predicts boxes only, so the four plate corners are regressed here instead, from the crop. meta.csv carries exact corners for all 12,013 rows. This removes the need for a keypoint-capable detector entirely."
   },
-
   "evaluation": {
     "iou_match": 0.5,
     "detector_confidence": 0.25,
@@ -93,19 +111,24 @@
     "populations": {
       "synthetic_val": "synthetic:val",
       "synthetic_test": "synthetic:test",
-      "real_dev": ["real:train", "real:val"],
+      "real_dev": [
+        "real:train",
+        "real:val"
+      ],
       "real_holdout": "real:holdout"
     },
     "report_separately": true,
     "never_merge_synthetic_and_real": true
   },
-
   "export": {
     "format": "onnx",
     "opset": 17,
     "dynamic_batch": false,
     "runtime": "onnxruntime",
-    "providers": ["CUDAExecutionProvider", "CPUExecutionProvider"],
+    "providers": [
+      "CUDAExecutionProvider",
+      "CPUExecutionProvider"
+    ],
     "target_hardware": {
       "cpu": "Intel i5-7600",
       "gpu": "NVIDIA GTX 1050 Ti 4 GB",
@@ -114,9 +137,11 @@
       "_comment": "A budget to design against and then measure. Nothing here claims it is met."
     }
   },
-
   "checkpoints": {
-    "keep": ["best", "last"],
+    "keep": [
+      "best",
+      "last"
+    ],
     "select_best_on": "synthetic:val",
     "_comment_selection": "Model selection never touches real data. Selecting on 13 real images would overfit them and destroy the only real measurement we have.",
     "save_optimizer_state": false

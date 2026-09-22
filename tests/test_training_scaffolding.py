@@ -322,3 +322,55 @@ def test_the_baseline_config_never_points_training_at_real_data() -> None:
             )
     assert config["evaluation"]["never_merge_synthetic_and_real"] is True
     assert config["checkpoints"]["select_best_on"] == "synthetic:val"
+
+
+# ------------------------------------------------------------------ licence policy
+
+
+def test_no_copyleft_dependency_is_configured_for_training() -> None:
+    """AGPL/GPL-3 would choose a source licence for a project that has not chosen one.
+
+    `docs/baseline_v1.md` section 8a: this repository declares no source-code
+    licence. A copyleft dependency would settle that question by default at
+    submission time, so the preflight refuses one outright.
+    """
+    from scripts.train_baseline import (
+        COMPONENT_LICENCES,
+        REFUSED_LICENCE_TOKENS,
+        REQUIRED_MODULES,
+    )
+
+    for component, modules in REQUIRED_MODULES.items():
+        for module in modules:
+            licence = COMPONENT_LICENCES.get(module)
+            assert licence, f"{component} needs {module!r} with no declared licence"
+            assert not any(t in licence.lower() for t in REFUSED_LICENCE_TOKENS), (
+                f"{component} depends on {module} under {licence}"
+            )
+
+
+def test_the_configured_detector_is_not_from_an_agpl_family() -> None:
+    """The decision recorded in docs/baseline_v1.md section 3, locked down."""
+    config = json.loads((REPO_ROOT / "configs" / "baseline_v1.json").read_text(encoding="utf-8"))
+    detector = config["detector"]
+    family = detector["family"].lower()
+    assert "yolov8" not in family and "ultralytics" not in family and "yolov5" not in family
+    assert "bsd" in detector["license_code"].lower()
+    # the agreed fallback must be permissive too, or the escape hatch is a trap
+    assert "bsd" in detector["fallback"]["license_code"].lower()
+
+
+def test_the_pretrained_weights_choice_is_explicit_and_reversible() -> None:
+    """Section 3.4 offers from-scratch as a one-flag alternative; it must exist."""
+    config = json.loads((REPO_ROOT / "configs" / "baseline_v1.json").read_text(encoding="utf-8"))
+    detector = config["detector"]
+    assert isinstance(detector["pretrained"], bool)
+    assert detector["license_weights"], "weights licensing must be stated, not assumed"
+
+
+def test_corner_regression_moved_to_the_recogniser() -> None:
+    """No permissive detector gives keypoints turnkey, so the crop model predicts them."""
+    config = json.loads((REPO_ROOT / "configs" / "baseline_v1.json").read_text(encoding="utf-8"))
+    recognizer = config["recognizer"]
+    assert recognizer["corner_head_outputs"] == 8       # 4 corners, x and y
+    assert "keypoints" not in config["detector"]

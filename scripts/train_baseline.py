@@ -55,9 +55,22 @@ COMPONENTS = ("detector", "recognizer")
 #: Frameworks a real run needs. Absent today, and deliberately not installed:
 #: the current task authorises readiness, not training.
 REQUIRED_MODULES: dict[str, tuple[str, ...]] = {
-    "detector": ("torch", "ultralytics"),
+    # torchvision, not a third-party detector repository: the selected detector
+    # is torchvision's own SSDlite (BSD-3), so the detector needs nothing the
+    # recogniser does not already need. See docs/baseline_v1.md section 3.
+    "detector": ("torch", "torchvision"),
     "recognizer": ("torch",),
 }
+
+#: Licences of every third-party component a run would pull in, so the check is
+#: mechanical rather than remembered. AGPL is refused: this project has not
+#: chosen a source licence (docs/baseline_v1.md section 8a), and an AGPL
+#: dependency would choose one for it at submission time.
+COMPONENT_LICENCES: dict[str, str] = {
+    "torch": "BSD-3-Clause",
+    "torchvision": "BSD-3-Clause",
+}
+REFUSED_LICENCE_TOKENS: tuple[str, ...] = ("agpl", "gpl-3", "gplv3")
 
 EXIT_OK, EXIT_UNUSABLE, EXIT_BLOCKED = 0, 1, 2
 
@@ -110,6 +123,24 @@ def preflight(component: str, config: dict) -> tuple[list[str], list[str]]:
 
     if "holdout" in json.dumps({k: v for k, v in section.items()}):
         blocking.append(f"{component} configuration mentions a holdout split; it must not")
+
+    # The licence of what a run would pull in, checked rather than remembered.
+    refused = [
+        f"{name} ({licence})"
+        for name, licence in COMPONENT_LICENCES.items()
+        if name in REQUIRED_MODULES[component]
+        and any(token in licence.lower() for token in REFUSED_LICENCE_TOKENS)
+    ]
+    if refused:
+        blocking.append(
+            f"copyleft dependency refused: {', '.join(refused)}. This project has not chosen a "
+            "source licence, and such a dependency would choose one for it at submission time"
+        )
+    else:
+        declared = ", ".join(
+            f"{n}={COMPONENT_LICENCES.get(n, '?')}" for n in REQUIRED_MODULES[component]
+        )
+        notes.append(f"dependency licences: {declared}")
 
     missing = [m for m in REQUIRED_MODULES[component] if not _installed(m)]
     if missing:

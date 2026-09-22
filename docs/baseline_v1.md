@@ -53,8 +53,9 @@ predictions file, and CPU inference benchmarking. Not training.
 Train on a **free or cheap hosted T4/L4 notebook** (Google Colab, Kaggle
 Notebooks, or an equivalent), then bring back only the weights.
 
-- 12,000 images at 640 px, YOLOv8n-class, 60 epochs ≈ **1.5–3 h on a T4** —
-  inside a free session, and restartable from a checkpoint if it is not.
+- 10,200 images at 640 px, SSDlite-MobileNetV3 (~3.4 M params), 60 epochs ≈
+  **1.5–3 h on a T4** — inside a free session, and restartable from a
+  checkpoint if it is not.
 - The recogniser trains on 48×192 crops and is far smaller: well under an hour.
 - Both fit in 16 GB of host RAM and under 8 GB of VRAM at the batch sizes in
   the config.
@@ -79,44 +80,127 @@ already exists and is already tested.
 
 ## 3. Detector
 
-**`yolov8n-pose`, 640×640, one object class (`plate`), four keypoints.**
+**Selected: torchvision `ssdlite320_mobilenet_v3_large`, rebuilt at 640×640,
+one object class, fine-tuned from COCO-pretrained weights.**
 
-| | |
-| --- | --- |
-| Params | ~3.3 M |
-| Input | 640×640 letterboxed |
-| Output | box + confidence + **4 plate corners** |
-| Export | ONNX opset 17 → `onnxruntime` (CUDA provider, CPU fallback) |
+### 3.1 The licence gate, applied first
 
-**Why a pose model rather than a plain box detector.** Our annotations carry the
-plate's four corners exactly — `quad_x1..quad_y4`, and for the 12,000 synthetic
-images they are the renderer's own ground truth, not an estimate. A box detector
-throws that away and hands the recogniser a crop that is still skewed; 38 % of
-the synthetic set carries the `angle` condition. Predicting the corners costs
-almost nothing in the same forward pass and buys a perspective rectification
-before OCR, which is the single cheapest accuracy win available to us.
+**AGPL is excluded.** Ultralytics YOLOv8 — the previous plan — is
+[AGPL-3.0](https://github.com/ultralytics/ultralytics/blob/main/LICENSE),
+verified 2026-09-23. AGPL's obligation triggers on *distribution*, and a
+competition submission is a distribution. Adopting it would force the whole
+project's source to AGPL-3.0. That is a licence decision for a person, not a
+side effect of picking a detector, so the family is out. YOLOv5 is AGPL-3.0 for
+the same reason and is out with it.
 
-**Why one object class, not four.** The type decision needs colour and aspect
-resolved at close range, and at 640 px a distant plate is a handful of pixels in
-which yellow-vs-white is unreliable. The detector's job is *find the rectangle*;
-the recogniser decides what it is, from a 48×192 crop where the evidence is
-actually present. This also keeps the detector's rare-class problem from
-existing at all: there is no rare class, only plates.
+### 3.2 Candidates compared
 
-**How the labels are built.** `scripts/export_detector_labels.py` writes
-`0 cx cy w h` plus the four normalised corners per row, straight from
-`dataset/meta.csv`, clipping to the image. Images are referenced in place — the
-exporter writes list files, never copies of 10,200 JPEGs.
+All licences below were read from the projects' own LICENSE files on
+2026-09-23, not recalled.
 
-> **One open decision, and it is yours.** Ultralytics YOLOv8 is **AGPL-3.0**.
-> Using it means our training and inference code, if distributed, is AGPL too.
-> This project has been strict about licences, so it should be a deliberate
-> choice rather than a default. Permissive alternatives, in order of how little
-> else would change: **NanoDet-Plus-m** (Apache-2.0, similar size, no keypoint
-> head — corners would need a small separate regressor), or
-> **torchvision `ssdlite320_mobilenet_v3_large`** (BSD-3, already a torchvision
-> model, weaker on small plates at 320 px). Say which you want before training
-> starts; the config changes, nothing else does.
+| | **torchvision SSDlite** ✅ | torchvision Faster R-CNN MNv3 | YOLOX-Tiny/Nano | NanoDet-Plus-m | RTMDet-tiny |
+| --- | --- | --- | --- | --- | --- |
+| Family | SSDLite + MobileNetV3-L | Faster R-CNN + MNv3-L-FPN | YOLOX (anchor-free) | NanoDet-Plus (anchor-free) | RTMDet (MMDetection) |
+| **Code licence** | **BSD-3-Clause** | **BSD-3-Clause** | Apache-2.0 | Apache-2.0 | Apache-2.0 |
+| **Weights licence** | repo terms + dataset disclaimer (§3.4) | same | Apache-2.0 + same COCO caveat | Apache-2.0 + same COCO caveat | Apache-2.0 + same COCO caveat |
+| Params | ~3.4 M | ~19 M | 0.9 / 5.1 M | 0.95–2.4 M | ~4.8 M |
+| Input | 320 default, configurable | 320–800 | 416 / 640 | 320–416 | 640 |
+| Framework | torchvision (**already required**) | torchvision | +YOLOX repo | +NanoDet repo | +mmcv/mmengine/mmdeploy |
+| ONNX export | `torch.onnx.export`, first-class | supported, NMS/RoIAlign caveats | official exporter | official exporter | via MMDeploy |
+| Small plates | weakest of the five at 320; helped by 640 | **best recall** | strong (mosaic) | moderate | strong |
+| Maintenance | **actively maintained** | actively maintained | stale since 2022 | stale since 2022 | maintained, heavy stack |
+| Extra deps | **none** | none | pycocotools, loguru, tabulate | pytorch-lightning (pinned, rot-prone) | large OpenMMLab stack |
+
+### 3.3 Why SSDlite, given it is not the most accurate
+
+Three things decided it, in this order.
+
+**Reproducibility is a stated project value, not a preference.** This repository
+seals batches, pins generator requirements and reproduces 12,000 images
+byte-for-byte. YOLOX and NanoDet have been effectively unmaintained since 2022;
+both need patching against modern NumPy/PyTorch, and NanoDet pins an old
+`pytorch-lightning`. Adopting either means inheriting maintenance of a dead
+dependency. torchvision is the only candidate that is actively maintained.
+
+**It adds no dependency.** We need `torch` regardless, and `torchvision` comes
+with it. Every other candidate is a new third-party repository in the supply
+chain of an offline competition submission.
+
+**The task is much easier than COCO, so COCO mAP ranks mislead here.** A
+Russian plate is one rigid, high-contrast, near-planar rectangle, and we have
+10,200 training images of it. SSDlite's weakness on COCO is a weakness at
+80-way classification of deformable objects at 320 px — neither of which is our
+problem. Raising the input to 640 addresses the part that *is* our problem.
+
+**The honest disadvantage:** SSD's anchor design and hard-negative mining are
+dated, and small-object recall is its weakest axis. So the switch is agreed
+*now*, with a measurable trigger rather than a judgement call after seeing
+results:
+
+> **If recall on plates narrower than 80 px in `synthetic:val` falls below
+> 0.85, switch to `fasterrcnn_mobilenet_v3_large_fpn`** — also BSD-3, also
+> torchvision, a one-line config change, at roughly 2× the inference cost.
+
+### 3.4 Pretrained weights are a separate licence question
+
+They are, and the answer is uncomfortable for every candidate equally.
+
+torchvision states it plainly ([models docs](https://docs.pytorch.org/vision/stable/models.html)):
+
+> "The pre-trained models provided in this library may have their own licenses
+> or terms and conditions derived from the dataset used for training. It is
+> your responsibility to determine whether you have permission to use the
+> models for your use case."
+
+The detection weights are COCO-trained, and
+[COCO](https://cocodataset.org/#termsofuse) is not a single-licence dataset:
+the **annotations** are CC BY 4.0, but the **images** are Flickr images whose
+copyright the COCO Consortium does not hold, subject to Flickr's terms.
+
+**This is not a reason to prefer one candidate over another** — YOLOX, NanoDet
+and RTMDet weights are all COCO-trained too, so they inherit exactly the same
+question behind an Apache-2.0 file header. The code licence differentiates the
+candidates; the weights licence does not.
+
+**Pretrained vs from scratch**
+
+| | COCO-pretrained (selected) | From scratch |
+| --- | --- | --- |
+| Weight provenance | third-party, dataset terms unsettled | **none — fully ours** |
+| Synthetic→real transfer | real-photograph priors in the backbone | none; learns only our renderer |
+| Convergence | faster, more stable on 10,200 images | slower, needs more augmentation |
+| Risk it addresses | the **dominant** risk: domain gap | an **abstract** legal risk |
+| Risk it creates | unsettled dataset-derived terms | measurably worse real-world recall |
+
+**Recommendation: fine-tune from the COCO-pretrained weights**, for three
+reasons. The synthetic→real gap is our largest and most concrete risk, and we
+have only 13 real photographs with which to detect it — a backbone that has
+seen real photographs is the cheapest mitigation available. We would ship *our*
+fine-tuned weights, not redistribute torchvision's. And the position that model
+weights inherit their training data's licence is legally unsettled and
+universally relied upon across the industry.
+
+**If you want that uncertainty at zero, it is one flag**:
+`detector.pretrained: false` in `configs/baseline_v1.json`. The cost is real —
+worse transfer to exactly the images the competition scores — and it is your
+call, not mine. The config carries both settings and the comment explaining the
+trade.
+
+### 3.5 Consequence: corners move to the recogniser
+
+YOLOv8-pose was chosen partly because it predicted the four plate corners in
+one pass. No permissive candidate has an equivalent turnkey keypoint head, so
+**corner regression becomes a third head on the recogniser** — which already
+receives the crop, so it costs one small output layer and no extra model.
+
+This is arguably the better design regardless: `meta.csv` carries exact corners
+for all 12,013 rows, the head is supervised from the first epoch on
+ground-truth crops, and the pipeline no longer depends on any detector having a
+pose variant. The detector's job narrows to what every candidate does well —
+find the rectangle.
+
+Pipeline order becomes: **detect box → crop with margin → corner head →
+perspective warp → read**.
 
 ## 4. Type classifier
 
@@ -300,6 +384,43 @@ with several.
 number, because there is no honest way to combine 600 synthetic images with 2
 real ones.
 
+## 8a. The repository has no source-code licence
+
+Discovered while resolving the detector question, and worth recording because
+it is what made the AGPL choice consequential.
+
+**`dataset/LICENSE` covers the dataset. There is no LICENSE for the code.**
+Under default copyright that means all rights reserved: nobody else may copy,
+modify or redistribute this source, and the project has never stated otherwise.
+
+**Is a code licence required for the Volga-IT submission?** *Unknown from this
+repository.* The only submission requirement recorded anywhere here is that the
+**dataset** is published under CC BY 4.0
+(`docs/dataset_strategy.md`, `dataset/README.md`). Nothing in the repository
+states whether source must be submitted, published, or licensed. That question
+has to be answered from the competition rules, which are not in this repository
+— so it is not answered here.
+
+**Why it mattered for the detector.** AGPL-3.0 obliges anyone distributing the
+work to license the whole under AGPL-3.0. Had we adopted YOLOv8, submitting the
+source would have made that choice for the project by default. Choosing BSD-3
+leaves the decision open, which is the right state for a decision nobody has
+taken yet.
+
+**Recommendation — add a permissive licence, but not in this commit.**
+
+- **MIT** or **Apache-2.0** are both compatible with everything now selected
+  (BSD-3 torchvision). Apache-2.0 additionally grants patent rights and is the
+  better default for anything with an ML component.
+- It costs nothing and removes an ambiguity that would otherwise surface at
+  submission time.
+- **Not done here**, because adding a licence is a statement of intent about
+  who may use this work, and that belongs to the author, not to a task about
+  detector architecture.
+
+The two questions to settle before submission: does the competition require
+source, and under what terms do you want it released.
+
 ## 9. Readiness
 
 | | |
@@ -314,6 +435,8 @@ real ones.
 | Configs | ✅ `configs/baseline_v1.json` |
 | Holdout guards | ✅ two, both tested |
 | Experiment naming, checkpoint policy | ✅ in the config |
+| Detector selected, licence cleared | ✅ torchvision SSDlite, BSD-3 (§3) |
+| Source-code licence | ⬜ **open** — none declared; recommendation in §8a |
 | Training loop | ⬜ **not implemented** — needs a framework and a GPU |
 | Framework installed | ⬜ **deliberately not** — this task did not authorise training |
 | Export to ONNX | ⬜ after training |
