@@ -15,6 +15,7 @@ import pytest
 from PIL import Image
 
 from src.dataset_meta import CSV_DELIMITER, REQUIRED_COLUMNS
+from src.dataset_meta import read_meta
 from src.real_intake import (
     DECISIONS,
     RECORD_FIELDS,
@@ -427,19 +428,21 @@ def test_every_staged_photograph_belongs_to_a_registered_source() -> None:
 
     Staging is no longer empty: acquisition #2 brought in the approved Wikimedia
     Commons candidates. What must stay true is that nothing arrives anonymously.
-    An image under ``incoming/<source_id>/`` is only accounted for when that
-    folder carries the ``source_record.json`` the intake workflow requires, and
-    the only other place an image may live is the gitignored ``review/`` area,
-    where discovery keeps thumbnails so a person can judge a plate class.
+    An image under ``incoming/<source_id>/``, ``accepted/<source_id>/`` or
+    ``rejected/<source_id>/`` is only accounted for when that folder carries the
+    ``source_record.json`` the intake workflow requires, and the only other
+    place an image may live is the gitignored ``review/`` area, where discovery
+    keeps thumbnails so a person can judge a plate class.
     """
     staging = Path(__file__).resolve().parents[1] / "data" / "real_staging"
+    source_areas = ("incoming", "accepted", "rejected")
     unaccounted: list[str] = []
     for image in _staging_images():
         parts = image.relative_to(staging).parts
         if parts[:1] == REVIEW_SUBTREE:
             continue
-        if parts[0] == "incoming" and len(parts) > 2:
-            if (staging / "incoming" / parts[1] / "source_record.json").is_file():
+        if parts[0] in source_areas and len(parts) > 2:
+            if (staging / parts[0] / parts[1] / "source_record.json").is_file():
                 continue
         unaccounted.append(str(image.relative_to(staging)))
     assert unaccounted == []
@@ -595,11 +598,56 @@ def test_a_mixed_licence_source_can_be_accepted_when_every_licence_passes() -> N
     assert any("'free to use'" in p for p in record_problems(record))
 
 
-def test_nothing_has_been_promoted_into_the_official_dataset() -> None:
-    """Staging is not promotion. ``dataset/images/real/`` stays empty until a
-    person approves a source, per step 9 of ``docs/real_data_intake.md``."""
-    real = Path(__file__).resolve().parents[1] / "dataset" / "images" / "real"
-    promoted = [
-        p for p in real.rglob("*") if p.is_file() and p.suffix.lower() in IMAGE_SUFFIXES
+def test_only_human_approved_images_are_in_the_official_dataset() -> None:
+    """Every promoted image was marked PASS by a person, and nothing else was.
+
+    Promotion happened for ``wikimedia_commons_curated`` on 2026-09-22, so this
+    is no longer "the dataset is empty". What has to hold now is narrower and
+    more useful: an image reaches ``dataset/images/real/<source_id>/`` only if
+    its source's ``review_verdicts.json`` records it as PASS. A QUESTIONABLE or
+    FAIL image appearing there means the review gate was bypassed.
+    """
+    repo = Path(__file__).resolve().parents[1]
+    real = repo / "dataset" / "images" / "real"
+    staging = repo / "data" / "real_staging" / "incoming"
+
+    for source_dir in sorted(p for p in real.iterdir() if p.is_dir()):
+        promoted = {
+            p.name for p in source_dir.rglob("*")
+            if p.is_file() and p.suffix.lower() in IMAGE_SUFFIXES
+        }
+        if not promoted:
+            continue
+        verdict_file = staging / source_dir.name / "review_verdicts.json"
+        assert verdict_file.is_file(), (
+            f"{source_dir.name} has promoted images but no recorded human review"
+        )
+        verdicts = json.loads(verdict_file.read_text(encoding="utf-8"))["verdicts"]
+        passed = {Path(k).name for k, v in verdicts.items() if v == "PASS"}
+        not_passed = sorted(promoted - passed)
+        assert not_passed == [], (
+            f"{source_dir.name}: promoted without a PASS verdict: {not_passed}"
+        )
+
+
+def test_every_promoted_image_has_provenance_in_meta() -> None:
+    """A promoted photograph carries its source and its own licence.
+
+    The licence in ``meta.csv`` is the photograph's own, never the dataset's
+    blanket CC BY 4.0: that is what stops a third-party image being quietly
+    relicensed as ours.
+    """
+    repo = Path(__file__).resolve().parents[1]
+    rows = [
+        row
+        for row in read_meta(repo / "dataset" / "meta.csv")[1]
+        if row.image.startswith("images/real/")
     ]
-    assert promoted == []
+    assert rows, "no real image is in the dataset; this guard would pass vacuously"
+    for row in rows:
+        source_id = row.image.split("/")[2]
+        assert row.get("source") == source_id, f"{row.image}: source is {row.get('source')!r}"
+        assert row.get("license").strip(), f"{row.image}: no licence recorded"
+        assert row.get("is_synthetic").lower() == "false"
+        record = repo / "data" / "real_staging" / "source_records" / f"{source_id}.json"
+        assert record.is_file(), f"{source_id} is not registered"

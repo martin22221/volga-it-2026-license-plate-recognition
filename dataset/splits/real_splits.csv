@@ -1,1 +1,14 @@
 image;group;split;source;assigned_on;note
+images/real/wikimedia_commons_curated/wcc_0001.jpg;commons:unknown:2026-Jun-06;train;wikimedia_commons_curated;2026-09-22;
+images/real/wikimedia_commons_curated/wcc_0003.jpg;commons:retired-electrician:2026-03-15;train;wikimedia_commons_curated;2026-09-22;
+images/real/wikimedia_commons_curated/wcc_0005.jpg;commons:retired-electrician:2025-07-17;train;wikimedia_commons_curated;2026-09-22;
+images/real/wikimedia_commons_curated/wcc_0006.jpg;commons:retired-electrician:2026-05-16;train;wikimedia_commons_curated;2026-09-22;
+images/real/wikimedia_commons_curated/wcc_0007.jpg;commons:retired-electrician:2025-09-11;train;wikimedia_commons_curated;2026-09-22;
+images/real/wikimedia_commons_curated/wcc_0009.jpg;commons:retired-electrician:2022-05-15;holdout;wikimedia_commons_curated;2026-09-22;
+images/real/wikimedia_commons_curated/wcc_0010.jpg;commons:retired-electrician:2026-05-16;train;wikimedia_commons_curated;2026-09-22;
+images/real/wikimedia_commons_curated/wcc_0013.jpg;commons:retired-electrician:2025-09-11;train;wikimedia_commons_curated;2026-09-22;
+images/real/wikimedia_commons_curated/wcc_0014.jpg;commons:retired-electrician:2025-07-27;holdout;wikimedia_commons_curated;2026-09-22;
+images/real/wikimedia_commons_curated/wcc_0017.jpg;commons:smallsonmarex:2025-09-13;train;wikimedia_commons_curated;2026-09-22;
+images/real/wikimedia_commons_curated/wcc_0019.jpg;commons:smallsonmarex:2025-10-12;train;wikimedia_commons_curated;2026-09-22;
+images/real/wikimedia_commons_curated/wcc_0020.jpg;commons:smallsonmarex:2026-07-11;val;wikimedia_commons_curated;2026-09-22;
+images/real/wikimedia_commons_curated/wcc_0022.jpg;commons:smallsonmarex:2025-07-27;train;wikimedia_commons_curated;2026-09-22;

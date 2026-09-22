@@ -1,0 +1,20 @@
+Staged source: wikimedia_commons_curated
+  folder            : data\real_staging\accepted\wikimedia_commons_curated
+  decision (person) : ACCEPT_FOR_SUBMISSION
+  images            : 13  formats {'jpeg': 13}  43.85 MB
+  dimensions        : width {'min': 1967, 'median': 3600, 'max': 6432}  height {'min': 1311, 'median': 2448, 'max': 4112}  median 8.64 MP
+  corrupt           : 0
+  exact duplicates  : 0 group(s); already in dataset: 13
+  near duplicates   : 0 pair(s)
+  annotations       : 13 row(s) over 13 image(s); types {'type1': 6, 'type1b': 7}; unique plates 13
+  annotation checks : 0 error(s), 0 warning(s)
+  privacy review    : 13 reviewed, 0 unreviewed, 0 unresolved, actions {'none_needed': 8, 'blurred': 5}
+  splits            : {}; unassigned 13; groups spanning splits 0
+  license           : 'CC0; CC BY 4.0' redistributable=True
+
+Blocking (1):
+  - 13 staged image(s) are already in the dataset
+Notes (1):
+  - the decision is a person's; this tool only checks the record against the rights written in it
+
+Verdict: NOT PROMOTABLE (this tool never promotes and never approves a source)

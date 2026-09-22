@@ -1,9 +1,9 @@
 # Acquisition #2 — `wikimedia_commons_curated`
 
 The 22 photographs the online-discovery pass approved, fetched on **2026-09-22**
-and taken through intake. **Nothing has been promoted.** They sit in
-`data/real_staging/incoming/wikimedia_commons_curated/` with
-`decision: PENDING`, waiting for a person to look at the contact sheets.
+and taken through intake. A person reviewed the contact sheets the same day and
+**promoted the 13 marked PASS**; `decision: ACCEPT_FOR_SUBMISSION`. The other 9
+stay in staging and are not in the dataset.
 
 Related: [`online_source_discovery.md`](online_source_discovery.md) (where the
 22 came from and why), [`real_data_intake.md`](real_data_intake.md) (the
@@ -53,9 +53,9 @@ guide.
 | `type1` | **12** |
 | `type1b` | **12** |
 | `type1a` | **0** |
-| PASS | **12** |
-| QUESTIONABLE | **9** |
-| FAIL | **1** |
+| PASS | **13 images** (13 plates) |
+| QUESTIONABLE | **8 images** (11 plates) |
+| FAIL | **1 image** |
 | Exact duplicates | 0 |
 | Near duplicates | 0 |
 | Corrupt files | 0 |
@@ -87,7 +87,7 @@ forced onto the subject plate. Discovery worked from a 960 px review thumbnail,
 where the two cars' plates sit close together; this is exactly the error a
 full-resolution intake pass exists to catch.
 
-### Why nine are QUESTIONABLE
+### Why eight are QUESTIONABLE
 
 None of these is a defect in the photograph; they are things a reviewer should
 decide rather than have decided for them.
@@ -112,15 +112,20 @@ an image came from — each row keeps its original `source` and `license`.
 | `blurred` | 9 (22 face regions) |
 | `rejected` | 1 |
 
+Of the 13 promoted, 8 needed nothing and **5 had faces blurred**.
+
 ## Known approximation: the quads
 
 `quad_x1..quad_y4` are currently the **four corners of the bounding box**. The
 annotation guide says that is correct for a plate photographed straight on, and
-most of these are. Three are visibly oblique — `wcc_0003`, `wcc_0012` and both
-plates in `wcc_0016`, each tagged `angle` in `conditions` — and for those the
-quad is an **approximation that should be replaced with the plate's true corners
-before promotion**. It is recorded here rather than left for someone to discover
-in training.
+most of these are. Four plates are visibly oblique and tagged `angle` in
+`conditions`: `wcc_0003`, `wcc_0012` and both plates in `wcc_0016`.
+
+**Only one of those, `wcc_0003`, was promoted** — the other three are on images
+the review held back. So exactly one row in `dataset/meta.csv` carries a quad
+that is a bounding-box approximation rather than the plate's true corners. It is
+recorded here rather than left for someone to discover during training, and it
+should be corrected on the next pass over this source.
 
 ## Rights
 
@@ -149,11 +154,56 @@ Not committed: they embed other people's photographs. Rebuild them with
 python scripts/build_intake_review.py wikimedia_commons_curated
 ```
 
-## The decision that is still open
+## The human review, and what it promoted
 
-`decision` is `PENDING` and `decided_by` is empty — which is why the intake
-audit reports **NOT PROMOTABLE**. That is the gate working, not a fault. A
-person decides; then, and only then, do steps 8–10 of
-[`real_data_intake.md`](real_data_intake.md) run: freeze the split, promote into
-`dataset/images/real/`, append to `dataset/meta.csv`, carry the credit lines
-into `dataset/LICENSE`, and validate.
+Reviewed **2026-09-22** against the seven contact sheets. The decision was
+**PASS only**: 13 of the 22 images, carrying 13 plates.
+
+| | Images | Plates |
+| --- | --- | --- |
+| **PASS — promoted** | **13** | **13** (6 `type1`, 7 `type1b`, 0 `type1a`) |
+| QUESTIONABLE — not promoted | 8 | 11 |
+| FAIL — not promoted | 1 | 0 |
+
+The reviewer restated the class rule, and it was checked against every promoted
+plate before promotion: **a yellow taxi *vehicle* does not make a `type1b`
+plate.** The registration plate itself must be the yellow format. Of the 13, six
+are **white plate panels** — several of them bolted to bright yellow taxi
+bodywork — and stay `type1`; seven are **yellow plate panels** and are `type1b`.
+No plate was moved into `type1b` to make a target.
+
+Promoted, in order:
+
+| File | Class | Plate | Licence |
+| --- | --- | --- | --- |
+| `wcc_0001` | `type1` | `K362HH977` | CC BY 4.0 |
+| `wcc_0003` | `type1` | `C838CK797` | CC0 |
+| `wcc_0005` | `type1b` | `KM34350` | CC0 |
+| `wcc_0006` | `type1` | `P884TH797` | CC0 |
+| `wcc_0007` | `type1` | `A512EE799` | CC0 |
+| `wcc_0009` | `type1b` | `MP00577` | CC0 |
+| `wcc_0010` | `type1b` | `YY75777` | CC0 |
+| `wcc_0013` | `type1` | `A332HT797` | CC0 |
+| `wcc_0014` | `type1` | `C155OP797` | CC0 |
+| `wcc_0017` | `type1b` | `KM38814` | CC0 |
+| `wcc_0019` | `type1b` | `YX34377` | CC0 |
+| `wcc_0020` | `type1b` | `KE11714` | CC BY 4.0 |
+| `wcc_0022` | `type1b` | `KM58214` | CC0 |
+
+Split, frozen group-aware in `dataset/splits/real_splits.csv`: **train 10, val
+1, holdout 2** over 11 groups. Leakage check CLEAN — no group spans a split, no
+identical or near-duplicate image crosses one.
+
+Each promoted photograph keeps its own licence in `dataset/meta.csv` and its own
+credit line in section 2a of `dataset/LICENSE` — author, licence, licence URL
+and Commons file page per file. **We do not relicense them**; our CC BY 4.0
+grant covers our annotations, not other people's photographs.
+
+## What stayed behind
+
+The 9 unpromoted images remain in
+`data/real_staging/incoming/wikimedia_commons_curated/` with their annotations
+and review notes intact. They are not deleted and not rejected outright (except
+`wcc_0018`): each carries the reason it was held, and a later pass can resolve
+the unannotated background plates and re-submit them for review. That pass would
+also be the moment to replace the approximate quads on the oblique plates.

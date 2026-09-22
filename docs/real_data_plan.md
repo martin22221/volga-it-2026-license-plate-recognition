@@ -3,7 +3,8 @@
 What real photographs we need, how they are split, how they will be mixed with
 the synthetic set, and what has to be true before the first training run.
 
-**No real image has been acquired yet.** This document is the plan and the
+**13 real images are in the dataset as of 2026-09-22**, the first through the
+intake and far short of every target below. This document is the plan and the
 policy; [`real_data_intake.md`](real_data_intake.md) is the workflow that puts
 images through it. Written 2026-09-16, after the 12,000-image synthetic batch
 was audited and promoted.
@@ -21,7 +22,7 @@ registry and the rights gate), [`annotation_guide.md`](annotation_guide.md)
 | | Images | Rows in `dataset/meta.csv` |
 | --- | --- | --- |
 | Synthetic (generator 2.3.0, seed 2026091401) | 12,000 | 12,000 |
-| Real | **0** | **0** |
+| Real (`wikimedia_commons_curated`, promoted 2026-09-22) | **13** | **13** |
 
 **Acquisition #1 is DEFERRED**, not cancelled. One targeted `type1a` capture
 session, `source_id` `team-capture-2026-09`. The participant is in Bulgaria and
@@ -29,11 +30,12 @@ Russian rare-class plates are not on the street there; the source record,
 staging folder and field checklist stay in place for the day someone can shoot
 to them. See [`capture_session_type1a.md`](capture_session_type1a.md).
 
-**Acquisition #2 is acquired and staged, awaiting human review.** 22 Wikimedia
-Commons photographs, `source_id` `wikimedia_commons_curated`, `decision:
-PENDING`: 21 annotated (12 `type1`, 12 `type1b` plates), 1 rejected on privacy.
-Nothing is promoted, so the table above still reads 0.
-See [`acquisition_wikimedia_commons.md`](acquisition_wikimedia_commons.md).
+**Acquisition #2 is complete.** 22 Wikimedia Commons photographs acquired,
+21 annotated, then a human review on 2026-09-22 promoted **the 13 marked PASS
+only** — 6 `type1` and 7 `type1b` plates, `decision: ACCEPT_FOR_SUBMISSION`.
+The 8 QUESTIONABLE images (11 plates) and the 1 FAIL image stay in staging and
+are **not** in the dataset. See
+[`acquisition_wikimedia_commons.md`](acquisition_wikimedia_commons.md).
 
 ### `type1a` is synthetic-only for now — a decision, not a conclusion
 

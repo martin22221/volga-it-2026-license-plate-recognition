@@ -257,9 +257,23 @@ def test_cli_refuses_images_without_a_group(tmp_path: Path) -> None:
     assert cli.main(["--manifest", str(tmp_path / "m.csv"), "--add", str(folder)]) == cli.EXIT_UNUSABLE
 
 
-def test_the_committed_manifest_is_empty_and_clean() -> None:
-    """No real image has been acquired yet; the manifest must say exactly that."""
-    manifest = Path(__file__).resolve().parents[1] / "dataset" / "splits" / "real_splits.csv"
-    rows = read_manifest(manifest)
-    assert rows == []
+def test_the_committed_manifest_is_clean_and_covers_every_real_image() -> None:
+    """The frozen split covers exactly the promoted images, and does not leak.
+
+    13 real photographs were promoted on 2026-09-22. Every one must have a
+    split, and a leakage finding here is what would let a plate appear in both
+    training and the holdout.
+    """
+    repo = Path(__file__).resolve().parents[1]
+    rows = read_manifest(repo / "dataset" / "splits" / "real_splits.csv")
     assert leakage_report(rows)["clean"]
+
+    promoted = {
+        str(p.relative_to(repo / "dataset")).replace("\\", "/")
+        for p in (repo / "dataset" / "images" / "real").rglob("*.jpg")
+    }
+    assigned = {row.image for row in rows}
+    assert assigned == promoted, (
+        f"unassigned: {sorted(promoted - assigned)}; stale: {sorted(assigned - promoted)}"
+    )
+    assert {row.split for row in rows} <= {"train", "val", "holdout"}

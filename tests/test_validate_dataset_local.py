@@ -210,12 +210,18 @@ def test_committed_dataset_meta_validates() -> None:
     assert report.is_valid
     assert "VALID" in cli.build_report_text(report)
     stats = report.stats
-    # The promoted synthetic set (generator 2.3.0, seed 2026091401); no real images yet.
-    assert stats.total_rows == stats.synthetic_rows == 12_000
-    assert stats.real_rows == 0
-    assert stats.by_plate_type == {"type1": 2_400, "type1a": 4_200, "type1b": 5_400}
-    assert stats.by_source == {"volga_synthetic_generator": 12_000}
-    assert stats.by_license == {"CC BY 4.0": 12_000}
+    # The promoted synthetic set (generator 2.3.0, seed 2026091401), plus the 13
+    # real photographs promoted from `wikimedia_commons_curated` on 2026-09-22
+    # after a human review: 6 type1 and 7 type1b, one plate each.
+    assert stats.synthetic_rows == 12_000
+    assert stats.real_rows == 13
+    assert stats.total_rows == 12_013
+    assert stats.by_plate_type == {"type1": 2_406, "type1a": 4_200, "type1b": 5_407}
+    assert stats.by_source == {"volga_synthetic_generator": 12_000,
+                               "wikimedia_commons_curated": 13}
+    # Each photograph keeps its own licence; we never relicense a third-party
+    # image as our own CC BY 4.0.
+    assert stats.by_license == {"CC BY 4.0": 12_002, "CC0": 11}
 
     if any((root / "images" / "synthetic").glob("*.jpg")):
         present = validate_meta(root / "meta.csv", root)

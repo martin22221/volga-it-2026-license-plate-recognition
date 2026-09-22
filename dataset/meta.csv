@@ -11999,3 +11999,16 @@ images/synthetic/syn_v2_2026091401_11996.jpg;A144HM35;type1a;125.34;259.37;158.3
 images/synthetic/syn_v2_2026091401_11997.jpg;Y404MM82;type1;186.03;607.15;230.21;59.64;186.03;617.38;414.37;607.15;416.24;656.98;187.71;666.79;true;true;volga_synthetic_generator;CC BY 4.0;day
 images/synthetic/syn_v2_2026091401_11998.jpg;H472PO75;type1;615.21;635.73;102.19;28.41;615.21;640.80;713.80;635.73;717.40;657.02;618.06;664.14;true;true;volga_synthetic_generator;CC BY 4.0;day|snow|glare|angle
 images/synthetic/syn_v2_2026091401_11999.jpg;KX54690;type1b;465.08;287.36;156.37;41.78;465.08;295.12;619.82;287.36;621.45;321.06;466.75;329.14;true;true;volga_synthetic_generator;CC BY 4.0;day
+images/real/wikimedia_commons_curated/wcc_0001.jpg;K362HH977;type1;4667;2705;808;273;4667;2705;5475;2705;5475;2978;4667;2978;true;false;wikimedia_commons_curated;CC BY 4.0;
+images/real/wikimedia_commons_curated/wcc_0003.jpg;C838CK797;type1;3095;1563;263;115;3095;1563;3358;1563;3358;1678;3095;1678;true;false;wikimedia_commons_curated;CC0;angle
+images/real/wikimedia_commons_curated/wcc_0005.jpg;KM34350;type1b;921;1755;603;179;921;1755;1524;1755;1524;1934;921;1934;true;false;wikimedia_commons_curated;CC0;
+images/real/wikimedia_commons_curated/wcc_0006.jpg;P884TH797;type1;2407;1435;618;139;2407;1435;3025;1435;3025;1574;2407;1574;true;false;wikimedia_commons_curated;CC0;
+images/real/wikimedia_commons_curated/wcc_0007.jpg;A512EE799;type1;2229;1100;522;141;2229;1100;2751;1100;2751;1241;2229;1241;true;false;wikimedia_commons_curated;CC0;
+images/real/wikimedia_commons_curated/wcc_0009.jpg;MP00577;type1b;354;805;167;44;354;805;521;805;521;849;354;849;true;false;wikimedia_commons_curated;CC0;
+images/real/wikimedia_commons_curated/wcc_0010.jpg;YY75777;type1b;2780;1351;597;130;2780;1351;3377;1351;3377;1481;2780;1481;true;false;wikimedia_commons_curated;CC0;
+images/real/wikimedia_commons_curated/wcc_0013.jpg;A332HT797;type1;1262;1500;639;191;1262;1500;1901;1500;1901;1691;1262;1691;true;false;wikimedia_commons_curated;CC0;
+images/real/wikimedia_commons_curated/wcc_0014.jpg;C155OP797;type1;2551;1953;581;136;2551;1953;3132;1953;3132;2089;2551;2089;true;false;wikimedia_commons_curated;CC0;
+images/real/wikimedia_commons_curated/wcc_0017.jpg;KM38814;type1b;1275;1846;226;46;1275;1846;1501;1846;1501;1892;1275;1892;true;false;wikimedia_commons_curated;CC0;
+images/real/wikimedia_commons_curated/wcc_0019.jpg;YX34377;type1b;398;1131;166;53;398;1131;564;1131;564;1184;398;1184;true;false;wikimedia_commons_curated;CC0;
+images/real/wikimedia_commons_curated/wcc_0020.jpg;KE11714;type1b;802;1070;260;63;802;1070;1062;1070;1062;1133;802;1133;true;false;wikimedia_commons_curated;CC BY 4.0;
+images/real/wikimedia_commons_curated/wcc_0022.jpg;KM58214;type1b;677;1935;232;55;677;1935;909;1935;909;1990;677;1990;true;false;wikimedia_commons_curated;CC0;

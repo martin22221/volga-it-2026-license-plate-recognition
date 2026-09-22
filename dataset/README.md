@@ -32,14 +32,32 @@ today: no trainer consumes it yet.
 | | Images | Rows in `meta.csv` |
 | --- | --- | --- |
 | `images/synthetic/` | 12,000 | 12,000 |
-| `images/real/` | 0 | 0 |
-| **total** | **12,000** | **12,000** |
+| `images/real/` | 13 | 13 |
+| **total** | **12,013** | **12,013** |
 
-**Real-data acquisition and curation is the next dataset stage.** Nothing here
-satisfies the competition's real-image minimums — see
+**Real-data acquisition and curation is still the open dataset stage.** The 13
+real photographs are the first through the intake, and they do not come close
+to the competition's real-image minimums — see
 [`../docs/dataset_strategy.md`](../docs/dataset_strategy.md) for the targets.
-`images/real/` is deliberately empty; no real photograph has been collected,
-and none is invented.
+No real photograph is invented, and none is included without its own licence.
+
+### The real set
+
+13 photographs from `wikimedia_commons_curated`, promoted 2026-09-22 after a
+human review of every one: **6 `type1`, 7 `type1b`, 0 `type1a`**, 13 distinct
+plate numbers. Each keeps its own licence (CC0 ×11 rows, CC BY 4.0 ×2 rows) and
+its own credit line; see section 2a of [`LICENSE`](LICENSE) for the per-file
+author, licence and source page.
+
+They were selected from a candidate manifest, acquired individually, and
+verified at the source at acquisition time. A further 8 images are staged but
+**not** promoted (their plate reading or their unannotated background plates are
+unresolved), and 1 was rejected outright on privacy. See
+[`../docs/acquisition_wikimedia_commons.md`](../docs/acquisition_wikimedia_commons.md).
+
+`type1a` has no real image at all, and that is a known gap rather than an
+oversight: [`../docs/real_data_plan.md`](../docs/real_data_plan.md) records why
+it is synthetic-only for now.
 
 ### The synthetic set
 
