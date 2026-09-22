@@ -1,9 +1,14 @@
 # Real-image splits
 
 `real_splits.csv` is the frozen record of which real image belongs to
-`train`, `val` or `holdout`. It is **empty today**: no real image has been
-acquired. Synthetic images are not listed here — how they are used is a
-training decision, described in [`../../docs/real_data_plan.md`](../../docs/real_data_plan.md).
+`train`, `val` or `holdout`. It holds the **13 real photographs** promoted on
+2026-09-22: train 10, val 1, holdout 2, over 11 groups.
+
+`synthetic_splits.csv` is the companion for the 12,000 synthetic images
+(train 10,200 / val 1,200 / test 600), and `dataset_v1.json` is the Dataset V1
+freeze that pins both. The two manifests are split by different rules on
+purpose — see "Two populations" below — and
+[`../../docs/baseline_v1.md`](../../docs/baseline_v1.md) says how each is used.
 
 | Column | Meaning |
 | --- | --- |
@@ -56,3 +61,27 @@ checkpoint.** It exists to approximate the jury's hidden test set with real
 photographs the model has never seen. Look at it when a decision is final, and
 report what it says whether it flatters us or not. Anything else silently turns
 it into a validation set.
+
+
+## Two populations, two rules
+
+**Real** images are split by **group**, and the assignment is **frozen**: once a
+group is written here it keeps its split forever. A group is whatever would leak
+if it were divided — one vehicle, one plate, one capture session, one
+photographer on one day. This is the rule that makes the holdout mean something,
+and it is not relaxed when the numbers would look nicer with a different draw.
+
+**Synthetic** images are split per image, stratified by
+`(plate_type, difficulty)`, seeded by `SPLIT_SEED` in `src/dataset_v1.py`. Per
+image is safe here for a reason worth stating: the 12,000 synthetic images carry
+**12,000 distinct plate numbers**, so no plate identity can appear on both sides
+of a split however the images are divided.
+
+```bash
+python scripts/freeze_dataset_v1.py           # re-derive and freeze
+python scripts/freeze_dataset_v1.py --check   # prove it still reproduces
+```
+
+`--check` recomputes the split from the seed, re-hashes every image and
+`meta.csv`, and compares against the frozen digests. That is what "Dataset V1"
+means: not a folder, a digest.

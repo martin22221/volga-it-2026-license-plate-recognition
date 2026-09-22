@@ -1,0 +1,124 @@
+{
+  "_comment": [
+    "Baseline v1 configuration. JSON rather than YAML deliberately: the repo has",
+    "no YAML dependency and this needs none. Every number here is a decision, and",
+    "docs/baseline_v1.md says why each was made.",
+    "Nothing in this file trains anything; scripts/train_*.py read it."
+  ],
+
+  "experiment": {
+    "name": "baseline_v1",
+    "dataset_version": "v1",
+    "dataset_freeze": "dataset/splits/dataset_v1.json",
+    "seed": 2026092201,
+    "deterministic": true,
+    "output_root": "runs",
+    "naming": "runs/<component>/<experiment>_<YYYYMMDD>_<seed>/"
+  },
+
+  "classes": ["type1", "type1a", "type1b", "other"],
+
+  "detector": {
+    "component": "detector",
+    "family": "yolov8n-pose",
+    "reason": "one pass gives the box and the four plate corners, which we have exact labels for; the corners rectify the crop before OCR",
+    "num_object_classes": 1,
+    "object_class_name": "plate",
+    "keypoints": 4,
+    "keypoint_order": "plate top-left, top-right, bottom-right, bottom-left (clockwise), matching meta.csv quad_1..4",
+    "input_size": 640,
+    "epochs": 60,
+    "batch_size": 16,
+    "optimizer": "SGD",
+    "lr0": 0.01,
+    "lrf": 0.01,
+    "momentum": 0.937,
+    "weight_decay": 0.0005,
+    "warmup_epochs": 3,
+    "patience": 15,
+    "augmentation": {
+      "_comment": "Our synthetic set already varies lighting, weather, angle and blur. Heavy colour augmentation on top would blur the type1b decision, which is literally a colour.",
+      "hsv_h": 0.0,
+      "hsv_s": 0.2,
+      "hsv_v": 0.3,
+      "degrees": 5.0,
+      "translate": 0.1,
+      "scale": 0.4,
+      "fliplr": 0.0,
+      "mosaic": 0.5
+    },
+    "train_split": "synthetic:train",
+    "val_split": "synthetic:val",
+    "test_split": "synthetic:test"
+  },
+
+  "recognizer": {
+    "component": "recognizer",
+    "family": "small-cnn + BiGRU + CTC, with a type-classification head",
+    "reason": "one backbone serves both heads; the type head sees the same crop the reader does, so colour and aspect are available to it",
+    "input_height": 48,
+    "input_width": 192,
+    "backbone_channels": [32, 64, 128, 256],
+    "rnn_hidden": 128,
+    "rnn_layers": 2,
+    "num_chars": 23,
+    "max_length": 9,
+    "type_head_classes": 4,
+    "ctc_loss_weight": 1.0,
+    "type_loss_weight": 0.5,
+    "epochs": 40,
+    "batch_size": 128,
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "scheduler": "cosine",
+    "patience": 10,
+    "crop": {
+      "_comment": "type1a is two lines; the upper band and the lower band are cut apart and placed side by side, so a single left-to-right reader handles every class.",
+      "rectify_with_quad": true,
+      "margin_fraction": 0.08,
+      "two_line_unroll": true,
+      "two_line_split_fraction": 0.5
+    },
+    "train_split": "synthetic:train",
+    "val_split": "synthetic:val",
+    "test_split": "synthetic:test"
+  },
+
+  "evaluation": {
+    "iou_match": 0.5,
+    "detector_confidence": 0.25,
+    "char_confidence_for_hash": 0.5,
+    "_comment_hash": "below this per-character score the character is written as '#', never guessed",
+    "populations": {
+      "synthetic_val": "synthetic:val",
+      "synthetic_test": "synthetic:test",
+      "real_dev": ["real:train", "real:val"],
+      "real_holdout": "real:holdout"
+    },
+    "report_separately": true,
+    "never_merge_synthetic_and_real": true
+  },
+
+  "export": {
+    "format": "onnx",
+    "opset": 17,
+    "dynamic_batch": false,
+    "runtime": "onnxruntime",
+    "providers": ["CUDAExecutionProvider", "CPUExecutionProvider"],
+    "target_hardware": {
+      "cpu": "Intel i5-7600",
+      "gpu": "NVIDIA GTX 1050 Ti 4 GB",
+      "ram_gb": 16,
+      "budget_ms_per_image": 100,
+      "_comment": "A budget to design against and then measure. Nothing here claims it is met."
+    }
+  },
+
+  "checkpoints": {
+    "keep": ["best", "last"],
+    "select_best_on": "synthetic:val",
+    "_comment_selection": "Model selection never touches real data. Selecting on 13 real images would overfit them and destroy the only real measurement we have.",
+    "save_optimizer_state": false
+  }
+}

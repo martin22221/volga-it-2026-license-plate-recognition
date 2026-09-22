@@ -1,0 +1,18 @@
+Dataset v1 split audit
+  seed              : 2026092201
+  images            : 12013
+  synthetic         : 12000  {'train': 10200, 'val': 1200, 'test': 600}
+    train class={'type1': 2040, 'type1b': 4590, 'type1a': 3570} difficulty={'hard': 2040, 'easy': 3570, 'medium': 4590}
+    val   class={'type1': 240, 'type1b': 540, 'type1a': 420} difficulty={'hard': 240, 'easy': 420, 'medium': 540}
+    test  class={'type1': 120, 'type1b': 270, 'type1a': 210} difficulty={'hard': 120, 'easy': 210, 'medium': 270}
+  real              : 13  {'holdout': 2, 'train': 10, 'val': 1}  groups=11
+    holdout  class={'type1b': 1, 'type1': 1}
+    train    class={'type1': 5, 'type1b': 5}
+    val      class={'type1b': 1}
+
+Blocking (0):
+  (none)
+Notes (1):
+  - the real holdout holds 2 image(s): far too few for a stable metric. Report it as an indication with an explicit interval, never as an accuracy figure
+
+Verdict: CLEAN

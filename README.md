@@ -35,15 +35,22 @@ Target plate classes:
   mismatches. V1 was superseded because its `type1b` plates used the wrong
   character structure, and its output must never enter the dataset. See
   [`dataset/generator/README.md`](dataset/generator/README.md).
-* **Real images: none yet.** The real-data stage is set up — targets, split
-  policy, source-acceptance rules, staging and intake tooling — but nothing has
-  been collected, downloaded or imported. See
-  [`docs/real_data_plan.md`](docs/real_data_plan.md) and
-  [`docs/real_data_intake.md`](docs/real_data_intake.md).
-  **Acquisition #1 is approved and waiting on the camera:** one targeted
-  `type1a` capture session, staged as `team-capture-2026-09`. The source record
-  and staging folder are prepared; the field checklist is
-  [`docs/capture_session_type1a.md`](docs/capture_session_type1a.md).
+* **Real images: 13**, promoted 2026-09-22 after acquisition, intake and a
+  human review of every one — 6 `type1` and 7 `type1b` plates, each keeping its
+  own licence and credit line. 8 further images are staged but held, and 1 was
+  rejected on privacy. See
+  [`docs/acquisition_wikimedia_commons.md`](docs/acquisition_wikimedia_commons.md).
+  **Real `type1a`: still zero**, and recorded as a decision with its reasons in
+  [`docs/real_data_plan.md`](docs/real_data_plan.md) — that class is
+  synthetic-only for now. Acquisition #1, the targeted `type1a` capture session,
+  is **deferred** for geography, not cancelled.
+* **Dataset V1 is frozen** — `dataset/splits/dataset_v1.json` pins the counts,
+  the digests, the generator seal, the provenance records and the split seed, so
+  membership can be proved later without copying a single image. The splits are
+  deterministic and leakage-audited.
+* **Baseline architecture is decided and the training scaffolding exists**, but
+  **no model has been trained and no framework is installed**. See
+  [`docs/baseline_v1.md`](docs/baseline_v1.md).
 * No models are trained, downloaded or bundled.
 
 ## Folder structure

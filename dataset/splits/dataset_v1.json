@@ -1,0 +1,124 @@
+{
+ "dataset_version": "v1",
+ "created_on": "2026-09-22",
+ "git_commit": "e0366a9246f0ff3b98f9af49dcb8b50c0d9aee06",
+ "git_branch": "master",
+ "dataset_inputs_clean": true,
+ "split_seed": 2026092201,
+ "synthetic_split_weights": {
+  "train": 0.85,
+  "val": 0.1,
+  "test": 0.05
+ },
+ "counts": {
+  "images_total": 12013,
+  "rows_total": 12013,
+  "synthetic_images": 12000,
+  "real_images": 13,
+  "real_rows": 13
+ },
+ "class_counts": {
+  "all": {
+   "type1": 2406,
+   "type1a": 4200,
+   "type1b": 5407
+  },
+  "synthetic": {
+   "type1": 2400,
+   "type1a": 4200,
+   "type1b": 5400
+  },
+  "real": {
+   "type1": 6,
+   "type1b": 7
+  }
+ },
+ "splits": {
+  "synthetic": {
+   "train": 10200,
+   "val": 1200,
+   "test": 600
+  },
+  "synthetic_by_class": {
+   "train": {
+    "type1": 2040,
+    "type1b": 4590,
+    "type1a": 3570
+   },
+   "val": {
+    "type1": 240,
+    "type1b": 540,
+    "type1a": 420
+   },
+   "test": {
+    "type1": 120,
+    "type1b": 270,
+    "type1a": 210
+   }
+  },
+  "synthetic_by_difficulty": {
+   "train": {
+    "hard": 2040,
+    "easy": 3570,
+    "medium": 4590
+   },
+   "val": {
+    "hard": 240,
+    "easy": 420,
+    "medium": 540
+   },
+   "test": {
+    "hard": 120,
+    "easy": 210,
+    "medium": 270
+   }
+  },
+  "real": {
+   "holdout": 2,
+   "train": 10,
+   "val": 1
+  },
+  "real_by_class": {
+   "holdout": {
+    "type1b": 1,
+    "type1": 1
+   },
+   "train": {
+    "type1": 5,
+    "type1b": 5
+   },
+   "val": {
+    "type1b": 1
+   }
+  },
+  "real_groups": 11
+ },
+ "meta_sha256": "f7d1686aa8edc69275d268fa5ed6de3c0ed453c0fa7b81483baec0d8a1694b74",
+ "real_splits_sha256": "2382d7fcb9a32f91f49c4b382ba02c2087c37576d18b0554bd4cbe9a30f5b5aa",
+ "synthetic_splits_sha256": "e7c7defbdc4f2f492b210c5a4cef03cc2e150da9f3a6e9aca9cc10ce8520d650",
+ "license_sha256": "fa4ba5b9abd3e90191672428be74c3f9952b897f7e09a859011cc87c8e045558",
+ "image_count_hashed": 12013,
+ "combined_image_digest": "68c4c0be6afbfa56c810e80f229b27490026b2c6398539a744a3ced004db538c",
+ "generator": {
+  "name": "volga-synthetic-plate-generator",
+  "version": "2.3.0",
+  "seed": 2026091401,
+  "batch": "v2_3_seed2026091401_n12000",
+  "production_seal_sha256": "10a1a8f393a302a60068f75b005002cf082b05a7798fae7623fbf2e65a6bba25",
+  "seal_combined_digest_all_files": "3c351a1963279977be5dfa9e70b1452785dbe294ff6c450845ccce45832484c8",
+  "seal_files": 12033
+ },
+ "real_provenance": {
+  "sources": [
+   "wikimedia_commons_curated"
+  ],
+  "source_records": [
+   "data/real_staging/source_records/team-capture-2026-09.json",
+   "data/real_staging/source_records/wikimedia_commons_curated.json"
+  ],
+  "acquisition_records": [
+   "data/real_staging/incoming/wikimedia_commons_curated/acquisition_record.csv"
+  ]
+ },
+ "how_to_verify": "python scripts/freeze_dataset_v1.py --check  -- recomputes the synthetic split from split_seed, re-hashes every image and dataset/meta.csv, and compares with combined_image_digest and meta_sha256."
+}

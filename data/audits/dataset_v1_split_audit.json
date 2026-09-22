@@ -1,0 +1,106 @@
+{
+ "counts": {
+  "total_images": 12013,
+  "synthetic": {
+   "total": 12000,
+   "by_split": {
+    "train": 10200,
+    "val": 1200,
+    "test": 600
+   },
+   "by_split_class": {
+    "train": {
+     "type1": 2040,
+     "type1b": 4590,
+     "type1a": 3570
+    },
+    "val": {
+     "type1": 240,
+     "type1b": 540,
+     "type1a": 420
+    },
+    "test": {
+     "type1": 120,
+     "type1b": 270,
+     "type1a": 210
+    }
+   },
+   "by_split_difficulty": {
+    "train": {
+     "hard": 2040,
+     "easy": 3570,
+     "medium": 4590
+    },
+    "val": {
+     "hard": 240,
+     "easy": 420,
+     "medium": 540
+    },
+    "test": {
+     "hard": 120,
+     "easy": 210,
+     "medium": 270
+    }
+   },
+   "by_split_conditions": {
+    "train": {
+     "night": 2114,
+     "glare": 873,
+     "angle": 3884,
+     "day": 8086,
+     "snow": 884,
+     "dirt": 1812,
+     "motion_blur": 869,
+     "rain": 898
+    },
+    "val": {
+     "day": 953,
+     "dirt": 205,
+     "rain": 116,
+     "glare": 112,
+     "angle": 462,
+     "snow": 103,
+     "night": 247,
+     "motion_blur": 93
+    },
+    "test": {
+     "night": 134,
+     "angle": 212,
+     "day": 466,
+     "dirt": 108,
+     "motion_blur": 50,
+     "glare": 46,
+     "rain": 43,
+     "snow": 53
+    }
+   }
+  },
+  "real": {
+   "total": 13,
+   "by_split": {
+    "holdout": 2,
+    "train": 10,
+    "val": 1
+   },
+   "by_split_class": {
+    "holdout": {
+     "type1b": 1,
+     "type1": 1
+    },
+    "train": {
+     "type1": 5,
+     "type1b": 5
+    },
+    "val": {
+     "type1b": 1
+    }
+   },
+   "groups": 11
+  }
+ },
+ "blocking": [],
+ "notes": [
+  "the real holdout holds 2 image(s): far too few for a stable metric. Report it as an indication with an explicit interval, never as an accuracy figure"
+ ],
+ "clean": true
+}
