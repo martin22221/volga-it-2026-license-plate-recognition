@@ -1,0 +1,2 @@
+# Shell scripts run on Linux GPU machines (scripts/gpu_train_baseline_v1.sh); CRLF breaks bash.
+*.sh text eol=lf
