@@ -1,0 +1,31 @@
+{
+ "bundle": "baseline_v1_training_bundle_d2e08b1.zip",
+ "sha256": "9a8b64d192cba33ce3f484cf569117d64739da0301afee410337cfef06684ab8",
+ "bytes": 701210501,
+ "built_on": "2026-09-26",
+ "built_from_commit": "d2e08b16287182848bff4d7ef3af7efe48bd508b",
+ "builder": "python scripts/pack_training_bundle.py --out ../baseline_v1_training_bundle_d2e08b1.zip",
+ "dataset": {
+  "version": "v1",
+  "combined_image_digest": "68c4c0be6afbfa56c810e80f229b27490026b2c6398539a744a3ced004db538c",
+  "meta_sha256": "f7d1686aa8edc69275d268fa5ed6de3c0ed453c0fa7b81483baec0d8a1694b74"
+ },
+ "contents": {
+  "entries": 12187,
+  "tracked_files": 185,
+  "synthetic_images": 12000,
+  "synthetic_by_split": {"train": 10200, "val": 1200, "test": 600},
+  "real_images": 0,
+  "extra": ["TRAINING_BUNDLE.json", "data/synthetic_production/v2_3_seed2026091401_n12000/generation.jsonl"]
+ },
+ "verified": [
+  "every synthetic image SHA-256 matches dataset/splits/dataset_v1_files.csv (0 mismatches)",
+  "no real image, no image file outside dataset/images/synthetic/, neither holdout filename present",
+  "all 185 tracked files identical to the commit (line endings ignored); gpu_train_baseline_v1.sh is LF",
+  "meta.csv, synthetic_splits.csv, real_splits.csv, dataset/LICENSE match the Dataset V1 freeze digests",
+  "generation.jsonl matches the 2.3.0 production seal",
+  "configs/baseline_v1.json identical to the commit; anchors 0.05-0.50 (32..320 px at 640), approval APPROVED",
+  "unpacked: both preflights pass in bundle mode; run provenance reads the commit from TRAINING_BUNDLE.json; built detector uses the approved anchors"
+ ],
+ "not_committed": "the zip itself (701 MB) -- it lives beside the repository, not in it"
+}
