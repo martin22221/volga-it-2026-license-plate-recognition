@@ -205,7 +205,7 @@ find the rectangle.
 Pipeline order becomes: **detect box → crop with margin → corner head →
 perspective warp → read**.
 
-### 3.6 Anchor scales — measured, and changed before the first run
+### 3.6 Anchor scales — measured, changed, and approved before the first run
 
 Found while implementing, and recorded here because it touches the approved
 design. torchvision's SSDlite anchors are **relative to the input size**
@@ -214,15 +214,31 @@ therefore does not make anchors smaller: the smallest is still 0.2 × 640 =
 **128 px square**, while a typical Dataset V1 plate, after the 1280×720 frame is
 stretched to 640×640, is about 50×25 px.
 
-Measured on `synthetic:train` only (every 10th sample, 1,020 plates) — best IoU
-between each plate and any anchor:
+First screened on every 10th `synthetic:train` plate (1,020 plates):
 
 | Anchor scales | median best IoU | plates with an anchor at IoU ≥ 0.5 |
 | --- | --- | --- |
-| torchvision default 0.20–0.95 | 0.26 | **25 %** |
-| **0.05–0.50 (configured)** | **0.60** | **83 %** |
+| torchvision default 0.20–0.95 | 0.26 | 25 % |
+| **0.05–0.50 (chosen)** | **0.60** | **83 %** |
 | 0.04–0.40 | 0.58 | 79 % |
 | 0.03–0.35 | 0.57 | 71 % |
+
+Then confirmed on **all 10,200** `synthetic:train` plates (share with an anchor
+at IoU ≥ 0.5):
+
+| Plates | n | default 0.20–0.95 | approved 0.05–0.50 |
+| --- | --- | --- | --- |
+| all | 10,200 | 24.1 % (median best IoU 0.27) | **83.3 %** (0.61) |
+| narrower than 80 px (original) | 1,416 | **0.0 %** | **96.6 %** |
+| 80–150 px | 4,745 | 9.4 % | 76.8 % |
+| 150 px and wider | 4,039 | 49.8 % | 86.2 % |
+| `type1` / `type1a` / `type1b` | | 28.0 / 17.3 / 27.7 % | 75.6 / **98.7** / 74.7 % |
+
+Approved anchor scales in pixels at 640: 32, 89.6, 147.2, 204.8, 262.4, 320,
+each with a square box, an intermediate square box and 2:1 / 3:1 boxes in both
+orientations. Smallest boxes 32×32, 45×23, 55×18; longest side 554 px (the 3:1
+box at the 320 px level). Total 12,828 anchors — the same count as the
+defaults. Verified from the built model, not only from the config.
 
 With the defaults, three plates in four would be trained from anchors that
 barely overlap them, and the small-plate fallback trigger (§3.3) would fire for
@@ -236,9 +252,18 @@ class-count-dependent classification convolutions start fresh, exactly as with
 the defaults). It changes only the prior box sizes the regression is relative
 to. It was chosen from training-split geometry alone, before any training.
 
-**It is flagged for approval before the GPU run**, because it is a change to an
-approved configuration. Reverting is two numbers: `min_ratio: 0.2`,
-`max_ratio: 0.95`.
+**Approved 2026-09-26, before production training**, on these grounds: derived
+from training-split geometry only; no validation, test, real or holdout image
+and no model metric was used; the SSDlite family, input size, class count,
+layer shapes and pretrained-weight loading are unchanged.
+
+Known costs, accepted with the approval: plates filling more than about half
+the frame match more loosely (none in Dataset V1; the widest is 315 px at
+640); the mean number of well-matched anchors per plate falls from 5.88 to
+3.13, because the defaults matched only large plates, and matched them many
+times over; the COCO regression head starts calibrated for the old sizes; the
+80–150 px band remains the weakest at 76.8 %. **Any further anchor change is a
+new experiment, not an edit to Baseline V1.**
 
 ## 4. Type classifier
 

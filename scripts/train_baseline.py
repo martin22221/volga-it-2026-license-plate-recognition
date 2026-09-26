@@ -232,8 +232,25 @@ def preflight(component: str, config: dict) -> tuple[list[str], list[str]]:
 
 
 def _git(*args: str) -> str:
-    out = subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
-    return out.stdout.strip()
+    try:
+        out = subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+    except OSError:  # git not installed
+        return ""
+    return out.stdout.strip() if out.returncode == 0 else ""
+
+
+def source_revision() -> dict:
+    """Which commit this code is. An unpacked training bundle has no .git, so
+    its commit comes from the bundle's own marker, written by the packer from a
+    clean tree."""
+    if training_bundle_mode():
+        marker = json.loads((REPO_ROOT / "TRAINING_BUNDLE.json").read_text(encoding="utf-8"))
+        return {"git_commit": marker["git_commit"], "git_dirty": False, "source": "TRAINING_BUNDLE.json"}
+    return {
+        "git_commit": _git("rev-parse", "HEAD") or None,
+        "git_dirty": bool(_git("status", "--porcelain")),
+        "source": "git",
+    }
 
 
 def environment() -> dict:
@@ -689,8 +706,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "kind": "smoke" if args.smoke else "baseline",
         "approved_by": args.i_have_approval.strip(),
         "started_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "git_commit": _git("rev-parse", "HEAD"),
-        "git_dirty": bool(_git("status", "--porcelain")),
+        **source_revision(),
         "dataset": dataset_identity(),
         "training_bundle_mode": training_bundle_mode(),
         "seed": experiment["seed"],

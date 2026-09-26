@@ -36,7 +36,12 @@ def test_detector_is_ssdlite_at_640_with_the_configured_anchors() -> None:
     model = build_detector(CONFIG["detector"], load_pretrained=False).eval()
     assert type(model).__name__ == "SSD"
     assert model.transform.fixed_size == (640, 640)
-    assert model.anchor_generator.scales[0] == pytest.approx(CONFIG["detector"]["anchors"]["min_ratio"])
+    anchors = CONFIG["detector"]["anchors"]
+    scales = model.anchor_generator.scales
+    assert scales[0] == pytest.approx(anchors["min_ratio"]) and scales[5] == pytest.approx(anchors["max_ratio"])
+    # the approved values, in pixels, exactly as the built model uses them
+    assert [round(s * 640, 1) for s in scales[:6]] == anchors["pixel_scales_at_640"]
+    assert model.anchor_generator.aspect_ratios == [anchors["aspect_ratios_per_level"]] * 6
     boxes, scores = DetectorExport(model, 640)(torch.zeros(1, 3, 640, 640))
     assert boxes.shape[:2] == scores.shape and boxes.shape[-1] == 4
 

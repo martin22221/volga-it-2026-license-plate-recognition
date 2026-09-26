@@ -7,14 +7,24 @@
 #
 #   APPROVER="<name>" bash scripts/gpu_train_baseline_v1.sh
 #
-# Expected on a T4: detector ~1.5-3 h (60 epochs max, early stop patience 15),
-# recogniser well under 1 h. Both write runs/<component>/baseline_v1_<date>_2026092201/.
+# Options (environment variables):
+#   USE_VENV=0     install into the current Python instead of a fresh .venv
+#                  (Kaggle / Colab, where venv creation often lacks ensurepip)
+#   WORKERS=<n>    data-loader worker processes (default 4; 2 on a 2-vCPU Colab)
+#   TORCH_INDEX=<url>  another CUDA build of the same torch version
+#
+# Estimated on a T4 (not measured): detector ~2-4 h (60 epochs max, early stop patience 15),
+# recogniser ~20-40 min; data loading, not the GPU, is the limit. Both write runs/<component>/baseline_v1_<date>_2026092201/.
 set -euo pipefail
 : "${APPROVER:?set APPROVER to the name of the person who approved this run}"
 
-python -m venv .venv
-. .venv/bin/activate
-python -m pip install --upgrade pip
+test -f TRAINING_BUNDLE.json || { echo "run from the root of an unpacked training bundle"; exit 1; }
+if [ "${USE_VENV:-1}" = "1" ]; then
+  python -m venv .venv
+  . .venv/bin/activate
+  python -m pip install --upgrade pip
+fi
+WORKERS="${WORKERS:-4}"
 # Same versions as requirements-train.txt, CUDA build; pick the index matching the driver.
 python -m pip install torch==2.14.0 torchvision==0.29.0 --index-url "${TORCH_INDEX:-https://download.pytorch.org/whl/cu126}"
 python -m pip install numpy==2.5.3 pillow==11.3.0 onnx==1.23.0 onnxruntime==1.30.0 pytest
@@ -24,8 +34,8 @@ python -c "import torch; assert torch.cuda.is_available(), 'no CUDA device'; pri
 python scripts/train_baseline.py --component detector
 python scripts/train_baseline.py --component recognizer
 
-python scripts/train_baseline.py --component recognizer --i-have-approval "$APPROVER" --device cuda --workers 4
-python scripts/train_baseline.py --component detector   --i-have-approval "$APPROVER" --device cuda --workers 4
+python scripts/train_baseline.py --component recognizer --i-have-approval "$APPROVER" --device cuda --workers "$WORKERS"
+python scripts/train_baseline.py --component detector   --i-have-approval "$APPROVER" --device cuda --workers "$WORKERS"
 
 DET=$(ls -d runs/detector/baseline_v1_*_2026092201 | grep -v smoke | tail -1)
 REC=$(ls -d runs/recognizer/baseline_v1_*_2026092201 | grep -v smoke | tail -1)

@@ -32,18 +32,33 @@
     "input_size": 640,
     "_comment_input": "torchvision's SSD takes its input size at construction; 640 rather than the pretrained 320 because plates are small and distant in our scenes",
     "anchors": {
-      "preset": "fitted_to_train_split",
+      "preset": "approved_train_split_fit",
       "aspect_ratios_per_level": [
         2,
         3
       ],
       "min_ratio": 0.05,
       "max_ratio": 0.5,
+      "pixel_scales_at_640": [
+        32.0,
+        89.6,
+        147.2,
+        204.8,
+        262.4,
+        320.0
+      ],
+      "approval": {
+        "status": "APPROVED",
+        "approved_on": "2026-09-26",
+        "approved_by": "project owner (session instruction)",
+        "approved_before_production_training": true,
+        "derived_from": "synthetic:train geometry only -- no validation, test or real image, and no model metric"
+      },
       "_comment": [
-        "torchvision's SSDlite anchors are relative to the input: its defaults (0.2..0.95) give a smallest anchor of 128 px at 640, larger than most plates here.",
-        "Measured on synthetic:train (every 10th sample, input stretched to 640): defaults leave only 25% of plates with any anchor at IoU>=0.5 (median best IoU 0.26); 0.05..0.5 gives 83% (median 0.60).",
-        "Same number of anchors per location, same layer shapes, same COCO weights loaded -- only the prior box sizes change.",
-        "To run torchvision's defaults exactly, set min_ratio 0.2 and max_ratio 0.95. docs/baseline_v1.md section 3.6."
+        "torchvision's SSDlite anchors are relative to the input: its defaults (0.2..0.95) give a smallest anchor of 128 px at 640, larger than most plates in Dataset V1.",
+        "Measured on all 10,200 synthetic:train plates (input stretched to 640), share of plates with an anchor at IoU>=0.5: default 24.1% -> approved 83.3%; plates <80 px wide 0.0% -> 96.6%; 80-150 px 9.4% -> 76.8%; >=150 px 49.8% -> 86.2%; type1a 17.3% -> 98.7%.",
+        "Same anchor count per location (12,828 total), same layer shapes, same COCO weights loaded -- only the prior box sizes change.",
+        "docs/baseline_v1.md section 3.6. Any later change is a new experiment, not a Baseline V1 edit."
       ]
     },
     "pretrained_weights": "COCO (torchvision SSDLite320_MobileNet_V3_Large_Weights.COCO_V1)",

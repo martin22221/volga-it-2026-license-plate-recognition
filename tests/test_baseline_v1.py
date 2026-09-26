@@ -252,3 +252,15 @@ def test_training_bundle_verification_rejects_a_tree_holding_real_images() -> No
     problems = verify_training_bundle()
     assert any("real image" in p for p in problems)
     assert not any("synthetic" in p or "differs" in p or "digest" in p for p in problems)
+
+
+def test_the_approved_anchor_scales_are_recorded_and_unchanged() -> None:
+    """Approved 2026-09-26 before production training (docs/baseline_v1.md 3.6).
+
+    Changing them is a new experiment, not an edit to Baseline V1.
+    """
+    anchors = CONFIG["detector"]["anchors"]
+    assert (anchors["min_ratio"], anchors["max_ratio"]) == (0.05, 0.5)
+    assert anchors["aspect_ratios_per_level"] == [2, 3]
+    assert anchors["approval"]["status"] == "APPROVED"
+    assert anchors["approval"]["approved_before_production_training"] is True

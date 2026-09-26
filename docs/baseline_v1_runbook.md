@@ -8,12 +8,12 @@ number is in [`../configs/baseline_v1.json`](../configs/baseline_v1.json).
 the checkpoints and thresholds are final. Nothing after step 6 may feed back
 into a model.
 
-## 0. Before the GPU run: one decision to confirm
+## 0. Anchor scales — approved 2026-09-26
 
-`detector.anchors` uses scales 0.05–0.50 instead of torchvision's 0.20–0.95
-(measured reason in `baseline_v1.md` §3.6). It is the only departure from
-torchvision's own SSDlite configuration. Confirm it, or set `min_ratio: 0.2`,
-`max_ratio: 0.95` and commit before packing.
+`detector.anchors` = 0.05–0.50 (32–320 px at 640) instead of torchvision's
+0.20–0.95, approved before production training (`baseline_v1.md` §3.6). The
+trainer builds the detector from these values; `tests/test_baseline_v1_torch.py`
+pins them. Nothing to decide before packing.
 
 ## 1. Pack (on the machine that holds the dataset)
 
@@ -28,10 +28,31 @@ photograph** — training never needs one, and one that is absent cannot leak.
 
 ## 2. Train (on a CUDA machine)
 
+Any Linux machine with an NVIDIA GPU (≥ 4 GB) and internet access (for pip and
+the COCO-pretrained weights):
+
 ```bash
 unzip baseline_v1_training_bundle.zip -d baseline_v1 && cd baseline_v1
+sha256sum -c <<< "<bundle sha256>  ../baseline_v1_training_bundle.zip"   # optional
 APPROVER="<name>" bash scripts/gpu_train_baseline_v1.sh
 ```
+
+Variables: `USE_VENV=0` installs into the current interpreter instead of a new
+venv (Kaggle / Colab, whose Python often cannot create one); `WORKERS=<n>` sets
+data-loader processes (default 4; use 2 on a 2-vCPU Colab);
+`TORCH_INDEX=<url>` picks another CUDA build of the same torch version.
+
+**Kaggle (recommended).** Upload the zip as a *private* Dataset (Kaggle unpacks
+it). New notebook → Accelerator **GPU T4** (not P100), Internet **on**. In one
+cell:
+
+```bash
+!cp -r /kaggle/input/<dataset-name>/. /kaggle/working/baseline_v1
+!cd /kaggle/working/baseline_v1 && USE_VENV=0 APPROVER="<name>" bash scripts/gpu_train_baseline_v1.sh
+```
+
+Then **Save Version → Save & Run All** so it runs in the background (up to 12 h
+per session), and download `baseline_v1_results.tgz` from the version's Output.
 
 The script creates an isolated venv with the pinned versions (CUDA build of
 torch 2.14.0 / torchvision 0.29.0), runs both preflights, and then trains the recogniser and the detector. In
