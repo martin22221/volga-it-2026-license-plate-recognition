@@ -4,8 +4,11 @@ What the first trained system will be, what it trains on, and how it is judged.
 Written **before** training, so the metrics cannot be chosen to flatter a
 result and the splits cannot be redrawn after seeing one.
 
-**No model has been trained. No framework is installed.** This document and the
-scaffolding beside it make the next session able to start; they do not start it.
+**Status (2026-09-26): implemented, not yet trained.** Every stage is built,
+tested and exported end to end, and has been exercised by *smoke* runs only —
+tiny subsets, two epochs, numbers meaningless. The development machine has no
+CUDA GPU (§1), so the production training run needs one. The exact procedure is
+in [`baseline_v1_runbook.md`](baseline_v1_runbook.md).
 
 Related: [`../dataset/splits/README.md`](../dataset/splits/README.md) (the split
 policy), [`real_data_plan.md`](real_data_plan.md) (real-data targets),
@@ -202,6 +205,41 @@ find the rectangle.
 Pipeline order becomes: **detect box → crop with margin → corner head →
 perspective warp → read**.
 
+### 3.6 Anchor scales — measured, and changed before the first run
+
+Found while implementing, and recorded here because it touches the approved
+design. torchvision's SSDlite anchors are **relative to the input size**
+(`DefaultBoxGenerator`, `min_ratio=0.2`, `max_ratio=0.95`). Rebuilding at 640
+therefore does not make anchors smaller: the smallest is still 0.2 × 640 =
+**128 px square**, while a typical Dataset V1 plate, after the 1280×720 frame is
+stretched to 640×640, is about 50×25 px.
+
+Measured on `synthetic:train` only (every 10th sample, 1,020 plates) — best IoU
+between each plate and any anchor:
+
+| Anchor scales | median best IoU | plates with an anchor at IoU ≥ 0.5 |
+| --- | --- | --- |
+| torchvision default 0.20–0.95 | 0.26 | **25 %** |
+| **0.05–0.50 (configured)** | **0.60** | **83 %** |
+| 0.04–0.40 | 0.58 | 79 % |
+| 0.03–0.35 | 0.57 | 71 % |
+
+With the defaults, three plates in four would be trained from anchors that
+barely overlap them, and the small-plate fallback trigger (§3.3) would fire for
+a reason unrelated to SSDlite's quality. `configs/baseline_v1.json`
+`detector.anchors` therefore sets 0.05–0.50.
+
+**What this does not change:** the model family, the number of anchors per
+location (aspect ratios `[2, 3]` on all six levels), every layer shape, and the
+COCO-pretrained weights, which load identically (464 tensors; only the 12
+class-count-dependent classification convolutions start fresh, exactly as with
+the defaults). It changes only the prior box sizes the regression is relative
+to. It was chosen from training-split geometry alone, before any training.
+
+**It is flagged for approval before the GPU run**, because it is a change to an
+approved configuration. Reverting is two numbers: `min_ratio: 0.2`,
+`max_ratio: 0.95`.
+
 ## 4. Type classifier
 
 **Integrated into the recogniser as a second head — not a separate model, and
@@ -284,6 +322,11 @@ regions.
 - Final confidence is `detector_conf × mean(char_scores)`, and the *structural*
   verdict is carried beside it rather than multiplied into it. A structurally
   valid plate read at 0.3 is still a 0.3 read; validity is not evidence.
+  *As implemented* (`src/pipeline.py`, reused rather than rewritten): the
+  pipeline also multiplies by the type head's probability, and an **invalid**
+  read is multiplied by 0.5. Both can only lower a confidence; validity never
+  raises one. The validator checks against the structure of the *predicted*
+  type, so a one-line `type1` string classified `type1b` is flagged.
 - Characters below `char_confidence_for_hash` become `#` **before** validation,
   so a `#` cannot be hidden by a lucky structural match.
 
@@ -384,7 +427,15 @@ with several.
 number, because there is no honest way to combine 600 synthetic images with 2
 real ones.
 
-## 8a. The repository has no source-code licence
+## 8a. Source-code licence — resolved 2026-09-26: Apache-2.0
+
+The recommendation below was approved and applied: `LICENSE` is the unmodified
+Apache License 2.0, covering the project source **outside `dataset/`**.
+`dataset/LICENSE` (CC BY 4.0, including the generator) is unchanged, and
+third-party software and weights keep their own terms. The full map is in
+[`../LICENSING.md`](../LICENSING.md). The original finding follows.
+
+### The finding (2026-09-23)
 
 Discovered while resolving the detector question, and worth recording because
 it is what made the AGPL choice consequential.
@@ -436,14 +487,24 @@ source, and under what terms do you want it released.
 | Holdout guards | ✅ two, both tested |
 | Experiment naming, checkpoint policy | ✅ in the config |
 | Detector selected, licence cleared | ✅ torchvision SSDlite, BSD-3 (§3) |
-| Source-code licence | ⬜ **open** — none declared; recommendation in §8a |
-| Training loop | ⬜ **not implemented** — needs a framework and a GPU |
-| Framework installed | ⬜ **deliberately not** — this task did not authorise training |
-| Export to ONNX | ⬜ after training |
-| Benchmark on target hardware | ⬜ after export |
+| Source-code licence | ✅ Apache-2.0 (`LICENSE`, `LICENSING.md`) |
+| Training loops | ✅ `scripts/train_baseline.py`, both components, smoke-tested on CPU |
+| Framework | ✅ `requirements-train.txt`, isolated `.venv`, versions pinned |
+| Export to ONNX | ✅ `scripts/export_onnx.py`, torch↔ONNX parity checked on every export |
+| Deployed pipeline | ✅ `run.py --models`, ONNX Runtime only, refuses smoke exports |
+| Evaluation | ✅ `predict_baseline.py` → `evaluate_baseline.py`; `evaluate_recognizer.py` |
+| Runtime benchmark | ✅ `scripts/benchmark_runtime.py`, per stage |
+| GPU hand-off | ✅ `scripts/pack_training_bundle.py`, `scripts/gpu_train_baseline_v1.sh` |
+| **Production training** | ⬜ **needs a CUDA GPU** — measured CPU cost below |
+| Benchmark on target hardware | ⬜ needs the i5-7600 + GTX 1050 Ti machine |
 
-The two unticked boxes that matter are the ones the next session opens with, and
-both need a person's approval first.
+Measured on this machine (Ryzen 7 7735HS, CPU only), which is why production
+training is not attempted here:
+
+| Component | CPU cost | Configured run |
+| --- | --- | --- |
+| Recogniser | 3.4 s per 128-plate batch (two views), compute-bound | 40 epochs ≈ **3 h** |
+| Detector | ≈ 24 s per 64 images | 60 epochs ≈ **64 h** |
 
 ## 10. What v2 does that v1 does not
 

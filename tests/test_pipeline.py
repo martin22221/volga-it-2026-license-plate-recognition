@@ -142,11 +142,13 @@ def test_pipeline_to_csv(tmp_path: Path) -> None:
     pipeline = Pipeline(
         detector=StubDetector([Detection(BOX, 1.0)]),
         classifier=StubClassifier(PlateType.TYPE1B, 1.0),
-        ocr=StubOcr("M111MM102", 1.0),
+        # a type1b structure (MM 000 55): the read is validated against the
+        # predicted type, so a type1-shaped string here would be penalised
+        ocr=StubOcr("MM11177", 1.0),
     )
     output = tmp_path / "out.csv"
     write_csv(pipeline.process_directory(images), output)
     assert output.read_text(encoding="utf-8").splitlines() == [
         "image;plate_num;plate_type;confidence",
-        "car.jpg;M111MM102;type1b;1.000",
+        "car.jpg;MM11177;type1b;1.000",
     ]

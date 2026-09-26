@@ -12,7 +12,8 @@
     "seed": 2026092201,
     "deterministic": true,
     "output_root": "runs",
-    "naming": "runs/<component>/<experiment>_<YYYYMMDD>_<seed>/"
+    "naming": "runs/<component>/<experiment>_<YYYYMMDD>_<seed>/",
+    "environment": "requirements-train.txt (training), requirements.txt (inference)"
   },
   "classes": [
     "type1",
@@ -30,6 +31,21 @@
     "object_class_name": "plate",
     "input_size": 640,
     "_comment_input": "torchvision's SSD takes its input size at construction; 640 rather than the pretrained 320 because plates are small and distant in our scenes",
+    "anchors": {
+      "preset": "fitted_to_train_split",
+      "aspect_ratios_per_level": [
+        2,
+        3
+      ],
+      "min_ratio": 0.05,
+      "max_ratio": 0.5,
+      "_comment": [
+        "torchvision's SSDlite anchors are relative to the input: its defaults (0.2..0.95) give a smallest anchor of 128 px at 640, larger than most plates here.",
+        "Measured on synthetic:train (every 10th sample, input stretched to 640): defaults leave only 25% of plates with any anchor at IoU>=0.5 (median best IoU 0.26); 0.05..0.5 gives 83% (median 0.60).",
+        "Same number of anchors per location, same layer shapes, same COCO weights loaded -- only the prior box sizes change.",
+        "To run torchvision's defaults exactly, set min_ratio 0.2 and max_ratio 0.95. docs/baseline_v1.md section 3.6."
+      ]
+    },
     "pretrained_weights": "COCO (torchvision SSDLite320_MobileNet_V3_Large_Weights.COCO_V1)",
     "pretrained": true,
     "_comment_pretrained": "set false to train from scratch: zero third-party weight provenance, at the cost of synthetic-to-real transfer. See docs/baseline_v1.md section 3.4.",
@@ -60,7 +76,12 @@
     },
     "train_split": "synthetic:train",
     "val_split": "synthetic:val",
-    "test_split": "synthetic:test"
+    "test_split": "synthetic:test",
+    "score_thresh": 0.001,
+    "nms_thresh": 0.55,
+    "topk_candidates": 300,
+    "detections_per_img": 100,
+    "_comment_postprocess": "score_thresh/nms_thresh/topk are torchvision's SSDlite defaults; detections_per_img lowered from 300 to 100 (an image never holds 100 plates). NMS runs in NumPy after the ONNX graph (src/onnx_backend.py), identically in validation and deployment."
   },
   "recognizer": {
     "component": "recognizer",

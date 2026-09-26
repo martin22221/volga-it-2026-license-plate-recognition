@@ -1,13 +1,17 @@
-# The inference pipeline still runs on the Python standard library only (its
-# stages are placeholders until models exist), so it stays fully offline.
+# Inference (run.py) and development.  Deployed inference is fully offline:
+# ONNX Runtime + NumPy + Pillow, no torch, no network, no external API.
+# See LICENSING.md for every package's licence.
 #
 # Synthetic data generator (dataset/generator/).  Exact pins for
 # byte-reproducible batches are in dataset/generator/requirements.txt.
 numpy>=1.26,<3
 pillow>=10.3,<12
 #
+# Trained-model inference (run.py --models).  For a CUDA GPU, install
+# onnxruntime-gpu (same version) instead of onnxruntime.
+onnxruntime>=1.20,<2
+#
 # Development / testing:
 pytest>=8.0
-
-# Added later, together with the actual models (kept here as a reminder, not
-# installed yet): opencv-python, onnxruntime or torch.
+#
+# Training and ONNX export need more: requirements-train.txt.

@@ -64,8 +64,38 @@ def _splits_for(population: str, config: dict) -> list[str]:
     return list(value) if isinstance(value, list) else [value]
 
 
-def evaluate(samples_by_image: dict, predictions: list[dict], iou_threshold: float) -> dict:
-    """Detection, classification, OCR and end-to-end, over one population."""
+def evaluate(
+    samples_by_image: dict,
+    predictions: list[dict],
+    iou_threshold: float,
+    operating_confidence: float = 0.0,
+) -> dict:
+    """Detection, classification, OCR and end-to-end, over one population.
+
+    Detections flagged ``below_operating`` (kept only so AP can be computed)
+    or scoring under ``operating_confidence`` are excluded from everything but
+    the ``detection_full`` block's ranking metrics.
+    """
+    from collections import Counter
+
+    from src.training.evaluation import evaluate_detections, load_difficulty
+
+    all_predictions = {
+        p["image"]: [
+            ((d["bbox"][0], d["bbox"][1], d["bbox"][0] + d["bbox"][2], d["bbox"][1] + d["bbox"][3]),
+             float(d.get("confidence", 0.0)))
+            for d in p.get("detections", [])
+        ]
+        for p in predictions
+    }
+    predictions = [
+        {**p, "detections": [
+            d for d in p.get("detections", [])
+            if not d.get("below_operating") and float(d.get("confidence", 0.0)) >= operating_confidence
+        ]}
+        for p in predictions
+    ]
+    failures: Counter = Counter()
     tp = fp = fn = 0
     scored: list[tuple[float, bool]] = []
     class_pairs: list[tuple[str, str]] = []
@@ -104,10 +134,23 @@ def evaluate(samples_by_image: dict, predictions: list[dict], iou_threshold: flo
             class_pairs.append((truth_row.plate_type, predicted_type))
             if truth_row.ocr_trainable:
                 ocr_pairs.append((truth_row.plate_num, predicted_num))
-            if predicted_type == truth_row.plate_type and predicted_num == truth_row.plate_num:
+            type_ok = predicted_type == truth_row.plate_type
+            text_ok = predicted_num == truth_row.plate_num
+            if type_ok and text_ok:
                 end_to_end_correct += 1
+                failures["correct"] += 1
+            elif not truth_row.ocr_trainable:
+                failures["unreadable_label" + ("" if type_ok else "+type_wrong")] += 1
+            else:
+                failures[
+                    ("string_wrong" if not text_ok else "")
+                    + ("+" if not text_ok and not type_ok else "")
+                    + ("type_wrong" if not type_ok else "")
+                ] += 1
         # a plate the detector missed is an end-to-end failure, not an absence
         end_to_end_total += len(unmatched_truth)
+        failures["not_detected"] += len(unmatched_truth)
+        failures["false_positive_detection"] += len(unmatched_pred)
 
     matrix = confusion(class_pairs, CLASSES)
     return {
@@ -126,6 +169,15 @@ def evaluate(samples_by_image: dict, predictions: list[dict], iou_threshold: flo
             "correct_detection_class_and_string": proportion(
                 end_to_end_correct, end_to_end_total
             ),
+            "outcomes": dict(failures.most_common()),
+        },
+        "detection_full": {
+            k: v
+            for k, v in evaluate_detections(
+                samples_by_image, all_predictions,
+                confidence=operating_confidence, difficulty=load_difficulty(),
+            ).items()
+            if k not in ("missed", "false_positives")
         },
     }
 
@@ -169,7 +221,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not args.predictions.is_file():
         print(f"error: no predictions at {args.predictions}", file=sys.stderr)
         return EXIT_UNUSABLE
-    predictions = json.loads(args.predictions.read_text(encoding="utf-8"))
+    loaded = json.loads(args.predictions.read_text(encoding="utf-8"))
+    # predict_baseline.py wraps the list with its provenance; a bare list is accepted too
+    predictions = loaded["predictions"] if isinstance(loaded, dict) else loaded
+    operating = (
+        float(loaded.get("operating_confidence", 0.0)) if isinstance(loaded, dict)
+        else float(config["evaluation"]["detector_confidence"])
+    )
 
     all_samples = load_samples()
     rows = []
@@ -179,7 +237,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     for row in rows:
         by_image[row.image].append(row)
 
-    payload = evaluate(dict(by_image), predictions, config["evaluation"]["iou_match"])
+    payload = evaluate(dict(by_image), predictions, config["evaluation"]["iou_match"], operating)
     report = EvaluationReport(name=f"{args.population} ({', '.join(split_names)})")
     report.add(args.population, payload)
 

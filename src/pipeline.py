@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterator, Sequence
 
-from src.classifier import PlaceholderClassifier, PlateClassifier
+from src.classifier import TARGET_TYPES, PlaceholderClassifier, PlateClassifier
 from src.csv_writer import PlateRecord
 from src.detector import Detector, PlaceholderDetector
 from src.ocr import OcrEngine, PlaceholderOcr
@@ -99,7 +99,15 @@ class Pipeline:
                     logger.debug("%s: OCR returned no text, dropping detection", name)
                     continue
 
-                validation = validate_plate(ocr_result.text)
+                # Checked against the structure of the predicted type, so a type1b
+                # read that happens to fit the type1 pattern is not waved through.
+                # The validator only checks; it never edits the string.
+                expected = (
+                    str(classification.plate_type)
+                    if classification.plate_type in TARGET_TYPES
+                    else None
+                )
+                validation = validate_plate(ocr_result.text, expected)
                 confidence = (
                     detection.confidence
                     * classification.confidence

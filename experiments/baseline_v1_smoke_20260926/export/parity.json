@@ -1,0 +1,32 @@
+{
+ "detector": {
+  "images": 16,
+  "max_abs_box_diff_px": 0.0050048828125,
+  "max_abs_score_diff": 1.6063451766967773e-05,
+  "same_detection_count": "16/16",
+  "worst_matched_iou": 0.9999880370949922,
+  "pass": true
+ },
+ "recognizer": {
+  "plates": 64,
+  "max_abs_diff": {
+   "log_probs": 4.291534423828125e-06,
+   "type_logits": 1.9073486328125e-06,
+   "corners": 4.76837158203125e-07
+  },
+  "same_raw_text": "64/64",
+  "same_type": "64/64",
+  "same_two_line_decision": "64/64",
+  "max_abs_diff_by_batch_size": {
+   "1": 2.86102294921875e-06,
+   "3": 3.337860107421875e-06,
+   "64": 4.291534423828125e-06
+  },
+  "pass": true
+ },
+ "population": "synthetic:val (fixed strided sample)",
+ "kinds": {
+  "detector": "smoke",
+  "recognizer": "smoke"
+ }
+}

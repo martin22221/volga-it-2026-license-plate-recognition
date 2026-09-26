@@ -1,0 +1,42 @@
+{
+ "model": "small-cnn + BiGRU + CTC, with type-classification and corner-regression heads",
+ "input_name": "crop",
+ "input_shape": [
+  "n",
+  3,
+  48,
+  192
+ ],
+ "_comment_batch": "dynamic batch: one image can hold several plates. The detector graph is fixed at batch 1.",
+ "preprocessing": "two passes (src/recognition.read_plates): (1) detector box widened by 8% per side, resized to 48x192 -> corners head; (2) perspective warp from predicted corners to 48x192, two-line unroll when quad aspect < 2.5; both RGB float32 (x/255-0.5)/0.5 NCHW",
+ "outputs": {
+  "log_probs": "float32 [n, 48, 23] CTC log-probabilities, index 0 = blank",
+  "type_logits": "float32 [n, 4] over [type1, type1a, type1b, other]",
+  "corners": "float32 [n, 8] TL,TR,BR,BL x/y normalised to the pass-1 crop"
+ },
+ "classes": [
+  "type1",
+  "type1a",
+  "type1b",
+  "other"
+ ],
+ "char_confidence_for_hash": 0.5,
+ "opset": 17,
+ "checkpoint": "runs\\recognizer\\baseline_v1_20260926_2026092201_smoke\\best.pt",
+ "checkpoint_sha256": "19779f7d789989cc0749c62e6d6b898dc826f8f2d09a0d1710c01d095e37f34b",
+ "checkpoint_epoch": 1,
+ "kind": "smoke",
+ "experiment_id": "recognizer/baseline_v1_20260926_2026092201_smoke",
+ "git_commit": "9b46cee513c9887511c9da55e7b03c8ca36a4b90",
+ "dataset": {
+  "dataset_version": "v1",
+  "freeze_file_sha256": "f8da6e141becc01912198293e4bae7bcac7beb342e2adf537ad9daec2989dd96",
+  "meta_sha256": "f7d1686aa8edc69275d268fa5ed6de3c0ed453c0fa7b81483baec0d8a1694b74",
+  "combined_image_digest": "68c4c0be6afbfa56c810e80f229b27490026b2c6398539a744a3ced004db538c",
+  "synthetic_splits_sha256": "e7c7defbdc4f2f492b210c5a4cef03cc2e150da9f3a6e9aca9cc10ce8520d650",
+  "real_splits_sha256": "2382d7fcb9a32f91f49c4b382ba02c2087c37576d18b0554bd4cbe9a30f5b5aa",
+  "generator_seal_sha256": "10a1a8f393a302a60068f75b005002cf082b05a7798fae7623fbf2e65a6bba25"
+ },
+ "onnx_sha256": "b178e4164c11f11a0219e052fc9428e37e4bd4f4e0394bb42667fdd8cf3aa775",
+ "onnx_bytes": 13210016
+}

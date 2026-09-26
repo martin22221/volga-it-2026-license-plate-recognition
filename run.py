@@ -64,6 +64,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="console log level (default: INFO)",
     )
     parser.add_argument("--log-file", type=Path, default=None, help="also write logs to this file")
+    parser.add_argument(
+        "--models",
+        type=Path,
+        default=None,
+        help="directory with detector.onnx and recognizer.onnx (scripts/export_onnx.py); "
+        "without it the placeholder stages run and no plate is ever reported",
+    )
+    parser.add_argument(
+        "--allow-smoke-models",
+        action="store_true",
+        help="accept models exported from a --smoke plumbing run (never for a submission)",
+    )
     return parser.parse_args(argv)
 
 
@@ -77,6 +89,28 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     pipeline = Pipeline(min_confidence=args.min_confidence)
+    if args.models is not None:
+        from src.onnx_backend import load_models
+
+        try:
+            detector, recognizer = load_models(args.models)
+        except (OSError, ValueError) as error:
+            logger.error("Cannot load models from %s: %s", args.models, error)
+            return 2
+        kinds = {detector.meta.get("kind"), recognizer.meta.get("kind")}
+        if "smoke" in kinds and not args.allow_smoke_models:
+            logger.error(
+                "%s holds a smoke-run export (a plumbing check, not a trained baseline). "
+                "Refusing; pass --allow-smoke-models only for testing.",
+                args.models,
+            )
+            return 2
+        pipeline = Pipeline(
+            detector=detector,
+            classifier=recognizer,
+            ocr=recognizer,
+            min_confidence=args.min_confidence,
+        )
     logger.info(
         "Stages: %s | %s | %s",
         pipeline.detector.name,

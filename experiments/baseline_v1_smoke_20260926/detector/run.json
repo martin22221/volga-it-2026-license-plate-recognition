@@ -1,0 +1,220 @@
+{
+ "experiment_id": "detector/baseline_v1_20260926_2026092201_smoke",
+ "kind": "smoke",
+ "approved_by": "M. Petkov (session approval 2026-09-26)",
+ "started_utc": "2026-09-26T18:01:13+00:00",
+ "git_commit": "9b46cee513c9887511c9da55e7b03c8ca36a4b90",
+ "git_dirty": true,
+ "dataset": {
+  "dataset_version": "v1",
+  "freeze_file_sha256": "f8da6e141becc01912198293e4bae7bcac7beb342e2adf537ad9daec2989dd96",
+  "meta_sha256": "f7d1686aa8edc69275d268fa5ed6de3c0ed453c0fa7b81483baec0d8a1694b74",
+  "combined_image_digest": "68c4c0be6afbfa56c810e80f229b27490026b2c6398539a744a3ced004db538c",
+  "synthetic_splits_sha256": "e7c7defbdc4f2f492b210c5a4cef03cc2e150da9f3a6e9aca9cc10ce8520d650",
+  "real_splits_sha256": "2382d7fcb9a32f91f49c4b382ba02c2087c37576d18b0554bd4cbe9a30f5b5aa",
+  "generator_seal_sha256": "10a1a8f393a302a60068f75b005002cf082b05a7798fae7623fbf2e65a6bba25"
+ },
+ "seed": 2026092201,
+ "device": "cpu",
+ "workers": 0,
+ "environment": {
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "processor": "AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD",
+  "cpu_count": 16,
+  "torch": "2.14.0+cpu",
+  "torchvision": "0.29.0+cpu",
+  "numpy": "2.5.3",
+  "pillow": "11.3.0",
+  "cuda_available": false,
+  "cuda_device": null,
+  "cuda_version": null,
+  "torch_threads": 8
+ },
+ "config_sha256": "9701f3ed341ca72d59ea4fd1877944e9b8edf7dabb5a928ea165c644e975f59d",
+ "config": {
+  "_comment": [
+   "Baseline v1 configuration. JSON rather than YAML deliberately: the repo has",
+   "no YAML dependency and this needs none. Every number here is a decision, and",
+   "docs/baseline_v1.md says why each was made.",
+   "Nothing in this file trains anything; scripts/train_*.py read it."
+  ],
+  "experiment": {
+   "name": "baseline_v1",
+   "dataset_version": "v1",
+   "dataset_freeze": "dataset/splits/dataset_v1.json",
+   "seed": 2026092201,
+   "deterministic": true,
+   "output_root": "runs",
+   "naming": "runs/<component>/<experiment>_<YYYYMMDD>_<seed>/",
+   "environment": "requirements-train.txt (training), requirements.txt (inference)"
+  },
+  "classes": [
+   "type1",
+   "type1a",
+   "type1b",
+   "other"
+  ],
+  "detector": {
+   "component": "detector",
+   "family": "torchvision ssdlite320_mobilenet_v3_large",
+   "license_code": "BSD-3-Clause (torchvision)",
+   "license_weights": "BSD-3-Clause file terms; torchvision disclaims dataset-derived terms -- see docs/baseline_v1.md",
+   "reason": "the only actively maintained permissive candidate, and it adds no dependency we do not already need; AGPL families are excluded by policy",
+   "num_object_classes": 1,
+   "object_class_name": "plate",
+   "input_size": 640,
+   "_comment_input": "torchvision's SSD takes its input size at construction; 640 rather than the pretrained 320 because plates are small and distant in our scenes",
+   "anchors": {
+    "preset": "fitted_to_train_split",
+    "aspect_ratios_per_level": [
+     2,
+     3
+    ],
+    "min_ratio": 0.05,
+    "max_ratio": 0.5,
+    "_comment": [
+     "torchvision's SSDlite anchors are relative to the input: its defaults (0.2..0.95) give a smallest anchor of 128 px at 640, larger than most plates here.",
+     "Measured on synthetic:train (every 10th sample, input stretched to 640): defaults leave only 25% of plates with any anchor at IoU>=0.5 (median best IoU 0.26); 0.05..0.5 gives 83% (median 0.60).",
+     "Same number of anchors per location, same layer shapes, same COCO weights loaded -- only the prior box sizes change.",
+     "To run torchvision's defaults exactly, set min_ratio 0.2 and max_ratio 0.95. docs/baseline_v1.md section 3.6."
+    ]
+   },
+   "pretrained_weights": "COCO (torchvision SSDLite320_MobileNet_V3_Large_Weights.COCO_V1)",
+   "pretrained": true,
+   "_comment_pretrained": "set false to train from scratch: zero third-party weight provenance, at the cost of synthetic-to-real transfer. See docs/baseline_v1.md section 3.4.",
+   "epochs": 60,
+   "batch_size": 16,
+   "optimizer": "SGD",
+   "lr0": 0.01,
+   "lrf": 0.01,
+   "momentum": 0.9,
+   "weight_decay": 0.0005,
+   "warmup_epochs": 3,
+   "patience": 15,
+   "augmentation": {
+    "_comment": "Our synthetic set already varies lighting, weather, angle and blur. Heavy colour augmentation on top would blur the type1b decision, which is literally a colour.",
+    "hsv_h": 0.0,
+    "hsv_s": 0.2,
+    "hsv_v": 0.3,
+    "degrees": 5.0,
+    "translate": 0.1,
+    "scale": 0.4,
+    "fliplr": 0.0
+   },
+   "fallback": {
+    "_comment": "Agreed in advance so the switch is a measurement, not a judgement call after seeing results.",
+    "trigger": "recall on plates narrower than 80 px in synthetic:val below 0.85",
+    "model": "torchvision fasterrcnn_mobilenet_v3_large_fpn",
+    "license_code": "BSD-3-Clause (torchvision)"
+   },
+   "train_split": "synthetic:train",
+   "val_split": "synthetic:val",
+   "test_split": "synthetic:test",
+   "score_thresh": 0.001,
+   "nms_thresh": 0.55,
+   "topk_candidates": 300,
+   "detections_per_img": 100,
+   "_comment_postprocess": "score_thresh/nms_thresh/topk are torchvision's SSDlite defaults; detections_per_img lowered from 300 to 100 (an image never holds 100 plates). NMS runs in NumPy after the ONNX graph (src/onnx_backend.py), identically in validation and deployment."
+  },
+  "recognizer": {
+   "component": "recognizer",
+   "family": "small-cnn + BiGRU + CTC, with type-classification and corner-regression heads",
+   "reason": "one backbone serves three heads; the type head and the corner head see the same crop the reader does, so colour, aspect and geometry are all available to them",
+   "input_height": 48,
+   "input_width": 192,
+   "backbone_channels": [
+    32,
+    64,
+    128,
+    256
+   ],
+   "rnn_hidden": 128,
+   "rnn_layers": 2,
+   "num_chars": 23,
+   "max_length": 9,
+   "type_head_classes": 4,
+   "ctc_loss_weight": 1.0,
+   "type_loss_weight": 0.5,
+   "epochs": 40,
+   "batch_size": 128,
+   "optimizer": "AdamW",
+   "lr": 0.001,
+   "weight_decay": 0.01,
+   "scheduler": "cosine",
+   "patience": 10,
+   "crop": {
+    "_comment": "type1a is two lines; the upper band and the lower band are cut apart and placed side by side, so a single left-to-right reader handles every class.",
+    "rectify_with_quad": "predicted-by-corner-head",
+    "margin_fraction": 0.08,
+    "two_line_unroll": true,
+    "two_line_split_fraction": 0.5,
+    "_comment_rectify": "v1 order: detect box -> crop with margin -> corner head -> perspective warp -> read. The corner head trains on ground-truth crops, so it is supervised from the first epoch."
+   },
+   "train_split": "synthetic:train",
+   "val_split": "synthetic:val",
+   "test_split": "synthetic:test",
+   "corner_head_outputs": 8,
+   "corner_loss_weight": 0.25,
+   "_comment_corner_head": "The detector selected for v1 predicts boxes only, so the four plate corners are regressed here instead, from the crop. meta.csv carries exact corners for all 12,013 rows. This removes the need for a keypoint-capable detector entirely."
+  },
+  "evaluation": {
+   "iou_match": 0.5,
+   "detector_confidence": 0.25,
+   "char_confidence_for_hash": 0.5,
+   "_comment_hash": "below this per-character score the character is written as '#', never guessed",
+   "populations": {
+    "synthetic_val": "synthetic:val",
+    "synthetic_test": "synthetic:test",
+    "real_dev": [
+     "real:train",
+     "real:val"
+    ],
+    "real_holdout": "real:holdout"
+   },
+   "report_separately": true,
+   "never_merge_synthetic_and_real": true
+  },
+  "export": {
+   "format": "onnx",
+   "opset": 17,
+   "dynamic_batch": false,
+   "runtime": "onnxruntime",
+   "providers": [
+    "CUDAExecutionProvider",
+    "CPUExecutionProvider"
+   ],
+   "target_hardware": {
+    "cpu": "Intel i5-7600",
+    "gpu": "NVIDIA GTX 1050 Ti 4 GB",
+    "ram_gb": 16,
+    "budget_ms_per_image": 100,
+    "_comment": "A budget to design against and then measure. Nothing here claims it is met."
+   }
+  },
+  "checkpoints": {
+   "keep": [
+    "best",
+    "last"
+   ],
+   "select_best_on": "synthetic:val",
+   "_comment_selection": "Model selection never touches real data. Selecting on 13 real images would overfit them and destroy the only real measurement we have.",
+   "save_optimizer_state": false
+  }
+ },
+ "parameters": 2206520,
+ "train_images": 64,
+ "val_images": 32,
+ "epochs_planned": 2,
+ "steps_planned": 8,
+ "result": {
+  "best_epoch": 2,
+  "best_selection_key": [
+   0.0201,
+   0.0111
+  ],
+  "epochs_run": 2
+ },
+ "finished_utc": "2026-09-26T18:02:08+00:00",
+ "wall_seconds": 54.8
+}

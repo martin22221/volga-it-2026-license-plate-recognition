@@ -1,0 +1,19 @@
+# Baseline V1 training and ONNX export -- the versions the pipeline was built and
+# verified with (2026-09-26, Python 3.12.10).  Install into an isolated venv:
+#
+#   python -m venv .venv
+#   .venv/Scripts/python -m pip install -r requirements-train.txt  (Windows, CPU)
+#
+# On a CUDA machine install torch/torchvision from the matching CUDA index
+# instead of the CPU one, keeping the same versions, e.g.
+#   pip install torch==2.14.0 torchvision==0.29.0 --index-url https://download.pytorch.org/whl/cu126
+#
+# No Ultralytics / YOLO package: AGPL-3.0, excluded (docs/baseline_v1.md 3.1).
+--extra-index-url https://download.pytorch.org/whl/cpu
+-r requirements.txt
+numpy==2.5.3
+pillow==11.3.0
+torch==2.14.0
+torchvision==0.29.0
+onnx==1.23.0
+onnxruntime==1.30.0

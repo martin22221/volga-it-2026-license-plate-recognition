@@ -1,0 +1,90 @@
+{
+ "hardware": {
+  "platform": "Windows-11-10.0.26200-SP0",
+  "processor": "AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD",
+  "cpu_count": 16,
+  "nvidia_gpu": null
+ },
+ "onnxruntime": "1.30.0",
+ "providers_used": {
+  "detector": [
+   "CPUExecutionProvider"
+  ],
+  "recognizer": [
+   "CPUExecutionProvider"
+  ]
+ },
+ "input": {
+  "detector": "1x3x640x640",
+  "recognizer": "nx3x48x192, two passes"
+ },
+ "source_images": "synthetic:val, strided sample, 1280x720 / 1024x768 JPEG",
+ "model_kind": {
+  "detector": "smoke",
+  "recognizer": "smoke"
+ },
+ "warmup_images": 10,
+ "timed_images": 200,
+ "plates_read_per_image": {
+  "n": 200,
+  "median_ms": 1.0,
+  "mean_ms": 1.0,
+  "p95_ms": 1.0
+ },
+ "stages": {
+  "decode": {
+   "n": 200,
+   "median_ms": 4.79,
+   "mean_ms": 4.762,
+   "p95_ms": 7.589
+  },
+  "detector_preprocess": {
+   "n": 200,
+   "median_ms": 18.624,
+   "mean_ms": 17.948,
+   "p95_ms": 22.414
+  },
+  "detector": {
+   "n": 200,
+   "median_ms": 25.199,
+   "mean_ms": 27.633,
+   "p95_ms": 41.438
+  },
+  "detector_postprocess": {
+   "n": 200,
+   "median_ms": 9.583,
+   "mean_ms": 9.961,
+   "p95_ms": 12.514
+  },
+  "recognizer_network": {
+   "n": 400,
+   "median_ms": 4.815,
+   "mean_ms": 5.447,
+   "p95_ms": 9.272
+  },
+  "recognizer_total": {
+   "n": 200,
+   "median_ms": 12.605,
+   "mean_ms": 13.538,
+   "p95_ms": 20.771
+  },
+  "validate_and_confidence": {
+   "n": 200,
+   "median_ms": 0.021,
+   "mean_ms": 0.022,
+   "p95_ms": 0.024
+  },
+  "pipeline_total": {
+   "n": 200,
+   "median_ms": 72.611,
+   "mean_ms": 74.91,
+   "p95_ms": 102.667
+  }
+ },
+ "target": {
+  "hardware": "Intel i5-7600 + GTX 1050 Ti 4 GB, 16 GB RAM",
+  "budget_mean_ms": 100,
+  "met_on_this_machine": true,
+  "_comment": "Only meaningful when this report's hardware IS the target hardware."
+ }
+}

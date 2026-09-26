@@ -19,14 +19,15 @@ Target plate classes:
 
 ## Current status
 
-**Skeleton + working end-to-end plumbing. No ML models yet.**
+**Baseline V1 implemented end to end; production training needs a CUDA GPU.**
 
 * The full chain runs: image discovery → detector → classifier → OCR →
   format validator → confidence → CSV.
-* `detector`, `classifier` and `ocr` are **placeholders**. The detector
-  reports no detections, so a run currently produces a valid CSV containing
-  only the header. This is deliberate: an untrained pipeline must never
-  fabricate plate numbers.
+* Without `--models`, `detector`, `classifier` and `ocr` are **placeholders**
+  that report nothing, so an untrained pipeline can never fabricate a plate.
+  With `--models <dir>` the pipeline runs the exported Baseline V1 ONNX models
+  (SSDlite detector, CNN+BiGRU+CTC recogniser with type and corner heads)
+  through ONNX Runtime — fully offline, no torch at inference.
 * The **format validator is real** and fully tested.
 * The **synthetic plate generator 2.3.0** (`dataset/generator/`) renders
   `type1`, `type1a` and `type1b` plates with exact quad annotations. Its
@@ -48,10 +49,16 @@ Target plate classes:
   the digests, the generator seal, the provenance records and the split seed, so
   membership can be proved later without copying a single image. The splits are
   deterministic and leakage-audited.
-* **Baseline architecture is decided and the training scaffolding exists**, but
-  **no model has been trained and no framework is installed**. See
+* **Baseline V1 is implemented and smoke-tested, not trained.** Training
+  loops, ONNX export with torch↔ONNX parity checks, evaluation and a per-stage
+  runtime benchmark all exist and are tested. The development machine has no
+  CUDA GPU, so the production run is packaged for one: see
+  [`docs/baseline_v1_runbook.md`](docs/baseline_v1_runbook.md) and
   [`docs/baseline_v1.md`](docs/baseline_v1.md).
-* No models are trained, downloaded or bundled.
+* No trained model is bundled; weights are never committed.
+* **Licensing:** source code is Apache-2.0 ([`LICENSE`](LICENSE)); `dataset/`
+  stays CC BY 4.0 ([`dataset/LICENSE`](dataset/LICENSE)). What covers what:
+  [`LICENSING.md`](LICENSING.md).
 
 ## Folder structure
 
@@ -73,7 +80,9 @@ volga-it-2026-license-plate-recognition/
     rare_review.py   # type1a / type1b candidate pages
     real_intake.py   # real-image source records + staged-source audit
     real_splits.py   # deterministic, group-aware train/val/holdout splits
-  training/          # (empty) training scripts for detector/classifier/OCR
+    recognition.py   # plate geometry, rectification, two-pass read (no framework)
+    onnx_backend.py  # deployed ONNX Runtime detector + recogniser stages
+    training/        # data, models, metrics, evaluation for Baseline V1
   dataset/           # the training dataset we build ourselves
     images/real/     # collected photographs, git-ignored
     images/synthetic/# generated images, git-ignored
@@ -116,8 +125,9 @@ volga-it-2026-license-plate-recognition/
 
 ## Environment setup
 
-Python 3.10+ (developed on 3.12). The pipeline itself needs only the standard
-library; `pytest` is required to run the tests.
+Python 3.10+ (developed on 3.12). `requirements.txt` is the inference stack
+(NumPy, Pillow, ONNX Runtime) plus `pytest`; training and export additionally
+need `requirements-train.txt` (torch, torchvision, onnx), pinned.
 
 ```bash
 python -m venv .venv
@@ -126,7 +136,8 @@ python -m venv .venv
 # Linux / macOS
 source .venv/bin/activate
 
-pip install -r requirements.txt
+pip install -r requirements.txt            # inference + tests
+pip install -r requirements-train.txt      # training + ONNX export
 ```
 
 ## Run command
@@ -141,8 +152,10 @@ Example:
 python run.py --input data/official_debug --output data/outputs/result.csv
 ```
 
-Optional flags: `--no-recursive`, `--min-confidence <float>`, `--no-header`,
-`--log-level DEBUG`, `--log-file <path>`.
+Optional flags: `--models <dir>` (exported `detector.onnx` + `recognizer.onnx`;
+refuses a smoke export unless `--allow-smoke-models`), `--no-recursive`,
+`--min-confidence <float>`, `--no-header`, `--log-level DEBUG`,
+`--log-file <path>`.
 
 Images are read from the directory (recursively by default); `.jpg`, `.jpeg`
 and `.png` are accepted, case-insensitively.
@@ -277,22 +290,19 @@ Each stage is a `typing.Protocol`; implement it and inject it into `Pipeline`:
 ```python
 from src.pipeline import Pipeline
 
-pipeline = Pipeline(detector=MyYoloDetector(...), classifier=..., ocr=...)
+pipeline = Pipeline(detector=MyDetector(...), classifier=..., ocr=...)
 ```
 
 `src/pipeline.py` does not need to change.
 
 ## Current limitations
 
-* No detection, classification or text recognition happens — every run yields
-  an empty result set.
-* Image pixels are never decoded; the placeholder stages only receive the
-  file path. Real stages will add an image-loading dependency
-  (OpenCV/Pillow) to `requirements.txt`.
-* Confidence combination is a simple product and will be recalibrated once
-  real models exist.
-* No OCR error correction, no plate-type-specific post-processing, no
-  duplicate-detection/NMS logic yet.
+* No trained model exists yet — only smoke exports, which `run.py` refuses.
+* Confidence is `detector × type probability × mean character score`, halved
+  when the read fails format validation; it is not calibrated.
+* No OCR error correction by design: the validator checks, it never edits.
+* No `other`-class or hard-negative training data in Dataset V1, so false
+  positives on signage are expected.
 
 ## Synthetic data
 
@@ -313,10 +323,9 @@ The generator refuses to write into `dataset/` unless asked explicitly.
    approved acquisition #1, targeting `type1a`. Then annotate and run the intake
    per `docs/real_data_intake.md`; rare classes (`type1a`, `type1b`) first.
 2. Freeze the real splits and pass the readiness checklist.
-3. Detector training (`training/`) and integration.
-4. Plate type classifier for `type1` / `type1a` / `type1b` / `other`.
-5. OCR model + calibrated confidences.
-6. Evaluation scripts against `data/official_debug`.
+3. **Baseline V1 production training on a CUDA GPU** —
+   `docs/baseline_v1_runbook.md`.
+4. Benchmark on the competition hardware (i5-7600 + GTX 1050 Ti).
+5. Calibrated confidences; `other` / hard-negative data.
 
-**Actual models will be added later — nothing in this repository is trained
-yet.**
+**Nothing in this repository is trained yet.**

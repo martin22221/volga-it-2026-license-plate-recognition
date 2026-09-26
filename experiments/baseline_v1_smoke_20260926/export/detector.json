@@ -1,0 +1,55 @@
+{
+ "model": "torchvision ssdlite320_mobilenet_v3_large",
+ "license_code": "BSD-3-Clause (torchvision)",
+ "input_name": "image",
+ "input_shape": [
+  1,
+  3,
+  640,
+  640
+ ],
+ "input_size": 640,
+ "preprocessing": "RGB, stretched (not letterboxed) to input_size x input_size with bilinear resampling, float32, (x/255 - 0.5)/0.5, NCHW",
+ "outputs": {
+  "boxes": "float32 [1, 12828, 4] x1,y1,x2,y2 in input pixels (anchors decoded in-graph)",
+  "scores": "float32 [1, 12828] plate probability (softmax in-graph)"
+ },
+ "postprocessing": "src/onnx_backend.postprocess: score > confidence_threshold, top-k by score, greedy NMS at nms_threshold, keep max_detections, clip to input, scale to original pixels",
+ "confidence_threshold": 0.25,
+ "nms_threshold": 0.55,
+ "topk_candidates": 300,
+ "max_detections": 100,
+ "anchors": {
+  "preset": "fitted_to_train_split",
+  "aspect_ratios_per_level": [
+   2,
+   3
+  ],
+  "min_ratio": 0.05,
+  "max_ratio": 0.5,
+  "_comment": [
+   "torchvision's SSDlite anchors are relative to the input: its defaults (0.2..0.95) give a smallest anchor of 128 px at 640, larger than most plates here.",
+   "Measured on synthetic:train (every 10th sample, input stretched to 640): defaults leave only 25% of plates with any anchor at IoU>=0.5 (median best IoU 0.26); 0.05..0.5 gives 83% (median 0.60).",
+   "Same number of anchors per location, same layer shapes, same COCO weights loaded -- only the prior box sizes change.",
+   "To run torchvision's defaults exactly, set min_ratio 0.2 and max_ratio 0.95. docs/baseline_v1.md section 3.6."
+  ]
+ },
+ "opset": 17,
+ "checkpoint": "runs\\detector\\baseline_v1_20260926_2026092201_smoke\\best.pt",
+ "checkpoint_sha256": "3786700cf53d4b4f21bacf38b38f0252f658ac43bcff3076af5cf5c9ecda3732",
+ "checkpoint_epoch": 2,
+ "kind": "smoke",
+ "experiment_id": "detector/baseline_v1_20260926_2026092201_smoke",
+ "git_commit": "9b46cee513c9887511c9da55e7b03c8ca36a4b90",
+ "dataset": {
+  "dataset_version": "v1",
+  "freeze_file_sha256": "f8da6e141becc01912198293e4bae7bcac7beb342e2adf537ad9daec2989dd96",
+  "meta_sha256": "f7d1686aa8edc69275d268fa5ed6de3c0ed453c0fa7b81483baec0d8a1694b74",
+  "combined_image_digest": "68c4c0be6afbfa56c810e80f229b27490026b2c6398539a744a3ced004db538c",
+  "synthetic_splits_sha256": "e7c7defbdc4f2f492b210c5a4cef03cc2e150da9f3a6e9aca9cc10ce8520d650",
+  "real_splits_sha256": "2382d7fcb9a32f91f49c4b382ba02c2087c37576d18b0554bd4cbe9a30f5b5aa",
+  "generator_seal_sha256": "10a1a8f393a302a60068f75b005002cf082b05a7798fae7623fbf2e65a6bba25"
+ },
+ "onnx_sha256": "0cadca1c9851bbdb459fb7ff4b3e539a80ec98d0e81688e3c8acbaf6cd425784",
+ "onnx_bytes": 9059714
+}

@@ -328,11 +328,11 @@ def test_the_baseline_config_never_points_training_at_real_data() -> None:
 
 
 def test_no_copyleft_dependency_is_configured_for_training() -> None:
-    """AGPL/GPL-3 would choose a source licence for a project that has not chosen one.
+    """AGPL/GPL-3 would override the project's chosen source licence.
 
-    `docs/baseline_v1.md` section 8a: this repository declares no source-code
-    licence. A copyleft dependency would settle that question by default at
-    submission time, so the preflight refuses one outright.
+    The source is Apache-2.0 (LICENSE, LICENSING.md). A copyleft dependency
+    would force the whole submission under its terms at distribution time, so
+    the preflight refuses one outright.
     """
     from scripts.train_baseline import (
         COMPONENT_LICENCES,
