@@ -111,3 +111,15 @@ def test_restore_refuses_ambiguous_or_incomplete_sources(tmp_path) -> None:
     assert kp.main(["restore", "--source", str(lonely), "--dest-root", str(tmp_path / "d")],
                    runner=fake) == kp.EXIT_REFUSED
     assert kp.main(["restore", "--dest-root", str(tmp_path / "d")], runner=fake) == kp.EXIT_REFUSED
+
+
+def test_kaggle_checkpoint_is_an_alias_of_kaggle_persist_run() -> None:
+    import subprocess
+    import sys
+
+    from scripts import kaggle_checkpoint
+
+    assert kaggle_checkpoint.main is kp.main
+    script = Path(__file__).resolve().parents[1] / "scripts" / "kaggle_checkpoint.py"
+    out = subprocess.run([sys.executable, str(script), "push", "--help"], capture_output=True, text=True, check=True)
+    assert "--dataset" in out.stdout and "--run-dir" in out.stdout
