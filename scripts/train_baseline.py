@@ -27,7 +27,26 @@ What a run does (``docs/baseline_v1.md``, ``configs/baseline_v1.json``):
   deterministic kernels (warn-only: CTC and some CUDA kernels have none);
 * writes ``runs/<component>/<experiment>_<YYYYMMDD>_<seed>[_smoke]/`` with
   ``run.json`` (identity, versions, hardware, config, result), ``metrics.jsonl``
-  (one line per epoch), ``train.log``, ``best.pt`` and ``last.pt``.
+  (one line per epoch), ``train.log``, ``best.pt`` and ``last.pt``;
+* ``best.pt`` holds the selected weights; ``last.pt`` holds the latest weights
+  **and** everything needed to continue the same run: optimizer state, the
+  shuffle generator and the Python / NumPy / torch / CUDA RNG states, the
+  global step (which is the LR schedule's position), the best selection key
+  and epoch (which are also the early-stopping state), and the run's identity.
+  Both are written atomically (temporary file, then rename), so an
+  interruption mid-write leaves the previous file intact.
+
+``--resume runs/<component>/<run>/last.pt`` continues that run in its own
+directory from the next epoch. It refuses a checkpoint written before resume
+support, one from another component, kind (smoke/baseline), configuration,
+dataset or code commit, a run that already finished, and a run directory whose
+``run.json`` / ``metrics.jsonl`` / ``best.pt`` do not agree with it.
+
+``--sync-command CMD`` runs a shell command after every epoch's checkpoints
+are on disk (and once more at the end), with ``RUN_DIR`` and ``RUN_EPOCH`` in
+its environment -- the hook that copies the run somewhere that outlives the
+machine (``scripts/kaggle_persist_run.py`` on Kaggle). A failing sync is logged
+loudly but does not stop training.
 
 ``--smoke`` trains on a small deterministic subset for a couple of epochs and
 writes to a ``_smoke`` directory. It proves the loop runs end to end; it is
@@ -38,12 +57,15 @@ Usage::
     python scripts/train_baseline.py --component detector                       # preflight only
     python scripts/train_baseline.py --component recognizer --i-have-approval "<name>"
     python scripts/train_baseline.py --component detector --i-have-approval "<name>" --smoke
+    python scripts/train_baseline.py --component detector --i-have-approval "<name>" \
+        --resume runs/detector/<run>/last.pt
 
 Exit codes::
 
     0  preflight passed (and, if approved, the run finished)
     1  the configuration or dataset could not be read
-    2  a preflight check failed, or the run is not authorised
+    2  a preflight check failed, the resume checkpoint was refused, or the run
+       is not authorised
 """
 
 from __future__ import annotations
@@ -60,6 +82,7 @@ import random
 import subprocess
 import sys
 import time
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Sequence
@@ -98,6 +121,13 @@ EXIT_OK, EXIT_UNUSABLE, EXIT_BLOCKED = 0, 1, 2
 
 #: --smoke subset sizes. Deliberately tiny; the smoke run proves plumbing only.
 SMOKE = {"detector": (64, 32, 2), "recognizer": (1024, 256, 2)}  # train, val, epochs
+
+#: Layout version of the ``resume`` block inside last.pt. Bump it when the
+#: layout changes; --resume refuses any other version.
+RESUME_FORMAT = 1
+
+#: Seconds a --sync-command may take before it is abandoned (training goes on).
+SYNC_TIMEOUT = 1800
 
 logger = logging.getLogger("train")
 
@@ -231,6 +261,13 @@ def preflight(component: str, config: dict) -> tuple[list[str], list[str]]:
 # ---------------------------------------------------------------------------
 
 
+def _display(path: Path) -> str:
+    try:
+        return path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
 def _git(*args: str) -> str:
     try:
         out = subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
@@ -328,27 +365,273 @@ def _lr_at(step: int, total: int, warmup: int, base: float, final_fraction: floa
 
 
 class RunWriter:
-    def __init__(self, run_dir: Path, record: dict) -> None:
+    def __init__(self, run_dir: Path, record: dict, sync_command: str | None = None) -> None:
         self.dir = run_dir
         self.record = record
+        self.sync_command = sync_command
         run_dir.mkdir(parents=True, exist_ok=True)
-        handler = logging.FileHandler(run_dir / "train.log", encoding="utf-8")
-        handler.setFormatter(logging.Formatter("%(asctime)s %(message)s"))
-        logging.getLogger().addHandler(handler)
+        self._handler = logging.FileHandler(run_dir / "train.log", encoding="utf-8")
+        self._handler.setFormatter(logging.Formatter("%(asctime)s %(message)s"))
+        logging.getLogger().addHandler(self._handler)
         self.save()
 
     def save(self) -> None:
-        (self.dir / "run.json").write_text(json.dumps(self.record, indent=1, default=str) + "\n", encoding="utf-8")
+        _atomic_write_text(self.dir / "run.json", json.dumps(self.record, indent=1, default=str) + "\n")
 
     def epoch(self, payload: dict) -> None:
         with (self.dir / "metrics.jsonl").open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(payload, default=str) + "\n")
 
+    def identity(self) -> dict:
+        """What a checkpoint must agree with to continue this run."""
+        keys = ("experiment_id", "component", "kind", "config", "dataset", "git_commit")
+        return {key: self.record.get(key) for key in keys}
 
-def _checkpoint(path: Path, model, meta: dict) -> None:
+    def sync(self, epoch: int | str) -> bool:
+        """Run --sync-command once the epoch's files are complete. Never raises."""
+        if not self.sync_command:
+            return True
+        env = {**os.environ, "RUN_DIR": str(self.dir), "RUN_EPOCH": str(epoch)}
+        try:
+            done = subprocess.run(self.sync_command, shell=True, env=env, timeout=SYNC_TIMEOUT, check=False)
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            logger.warning("SYNC FAILED after epoch %s (%s): the run is NOT persisted off this machine", epoch, exc)
+            return False
+        if done.returncode != 0:
+            logger.warning("SYNC FAILED after epoch %s (exit %d): the run is NOT persisted off this machine",
+                           epoch, done.returncode)
+            return False
+        logger.info("synced after epoch %s", epoch)
+        return True
+
+    def close(self) -> None:
+        logging.getLogger().removeHandler(self._handler)
+        self._handler.close()
+
+
+def _atomic_write_text(path: Path, text: str) -> None:
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(tmp, path)
+
+
+def _atomic_save(payload: dict, path: Path) -> None:
+    """torch.save to a temporary file, then rename: a kill mid-write keeps the old file."""
     import torch
 
-    torch.save({"model": model.state_dict(), **meta}, path)
+    tmp = path.with_name(path.name + ".tmp")
+    torch.save(payload, tmp)
+    os.replace(tmp, path)
+
+
+def _checkpoint(path: Path, model, meta: dict, resume: dict | None = None) -> None:
+    payload = {"model": model.state_dict(), **meta}
+    if resume is not None:
+        payload["resume"] = resume
+    _atomic_save(payload, path)
+
+
+# ---------------------------------------------------------------------------
+# resume
+# ---------------------------------------------------------------------------
+
+
+class ResumeMismatch(RuntimeError):
+    """The checkpoint cannot continue this run."""
+
+
+def capture_rng(loader_generator) -> dict:
+    import numpy as np
+    import torch
+
+    return {
+        "python": random.getstate(),
+        "numpy": np.random.get_state(),
+        "torch": torch.get_rng_state(),
+        "cuda": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
+        "loader": loader_generator.get_state(),
+    }
+
+
+def restore_rng(state: dict, loader_generator) -> None:
+    import numpy as np
+    import torch
+
+    random.setstate(state["python"])
+    np.random.set_state(state["numpy"])
+    torch.set_rng_state(state["torch"])
+    cuda = state.get("cuda")
+    if cuda is not None and torch.cuda.is_available():
+        if len(cuda) == torch.cuda.device_count():
+            torch.cuda.set_rng_state_all(cuda)
+        else:
+            logger.warning("CUDA RNG state saved for %d device(s), %d present; not restored",
+                           len(cuda), torch.cuda.device_count())
+    loader_generator.set_state(state["loader"])
+
+
+def resume_block(run: RunWriter, optimizer, loader_generator, *, step: int, steps_per_epoch: int,
+                 epochs: int, sizes: dict, best, best_epoch: int, finished: bool) -> dict:
+    return {
+        "format": RESUME_FORMAT,
+        "identity": run.identity(),
+        "optimizer": optimizer.state_dict(),
+        "rng": capture_rng(loader_generator),
+        "step": step,
+        "steps_per_epoch": steps_per_epoch,
+        "epochs_planned": epochs,
+        "sizes": sizes,
+        "best_key": list(best) if best is not None else None,
+        "best_epoch": best_epoch,
+        "finished": finished,
+    }
+
+
+def restore_training(checkpoint: dict, model, optimizer, loader_generator, *, steps_per_epoch: int,
+                     epochs: int, sizes: dict) -> tuple[int, tuple | None, int, int]:
+    """Load a last.pt into a freshly built trainer. Returns (epochs done, best key, best epoch, step)."""
+    state = checkpoint["resume"]
+    done = int(checkpoint["epoch"])
+    problems = []
+    if state["steps_per_epoch"] != steps_per_epoch:
+        problems.append(f"steps per epoch {state['steps_per_epoch']} in the checkpoint, {steps_per_epoch} now")
+    if state["epochs_planned"] != epochs:
+        problems.append(f"epochs planned {state['epochs_planned']} in the checkpoint, {epochs} now")
+    if state["sizes"] != sizes:
+        problems.append(f"split sizes {state['sizes']} in the checkpoint, {sizes} now")
+    if state["step"] != done * state["steps_per_epoch"]:
+        problems.append(f"step {state['step']} does not match {done} completed epoch(s)")
+    if problems:
+        raise ResumeMismatch("; ".join(problems))
+    model.load_state_dict(checkpoint["model"])
+    optimizer.load_state_dict(state["optimizer"])
+    restore_rng(state["rng"], loader_generator)
+    best = tuple(state["best_key"]) if state["best_key"] is not None else None
+    logger.info("resumed after epoch %d (step %d, best epoch %d)", done, state["step"], state["best_epoch"])
+    return done, best, int(state["best_epoch"]), int(state["step"])
+
+
+def _save_epoch(run: RunWriter, model, optimizer, loader_generator, *, epoch: int, section: dict, key,
+                improved: bool, best, best_epoch: int, stop: bool, step: int, steps_per_epoch: int,
+                epochs: int, sizes: dict) -> None:
+    """last.pt (with resume state), then best.pt if improved, then the sync hook.
+
+    The order matters: if the machine dies between the two writes, last.pt
+    already names this epoch as the best and holds its weights, so --resume
+    rebuilds best.pt from it.
+    """
+    meta = {"epoch": epoch, "config": section, "selection": list(key)}
+    resume = resume_block(run, optimizer, loader_generator, step=step, steps_per_epoch=steps_per_epoch,
+                          epochs=epochs, sizes=sizes, best=best, best_epoch=best_epoch,
+                          finished=stop or epoch == epochs)
+    _checkpoint(run.dir / "last.pt", model, meta, resume)
+    if improved:
+        _checkpoint(run.dir / "best.pt", model, meta)
+    run.sync(epoch)
+
+
+@dataclass
+class ResumePlan:
+    checkpoint: dict
+    run_dir: Path
+    record: dict
+    kept_metrics: list[str]
+    discarded_metrics: list[str]
+    repair_best: bool
+
+
+def _epoch_of(line: str) -> int | None:
+    try:
+        return int(json.loads(line)["epoch"])
+    except (ValueError, KeyError, TypeError):
+        return None
+
+
+def plan_resume(path: Path, component: str, config: dict, *, smoke: bool) -> tuple[ResumePlan | None, list[str]]:
+    """Check that ``path`` can continue a run of exactly this invocation. Returns (plan, problems)."""
+    import torch
+
+    if not path.is_file():
+        return None, [f"no checkpoint at {path}"]
+    try:
+        checkpoint = torch.load(path, map_location="cpu", weights_only=False)
+    except Exception as exc:  # noqa: BLE001 - any unreadable file is a refusal
+        return None, [f"{path} could not be read: {exc}"]
+    state = checkpoint.get("resume") if isinstance(checkpoint, dict) else None
+    if not isinstance(state, dict):
+        return None, [f"{path} holds weights only (a best.pt, or a last.pt written before resume support); "
+                      "it cannot continue a run"]
+    if state.get("format") != RESUME_FORMAT:
+        return None, [f"{path} has resume format {state.get('format')!r}; this script reads {RESUME_FORMAT}"]
+
+    problems: list[str] = []
+    identity = state["identity"]
+    expected = {
+        "component": component,
+        "kind": "smoke" if smoke else "baseline",
+        "dataset": dataset_identity(),
+        "git_commit": source_revision()["git_commit"],
+    }
+    for name, want in expected.items():
+        if identity.get(name) != want:
+            problems.append(f"checkpoint {name} is {identity.get(name)!r}, this invocation is {want!r}")
+    if identity.get("config") != config:
+        saved = identity.get("config") or {}
+        differing = sorted(k for k in set(saved) | set(config) if saved.get(k) != config.get(k))
+        problems.append(f"checkpoint was trained with a different configuration (differs in: {', '.join(differing)})")
+    done = int(checkpoint["epoch"])
+    if state.get("finished"):
+        problems.append(f"the run already finished at epoch {done} (early stop or last epoch); nothing to resume")
+
+    run_dir = path.resolve().parent
+    record: dict = {}
+    run_json = run_dir / "run.json"
+    if not run_json.is_file():
+        problems.append(f"no run.json beside {path.name}; resume needs the whole run directory")
+    else:
+        record = json.loads(run_json.read_text(encoding="utf-8"))
+        if record.get("experiment_id") != identity.get("experiment_id"):
+            problems.append(f"run.json is {record.get('experiment_id')!r}, "
+                            f"the checkpoint is {identity.get('experiment_id')!r}")
+
+    # metrics.jsonl is written before last.pt, so it may be one epoch ahead.
+    metrics = run_dir / "metrics.jsonl"
+    lines = [ln for ln in metrics.read_text(encoding="utf-8").splitlines() if ln.strip()] if metrics.is_file() else []
+    epochs = [_epoch_of(ln) for ln in lines]
+    kept = [ln for ln, e in zip(lines, epochs) if e is not None and e <= done]
+    discarded = [ln for ln, e in zip(lines, epochs) if e is None or e > done]
+    if [e for e in epochs if e is not None and e <= done] != list(range(1, done + 1)):
+        problems.append(f"metrics.jsonl does not hold exactly epochs 1..{done}")
+
+    # best.pt is written after last.pt, so it may be one epoch behind.
+    repair_best = False
+    best_epoch = int(state["best_epoch"])
+    best_path = run_dir / "best.pt"
+    on_disk = None
+    if best_path.is_file():
+        try:
+            on_disk = torch.load(best_path, map_location="cpu", weights_only=False).get("epoch")
+        except Exception:  # noqa: BLE001
+            on_disk = None
+    if on_disk != best_epoch:
+        if best_epoch == done:
+            repair_best = True  # last.pt holds exactly the best weights
+        else:
+            problems.append(f"best.pt holds epoch {on_disk}, but the run's best is epoch {best_epoch}; "
+                            "the selected weights are missing")
+
+    if problems:
+        return None, problems
+    return ResumePlan(checkpoint, run_dir, record, kept, discarded, repair_best), []
+
+
+def apply_resume_plan(plan: ResumePlan) -> None:
+    """Bring the run directory back to the checkpoint's epoch before training continues."""
+    _atomic_write_text(plan.run_dir / "metrics.jsonl", "".join(line + "\n" for line in plan.kept_metrics))
+    if plan.repair_best:
+        ckpt = plan.checkpoint
+        _atomic_save({"model": ckpt["model"], "epoch": ckpt["epoch"], "config": ckpt["config"],
+                      "selection": ckpt["selection"]}, plan.run_dir / "best.pt")
 
 
 # ---------------------------------------------------------------------------
@@ -377,7 +660,8 @@ def evaluate_recognizer_torch(model, samples, regions, device, char_threshold: f
     return readings
 
 
-def train_recognizer(config: dict, run: RunWriter, device, *, smoke: bool, workers: int) -> dict:
+def train_recognizer(config: dict, run: RunWriter, device, *, smoke: bool, workers: int,
+                     resume: dict | None = None) -> dict:
     import torch
     import torch.nn.functional as F
     from torch.utils.data import DataLoader
@@ -422,8 +706,13 @@ def train_recognizer(config: dict, run: RunWriter, device, *, smoke: bool, worke
     })
     run.save()
 
-    best_key, best_epoch, step = None, -1, 0
-    for epoch in range(epochs):
+    sizes = {"train": len(train), "val": len(val)}
+    start, best_key, best_epoch, step = 0, None, -1, 0
+    if resume is not None:
+        start, best_key, best_epoch, step = restore_training(
+            resume, model, optimizer, generator, steps_per_epoch=len(loader), epochs=epochs, sizes=sizes,
+        )
+    for epoch in range(start, epochs):
         dataset.epoch = epoch
         model.train()
         sums = {"loss": 0.0, "ctc": 0.0, "type": 0.0, "corner": 0.0}
@@ -482,12 +771,13 @@ def train_recognizer(config: dict, run: RunWriter, device, *, smoke: bool, worke
         }
         run.epoch(payload)
         logger.info("epoch %s", json.dumps(payload))
-        meta = {"epoch": epoch + 1, "config": section, "selection": list(key)}
-        _checkpoint(run.dir / "last.pt", model, meta)
         if improved:
             best_key, best_epoch = key, epoch + 1
-            _checkpoint(run.dir / "best.pt", model, meta)
-        elif epoch + 1 - best_epoch >= patience:
+        stop = not improved and epoch + 1 - best_epoch >= patience
+        _save_epoch(run, model, optimizer, generator, epoch=epoch + 1, section=section, key=key,
+                    improved=improved, best=best_key, best_epoch=best_epoch, stop=stop, step=step,
+                    steps_per_epoch=len(loader), epochs=epochs, sizes=sizes)
+        if stop:
             logger.info("early stop: no improvement for %d epochs", patience)
             break
 
@@ -533,7 +823,8 @@ def detector_predictions(model, images, device, section: dict, confidence_floor:
     return out
 
 
-def train_detector(config: dict, run: RunWriter, device, *, smoke: bool, workers: int) -> dict:
+def train_detector(config: dict, run: RunWriter, device, *, smoke: bool, workers: int,
+                   resume: dict | None = None) -> dict:
     import torch
     from torch.utils.data import DataLoader
 
@@ -577,8 +868,13 @@ def train_detector(config: dict, run: RunWriter, device, *, smoke: bool, workers
     })
     run.save()
 
-    best, best_epoch, step = None, -1, 0
-    for epoch in range(epochs):
+    sizes = {"train": len(train_images), "val": len(val_images)}
+    start, best, best_epoch, step = 0, None, -1, 0
+    if resume is not None:
+        start, best, best_epoch, step = restore_training(
+            resume, model, optimizer, generator, steps_per_epoch=len(loader), epochs=epochs, sizes=sizes,
+        )
+    for epoch in range(start, epochs):
         dataset.epoch = epoch
         model.train()
         sums = {"loss": 0.0, "bbox_regression": 0.0, "classification": 0.0}
@@ -619,12 +915,13 @@ def train_detector(config: dict, run: RunWriter, device, *, smoke: bool, workers
         }
         run.epoch(payload)
         logger.info("epoch %s", json.dumps(payload))
-        meta = {"epoch": epoch + 1, "config": section, "selection": list(key)}
-        _checkpoint(run.dir / "last.pt", model, meta)
         if improved:
             best, best_epoch = key, epoch + 1
-            _checkpoint(run.dir / "best.pt", model, meta)
-        elif epoch + 1 - best_epoch >= patience:
+        stop = not improved and epoch + 1 - best_epoch >= patience
+        _save_epoch(run, model, optimizer, generator, epoch=epoch + 1, section=section, key=key,
+                    improved=improved, best=best, best_epoch=best_epoch, stop=stop, step=step,
+                    steps_per_epoch=len(loader), epochs=epochs, sizes=sizes)
+        if stop:
             logger.info("early stop: no improvement for %d epochs", patience)
             break
 
@@ -654,6 +951,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--workers", type=int, default=None,
         help="data-loader workers (default: 0 on Windows, where workers re-pickle the dataset; 4 elsewhere)",
     )
+    parser.add_argument(
+        "--resume", type=Path, metavar="LAST_PT", default=None,
+        help="continue the run whose last.pt this is, in its own directory, from the next epoch",
+    )
+    parser.add_argument(
+        "--sync-command", metavar="CMD", default=None,
+        help="shell command run after every epoch's checkpoints are written and once at the end, "
+             "with RUN_DIR and RUN_EPOCH set (e.g. scripts/kaggle_persist_run.py push ...)",
+    )
     args = parser.parse_args(argv)
 
     if not args.config.is_file():
@@ -671,10 +977,29 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     run_dir = REPO_ROOT / experiment.get("output_root", "runs") / args.component / run_name
 
+    plan = None
+    if args.resume is not None and not blocking:  # a blocked preflight may mean torch is missing
+        plan, problems = plan_resume(args.resume, args.component, config, smoke=args.smoke)
+        if plan is None:
+            blocking += [f"resume refused: {p}" for p in problems]
+        else:
+            run_dir = plan.run_dir
+            notes.append(f"resume checkpoint verified: epoch {plan.checkpoint['epoch']} done, "
+                         f"best epoch {plan.checkpoint['resume']['best_epoch']}; continues at epoch "
+                         f"{plan.checkpoint['epoch'] + 1}")
+            if plan.discarded_metrics:
+                notes.append(f"metrics.jsonl: {len(plan.discarded_metrics)} line(s) past the checkpoint "
+                             "will be moved to run.json and the epoch(s) retrained")
+            if plan.repair_best:
+                notes.append("best.pt is one write behind last.pt; it will be rebuilt from last.pt")
+    elif args.resume is None and (run_dir / "last.pt").exists():
+        blocking.append(f"{_display(run_dir)} already holds a run; pass --resume {_display(run_dir / 'last.pt')} "
+                        "to continue it, or move it away to start afresh")
+
     print(f"component        : {args.component}  ({section.get('family')})")
     print(f"dataset          : {experiment.get('dataset_version')}  seed {experiment.get('seed')}")
     print(f"train / val      : {section.get('train_split')} / {section.get('val_split')}")
-    print(f"would write to   : {run_dir.relative_to(REPO_ROOT).as_posix()}/")
+    print(f"{'resumes in' if plan else 'would write to':<17}: {_display(run_dir)}/")
     print()
     for note in notes:
         print(f"  ok      {note}")
@@ -701,33 +1026,64 @@ def main(argv: Sequence[str] | None = None) -> int:
     workers = args.workers if args.workers is not None else (0 if os.name == "nt" else 4)
     seed_everything(int(experiment["seed"]), bool(experiment.get("deterministic", True)))
 
-    record = {
-        "experiment_id": f"{args.component}/{run_name}",
-        "kind": "smoke" if args.smoke else "baseline",
+    session = {
         "approved_by": args.i_have_approval.strip(),
-        "started_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        **source_revision(),
-        "dataset": dataset_identity(),
-        "training_bundle_mode": training_bundle_mode(),
-        "seed": experiment["seed"],
         "device": str(device),
         "workers": workers,
         "environment": environment(),
-        "config_sha256": hashlib.sha256(args.config.read_bytes()).hexdigest(),
-        "config": config,
     }
-    run = RunWriter(run_dir, record)
-    print(f"\napproved by {record['approved_by']} -- starting {args.component} "
+    if plan is None:
+        record = {
+            "experiment_id": f"{args.component}/{run_name}",
+            "component": args.component,
+            "kind": "smoke" if args.smoke else "baseline",
+            "started_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            **source_revision(),
+            "dataset": dataset_identity(),
+            "training_bundle_mode": training_bundle_mode(),
+            "seed": experiment["seed"],
+            **session,
+            "config_sha256": hashlib.sha256(args.config.read_bytes()).hexdigest(),
+            "config": config,
+        }
+    else:
+        apply_resume_plan(plan)
+        record = plan.record
+        record.setdefault("component", args.component)
+        record.setdefault("resumes", []).append({
+            "resumed_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "from_checkpoint_epoch": plan.checkpoint["epoch"],
+            **source_revision(),
+            **session,
+            "discarded_metrics": [json.loads(line) for line in plan.discarded_metrics if _epoch_of(line)],
+            "rebuilt_best_pt": plan.repair_best,
+        })
+    run = RunWriter(run_dir, record, sync_command=args.sync_command)
+    verb = f"resuming at epoch {plan.checkpoint['epoch'] + 1}" if plan else "starting"
+    print(f"\napproved by {session['approved_by']} -- {verb} {args.component} "
           f"{'SMOKE ' if args.smoke else ''}training on {device}")
     trainer = train_detector if args.component == "detector" else train_recognizer
     started = time.perf_counter()
-    result = trainer(config, run, device, smoke=args.smoke, workers=workers)
+    try:
+        result = trainer(config, run, device, smoke=args.smoke, workers=workers,
+                         resume=plan.checkpoint if plan else None)
+    except ResumeMismatch as exc:
+        logger.error("resume refused: %s", exc)
+        run.record["resumes"].pop()  # it did not happen
+        run.save()
+        run.close()
+        return EXIT_BLOCKED
+    wall = round(time.perf_counter() - started, 1)
     run.record.update({
         "result": result,
         "finished_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "wall_seconds": round(time.perf_counter() - started, 1),
+        "wall_seconds": wall if plan is None else run.record.get("wall_seconds"),
     })
+    if plan is not None:
+        run.record["resumes"][-1]["wall_seconds"] = wall
     run.save()
+    run.sync("final")
+    run.close()
     print(f"\ndone: {json.dumps(result)}\nrun directory: {run_dir}")
     return EXIT_OK
 

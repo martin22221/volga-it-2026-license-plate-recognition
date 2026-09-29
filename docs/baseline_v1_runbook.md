@@ -68,7 +68,14 @@ What each run records in `runs/<component>/baseline_v1_<date>_2026092201/`:
 | `run.json` | experiment id, approver, git commit, Dataset V1 identity (freeze, meta, image digests, seal), seed, config and its hash, versions, hardware, result |
 | `metrics.jsonl` | one line per epoch: losses, LR, validation metrics, whether it improved |
 | `train.log` | the log |
-| `best.pt` / `last.pt` | model weights only (`save_optimizer_state: false`) |
+| `best.pt` | the selected weights only: `model`, `epoch`, `config`, `selection` (what `export_onnx.py` reads) |
+| `last.pt` | the latest weights plus a `resume` block: optimizer state, shuffle-generator and Python/NumPy/torch/CUDA RNG states, global step (the LR schedule's position), best selection key and epoch (the early-stopping state), and the run's identity. (`checkpoints.save_optimizer_state: false` in the config predates resume support and is not read by code; `best.pt` still carries no optimizer state.) |
+
+Both checkpoints are written atomically (temporary file, then rename). Per
+epoch the order is `metrics.jsonl` → `last.pt` → `best.pt` → sync hook; a resume
+repairs either possible half-state (a metrics line ahead of `last.pt` is moved
+into `run.json` and that epoch retrained; a `best.pt` one write behind is
+rebuilt from `last.pt`, which holds the same weights).
 
 Selection, fixed before any run:
 
@@ -76,6 +83,81 @@ Selection, fixed before any run:
 | --- | --- | --- | --- |
 | Detector | `synthetic:val` | mAP50, then mAP50-95 | patience 15 |
 | Recogniser | `synthetic:val`, deployed two-pass read | type **and** raw string correct, then −CER | patience 10 |
+
+### 2a. Interruptions: `--resume` and surviving Kaggle session loss
+
+`python scripts/train_baseline.py --component <c> --i-have-approval "<name>" --resume runs/<c>/<run>/last.pt`
+continues **the same run** in its own directory at the next epoch: same LR
+schedule position, same optimizer momentum, same shuffle order, same best key
+and patience counter. On CPU a resumed run is bit-identical to an uninterrupted
+one (`tests/test_train_resume.py`); on CUDA it is as close as the GPU's
+non-deterministic kernels allow. It **refuses** (exit 2, nothing trained) a
+weights-only file (`best.pt`, or a `last.pt` from before this change), another
+component, smoke vs baseline, any configuration difference, another Dataset V1
+identity, another code commit (use the same bundle), a run that already
+finished, and a run directory whose `run.json`, `metrics.jsonl` or `best.pt`
+disagree with the checkpoint. A fresh start into a directory that already holds
+a `last.pt` is refused too. Each resume is appended to `run.json` → `resumes`.
+
+**`/kaggle/working` is not persistent.** It dies with the session; a "Save &
+Run All" version publishes it only if the run reaches the end. The only place a
+notebook can write that survives is Kaggle itself through the API, which needs
+an API token. Without a token there is **no safe automatic persistence**; the
+fallback is a manual download of the run directory from an interactive session,
+which does not survive an unattended crash.
+
+With a token, `scripts/kaggle_persist_run.py` keeps the run in a **private
+Kaggle Dataset**, one new version per epoch (~27 MB for the detector; old
+versions are kept, so a bad upload can be rolled back):
+
+1. kaggle.com → Settings → API → *Create New Token* (`kaggle.json`). In the
+   notebook: Add-ons → Secrets → add `KAGGLE_USERNAME` and `KAGGLE_KEY` with its
+   two values, and attach both to the notebook.
+2. First cell of every session (exports the token for `!` commands; never print it):
+
+   ```python
+   import os
+   from kaggle_secrets import UserSecretsClient
+   _s = UserSecretsClient()
+   os.environ["KAGGLE_USERNAME"] = _s.get_secret("KAGGLE_USERNAME")
+   os.environ["KAGGLE_KEY"] = _s.get_secret("KAGGLE_KEY")
+   ```
+
+3. Fresh detector run, as a `%%bash` cell (the `init` line only once, ever):
+
+   ```bash
+   %%bash
+   set -e
+   cp -r /kaggle/input/<bundle-dataset>/. /kaggle/working/baseline_v1
+   cd /kaggle/working/baseline_v1
+   python scripts/kaggle_persist_run.py init --dataset <user>/baseline-v1-detector-ckpt
+   USE_VENV=0 COMPONENTS=detector SYNC_DATASET=<user>/baseline-v1-detector-ckpt APPROVER="<name>" \
+       bash scripts/gpu_train_baseline_v1.sh
+   ```
+
+4. After a session loss, in a new session (after the secrets cell):
+
+   ```bash
+   %%bash
+   set -e
+   cp -r /kaggle/input/<bundle-dataset>/. /kaggle/working/baseline_v1
+   cd /kaggle/working/baseline_v1
+   python scripts/kaggle_persist_run.py restore --dataset <user>/baseline-v1-detector-ckpt
+   LAST=$(ls runs/detector/baseline_v1_*_2026092201/last.pt)
+   USE_VENV=0 COMPONENTS=detector SYNC_DATASET=<user>/baseline-v1-detector-ckpt DETECTOR_RESUME="$LAST" \
+       APPROVER="<name>" bash scripts/gpu_train_baseline_v1.sh
+   ```
+
+   `restore` downloads the *latest* version (an attached `/kaggle/input` copy is
+   pinned to the version current when it was attached; `--source <dir>` uses one
+   anyway) and puts the run back under its original name. The preflight then
+   verifies the checkpoint before any training.
+
+`SYNC_DATASET` makes the script run `kaggle_persist_run.py check` first, so a
+missing secret fails before training, not after epoch 20. During training a
+failed upload is logged as `SYNC FAILED` in `train.log` and training continues.
+`COMPONENTS=detector` skips export (it needs both components) and ends with
+`baseline_v1_detector_run.tgz`.
 
 ## 3. Bring back and install
 
