@@ -79,6 +79,8 @@ import math
 import os
 import platform
 import random
+import shutil
+import socket
 import subprocess
 import sys
 import time
@@ -128,6 +130,16 @@ RESUME_FORMAT = 1
 
 #: Seconds a --sync-command may take before it is abandoned (training goes on).
 SYNC_TIMEOUT = 1800
+
+#: Seconds a data-loader worker may take to deliver a batch before the run
+#: fails loudly instead of hanging (only with --workers > 0).
+LOADER_TIMEOUT = 600
+
+#: Seconds the COCO-pretrained weight download may stall before it fails.
+DOWNLOAD_TIMEOUT = 120
+
+#: Log a progress line every this many training steps (and on the first).
+PROGRESS_EVERY = 50
 
 logger = logging.getLogger("train")
 
@@ -190,6 +202,7 @@ def preflight(component: str, config: dict) -> tuple[list[str], list[str]]:
     if not FREEZE.is_file():
         blocking.append(f"no Dataset V1 freeze at {FREEZE.relative_to(REPO_ROOT)}")
     elif training_bundle_mode():
+        print("  ...     verifying the training bundle (re-hashes 12,000 images, about a minute)", flush=True)
         problems = verify_training_bundle()
         if problems:
             blocking += problems
@@ -349,6 +362,18 @@ def _worker_init(worker_id: int) -> None:  # pragma: no cover - runs in loader w
     random.seed(seed)
 
 
+def probe_dataset(dataset, name: str) -> None:
+    """Decode and augment one training sample before any model exists, so a missing or
+    unreadable image fails in seconds, with the file named, not after model start-up."""
+    started = time.perf_counter()
+    try:
+        item = dataset[0]
+    except Exception as exc:
+        raise RuntimeError(f"{name} dataset: the first training sample cannot be loaded: {exc}") from exc
+    shape = tuple(item[0].shape) if hasattr(item[0], "shape") else "?"
+    logger.info("stage: %s data probe ok: sample 0 -> %s in %.2f s", name, shape, time.perf_counter() - started)
+
+
 def _subset(rows: list, n: int) -> list:
     """A deterministic, evenly strided subset -- keeps every class represented."""
     if n >= len(rows):
@@ -369,6 +394,10 @@ class RunWriter:
         self.dir = run_dir
         self.record = record
         self.sync_command = sync_command
+        self._sync: subprocess.Popen | None = None
+        self._sync_epoch: int | str | None = None
+        self._sync_started = 0.0
+        self._sync_ok = True
         run_dir.mkdir(parents=True, exist_ok=True)
         self._handler = logging.FileHandler(run_dir / "train.log", encoding="utf-8")
         self._handler.setFormatter(logging.Formatter("%(asctime)s %(message)s"))
@@ -387,22 +416,72 @@ class RunWriter:
         keys = ("experiment_id", "component", "kind", "config", "dataset", "git_commit")
         return {key: self.record.get(key) for key in keys}
 
+    @property
+    def snapshot_dir(self) -> Path:
+        """What a sync uploads: a copy, so training can overwrite the run while it uploads."""
+        return self.dir.parent / f".{self.dir.name}.sync"
+
+    def _reap(self, wait: float = 0.0) -> bool:
+        """True when no sync is in flight any more (reporting its outcome once)."""
+        if self._sync is None:
+            return True
+        try:
+            code = self._sync.wait(timeout=wait) if wait else self._sync.poll()
+        except subprocess.TimeoutExpired:
+            code = None
+        if code is None and time.monotonic() - self._sync_started > SYNC_TIMEOUT:
+            self._sync.kill()
+            code = self._sync.wait()
+            logger.warning("SYNC of epoch %s killed after %d s", self._sync_epoch, SYNC_TIMEOUT)
+        if code is None:
+            return False
+        self._sync_ok = code == 0
+        if self._sync_ok:
+            logger.info("synced epoch %s", self._sync_epoch)
+        else:
+            logger.warning("SYNC FAILED for epoch %s (exit %s, see sync.log): that state is NOT persisted "
+                           "off this machine; training continues", self._sync_epoch, code)
+        self._sync = None
+        return True
+
     def sync(self, epoch: int | str) -> bool:
-        """Run --sync-command once the epoch's files are complete. Never raises."""
+        """Start --sync-command in the background on a snapshot of the finished epoch.
+
+        Never raises and never waits: if the previous upload is still running,
+        this epoch is skipped (the next sync carries newer state anyway), so the
+        network can never stall training.
+        """
         if not self.sync_command:
             return True
-        env = {**os.environ, "RUN_DIR": str(self.dir), "RUN_EPOCH": str(epoch)}
+        if not self._reap():
+            logger.warning("sync of epoch %s still running; epoch %s not synced (the next sync carries it)",
+                           self._sync_epoch, epoch)
+            return False
         try:
-            done = subprocess.run(self.sync_command, shell=True, env=env, timeout=SYNC_TIMEOUT, check=False)
-        except (OSError, subprocess.TimeoutExpired) as exc:
-            logger.warning("SYNC FAILED after epoch %s (%s): the run is NOT persisted off this machine", epoch, exc)
+            snapshot = self.snapshot_dir
+            snapshot.mkdir(parents=True, exist_ok=True)
+            for name in ("run.json", "metrics.jsonl", "train.log", "last.pt", "best.pt"):
+                if (self.dir / name).is_file():
+                    shutil.copy2(self.dir / name, snapshot / name)
+            env = {**os.environ, "RUN_DIR": str(snapshot), "RUN_EPOCH": str(epoch)}
+            with (self.dir / "sync.log").open("ab") as log:
+                self._sync = subprocess.Popen(self.sync_command, shell=True, env=env, stdout=log,
+                                              stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL)
+        except OSError as exc:
+            logger.warning("SYNC not started for epoch %s (%s); training continues", epoch, exc)
+            self._sync_ok = False
             return False
-        if done.returncode != 0:
-            logger.warning("SYNC FAILED after epoch %s (exit %d): the run is NOT persisted off this machine",
-                           epoch, done.returncode)
-            return False
-        logger.info("synced after epoch %s", epoch)
+        self._sync_epoch, self._sync_started = epoch, time.monotonic()
+        logger.info("sync of epoch %s started in the background (sync.log)", epoch)
         return True
+
+    def finish_sync(self) -> bool:
+        """Wait (bounded by SYNC_TIMEOUT) for the last sync. True when it succeeded or there was none."""
+        if not self.sync_command:
+            return True
+        while not self._reap(wait=5.0):
+            pass
+        return self._sync_ok
 
     def close(self) -> None:
         logging.getLogger().removeHandler(self._handler)
@@ -835,6 +914,7 @@ def train_detector(config: dict, run: RunWriter, device, *, smoke: bool, workers
     section = config["detector"]
     seed = int(config["experiment"]["seed"])
     confidence = float(config["evaluation"]["detector_confidence"])
+    logger.info("stage: loading Dataset V1 annotations and splits")
     samples = load_samples()
     train_images = group_by_image(training_pool(samples))
     val_images = group_by_image(load_split(section["val_split"], samples=samples))
@@ -845,15 +925,26 @@ def train_detector(config: dict, run: RunWriter, device, *, smoke: bool, workers
     assert all(r.is_synthetic for _, rows in train_images + val_images for r in rows)
     val_truth = {rows[0].image: rows for _, rows in val_images}
     difficulty = load_difficulty()
+    logger.info("stage: %d train / %d val images", len(train_images), len(val_images))
 
     dataset = DetectorDataset(train_images, int(section["input_size"]), augment=section["augmentation"], seed=seed)
+    probe_dataset(dataset, "detector")
     generator = torch.Generator().manual_seed(seed)
     loader = DataLoader(
         dataset, batch_size=int(section["batch_size"]), shuffle=True, generator=generator,
         num_workers=workers, worker_init_fn=_worker_init if workers else None,
-        collate_fn=detector_collate, drop_last=True,
+        collate_fn=detector_collate, drop_last=True, timeout=LOADER_TIMEOUT if workers else 0,
     )
-    model = build_detector(section).to(device)
+    logger.info("stage: building the detector (COCO weights: %s)",
+                "cached or downloaded now" if section.get("pretrained", True) else "not used")
+    previous = socket.getdefaulttimeout()
+    socket.setdefaulttimeout(DOWNLOAD_TIMEOUT)  # no loader worker exists yet; restored at once
+    try:
+        model = build_detector(section)
+    finally:
+        socket.setdefaulttimeout(previous)
+    model = model.to(device)
+    logger.info("stage: detector on %s; %d steps per epoch, %d worker(s)", device, len(loader), workers)
     optimizer = torch.optim.SGD(
         model.parameters(), lr=float(section["lr0"]), momentum=float(section["momentum"]),
         weight_decay=float(section["weight_decay"]),
@@ -897,7 +988,12 @@ def train_detector(config: dict, run: RunWriter, device, *, smoke: bool, workers
             sums["loss"] += float(loss.detach())
             for k, v in losses.items():
                 sums[k] += float(v.detach())
+            if batches == 1 or batches % PROGRESS_EVERY == 0 or batches == len(loader):
+                elapsed = time.perf_counter() - t0
+                logger.info("epoch %d step %d/%d loss %.4f lr %.5f %.1f img/s", epoch + 1, batches, len(loader),
+                            sums["loss"] / batches, lr, batches * len(tensors) / max(elapsed, 1e-9))
         train_seconds = time.perf_counter() - t0
+        logger.info("epoch %d: validating on %d images", epoch + 1, len(val_images))
 
         t1 = time.perf_counter()
         predictions = detector_predictions(model, val_images, device, section, confidence_floor=0.01)
@@ -961,12 +1057,15 @@ def main(argv: Sequence[str] | None = None) -> int:
              "with RUN_DIR and RUN_EPOCH set (e.g. scripts/kaggle_persist_run.py push ...)",
     )
     args = parser.parse_args(argv)
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(line_buffering=True)  # a pipe (Kaggle, tee) sees every line at once
 
     if not args.config.is_file():
         print(f"error: no config at {args.config}", file=sys.stderr)
         return EXIT_UNUSABLE
     config = json.loads(args.config.read_text(encoding="utf-8"))
 
+    print(f"train_baseline: {args.component} preflight starting", flush=True)
     blocking, notes = preflight(args.component, config)
     section = config.get(args.component, {})
     experiment = config.get("experiment", {})
@@ -1017,6 +1116,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         return EXIT_OK
 
+    print("stage: importing torch", flush=True)
     import torch
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s", force=True)
@@ -1082,7 +1182,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     if plan is not None:
         run.record["resumes"][-1]["wall_seconds"] = wall
     run.save()
+    run.finish_sync()
     run.sync("final")
+    if not run.finish_sync():
+        logger.warning("the final state was NOT synced; %s is the only copy", run_dir)
     run.close()
     print(f"\ndone: {json.dumps(result)}\nrun directory: {run_dir}")
     return EXIT_OK

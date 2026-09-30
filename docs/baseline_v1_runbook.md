@@ -84,6 +84,21 @@ Selection, fixed before any run:
 | Detector | `synthetic:val` | mAP50, then mAP50-95 | patience 15 |
 | Recogniser | `synthetic:val`, deployed two-pass read | type **and** raw string correct, then −CER | patience 10 |
 
+### Kaggle launcher (recommended for the detector)
+
+`scripts/kaggle_launch.py` replaces hand-written cells. Run it from the
+read-only bundle with `--mode smoke` first (64 images, 2 epochs on the GPU,
+checkpoint write/read verified, never uploads), then `--mode full`. It prints
+each stage before starting it (bundle, machine, copy to `/kaggle/working`,
+pinned packages, a CUDA forward/backward pass, COCO weights, checkpoint-dataset
+access, resume decision, training), gives every network call a timeout, streams
+training output line by line, and kills a run that is silent for 30 minutes
+(rerunning resumes it). Checkpoint sync is optional and runs in the background
+on a snapshot: an unreachable or slow Kaggle API disables or skips a sync, it
+never delays or prevents training. A full run that finds a resumable `last.pt`
+(local, else the latest in the checkpoint dataset) resumes it; a finished one
+is not retrained. See the script's docstring for the exact stages.
+
 ### 2a. Interruptions: `--resume` and surviving Kaggle session loss
 
 `python scripts/train_baseline.py --component <c> --i-have-approval "<name>" --resume runs/<c>/<run>/last.pt`
