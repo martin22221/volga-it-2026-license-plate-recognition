@@ -59,22 +59,12 @@ EXIT_OK, EXIT_CLI, EXIT_REFUSED = 0, 1, 2
 Runner = Callable[[list[str]], int]
 
 
-#: Seconds each Kaggle CLI call may take before it is killed: a stalled network
-#: must end in an error, never in a silent hang.
-TIMEOUTS = {"status": 60, "create": 600, "version": 900, "download": 900}
-
-
 def _default_runner(args: list[str]) -> int:
     exe = shutil.which("kaggle")
     if exe is None:
         print("error: the kaggle CLI is not installed (pip install kaggle)", file=sys.stderr)
         return 127
-    timeout = TIMEOUTS.get(args[1] if len(args) > 1 else "", 600)
-    try:
-        return subprocess.run([exe, *args], check=False, stdin=subprocess.DEVNULL, timeout=timeout).returncode
-    except subprocess.TimeoutExpired:
-        print(f"error: `kaggle {' '.join(args[:2])}` gave no result within {timeout} s", file=sys.stderr)
-        return 124
+    return subprocess.run([exe, *args], check=False).returncode
 
 
 def _metadata(dataset: str, title: str | None = None) -> dict:

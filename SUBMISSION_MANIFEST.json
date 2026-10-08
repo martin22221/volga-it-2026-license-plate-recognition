@@ -1,0 +1,47 @@
+{
+  "project": "Volga-IT 2026 License Plate Recognition",
+  "submission": "final",
+  "python": "3.13.15",
+  "models": {
+    "detector.onnx": {
+      "sha256": "72638fc5d63ae8cdef57b0f17c4b53ea9d13f5d599deb0188745ff25364d8b93",
+      "size_bytes": 9059714
+    },
+    "recognizer.onnx": {
+      "sha256": "759fa1fe9458326fea286754146436198d39682d01cebc9e3fd88b4288b40241",
+      "size_bytes": 13210016
+    }
+  },
+  "onnx_parity": {
+    "detector": {
+      "images": 16,
+      "max_abs_box_diff_px": 0.0001220703125,
+      "max_abs_score_diff": 5.960464477539062e-07,
+      "same_detection_count": "16/16",
+      "worst_matched_iou": 0.9999984789972333,
+      "pass": true
+    },
+    "recognizer": {
+      "plates": 64,
+      "max_abs_diff": {
+        "log_probs": 1.0728836059570312e-05,
+        "type_logits": 3.814697265625e-06,
+        "corners": 2.980232238769531e-07
+      },
+      "same_raw_text": "64/64",
+      "same_type": "64/64",
+      "same_two_line_decision": "64/64",
+      "max_abs_diff_by_batch_size": {
+        "1": 9.5367431640625e-06,
+        "3": 1.430511474609375e-05,
+        "64": 2.3365020751953125e-05
+      },
+      "pass": true
+    },
+    "population": "synthetic:val (fixed strided sample)",
+    "kinds": {
+      "detector": "unknown",
+      "recognizer": "unknown"
+    }
+  }
+}

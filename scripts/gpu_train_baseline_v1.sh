@@ -31,16 +31,10 @@ COMPONENTS="${COMPONENTS:-recognizer detector}"
 for c in $COMPONENTS; do
   case "$c" in detector|recognizer) ;; *) echo "unknown component in COMPONENTS: $c"; exit 1 ;; esac
 done
-export PYTHONUNBUFFERED=1 PIP_DISABLE_PIP_VERSION_CHECK=1
 SYNC_ARGS=()
 if [ -n "${SYNC_DATASET:-}" ]; then
-  echo "== checking checkpoint dataset $SYNC_DATASET"
-  # Never fatal: a Kaggle API or network problem disables sync, it does not stop training.
-  if timeout 90 python scripts/kaggle_persist_run.py check --dataset "$SYNC_DATASET"; then
-    SYNC_ARGS=(--sync-command "python scripts/kaggle_persist_run.py push --dataset $SYNC_DATASET")
-  else
-    echo "WARNING: $SYNC_DATASET not reachable; checkpoint sync DISABLED, training continues"
-  fi
+  python scripts/kaggle_persist_run.py check --dataset "$SYNC_DATASET"
+  SYNC_ARGS=(--sync-command "python scripts/kaggle_persist_run.py push --dataset $SYNC_DATASET")
 fi
 
 if [ "${USE_VENV:-1}" = "1" ]; then
@@ -50,11 +44,9 @@ if [ "${USE_VENV:-1}" = "1" ]; then
 fi
 WORKERS="${WORKERS:-4}"
 # Same versions as requirements-train.txt, CUDA build; pick the index matching the driver.
-echo "== installing pinned torch/torchvision (CUDA build)"
-python -m pip install --progress-bar off --timeout 60 --retries 3 torch==2.14.0 torchvision==0.29.0 --index-url "${TORCH_INDEX:-https://download.pytorch.org/whl/cu126}"
-python -m pip install --progress-bar off --timeout 60 --retries 3 numpy==2.5.3 pillow==11.3.0 onnx==1.23.0 onnxruntime==1.30.0 pytest
-echo "== verifying CUDA"
-timeout 300 python -c "import torch; assert torch.cuda.is_available(), 'no CUDA device'; print(torch.cuda.get_device_name(0))"
+python -m pip install torch==2.14.0 torchvision==0.29.0 --index-url "${TORCH_INDEX:-https://download.pytorch.org/whl/cu126}"
+python -m pip install numpy==2.5.3 pillow==11.3.0 onnx==1.23.0 onnxruntime==1.30.0 pytest
+python -c "import torch; assert torch.cuda.is_available(), 'no CUDA device'; print(torch.cuda.get_device_name(0))"
 
 resume_of() {
   case "$1" in

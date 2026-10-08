@@ -77,7 +77,7 @@ def _args(component: str, config: Path, *extra: str) -> list[str]:
 
 
 def _run_dir(root: Path, component: str) -> Path:
-    (found,) = [d for d in (root / "runs" / component).iterdir() if not d.name.startswith(".")]
+    (found,) = (root / "runs" / component).iterdir()
     return found
 
 
@@ -133,23 +133,18 @@ def crashed(tmp_path, fast, monkeypatch):
 def test_resumed_run_is_identical_to_an_uninterrupted_one(component, tmp_path, fast, monkeypatch) -> None:
     sync = tmp_path / "sync.py"
     sync.write_text(
-        "import os, sys\n"
+        "import os\n"
         "d = os.environ['RUN_DIR']\n"
-        "line = '%s %s' % (os.environ['RUN_EPOCH'], os.path.exists(os.path.join(d, 'last.pt')))\n"
-        "open(sys.argv[1], 'a').write(line + '\\n')\n",
+        "line = '%s %s %s' % (os.environ['RUN_EPOCH'], os.path.exists(os.path.join(d, 'last.pt')),"
+        " os.path.exists(os.path.join(d, 'last.pt.tmp')))\n"
+        "open(os.path.join(d, 'synced.txt'), 'a').write(line + '\\n')\n",
         encoding="utf-8",
     )
-    synced = tmp_path / "synced.txt"
     straight_cfg = _config(tmp_path / "a", component)
-    assert tb.main(_args(component, straight_cfg, "--sync-command", f'"{sys.executable}" "{sync}" "{synced}"')) == 0
+    assert tb.main(_args(component, straight_cfg, "--sync-command", f'"{sys.executable}" "{sync}"')) == 0
     straight = _run_dir(tmp_path / "a", component)
-    # Background sync: an epoch may be skipped while the previous upload runs, never the final state.
-    lines = synced.read_text().splitlines()
-    assert lines[-1] == "final True" and all(line.endswith(" True") for line in lines)
-    epochs = [int(line.split()[0]) for line in lines[:-1]]
-    assert epochs == sorted(set(epochs)) and set(epochs) <= {1, 2, 3}
-    snapshot = straight.parent / f".{straight.name}.sync"
-    assert _load(snapshot / "last.pt")["epoch"] == 3  # the final sync uploaded the finished run
+    assert (straight / "synced.txt").read_text().split("\n") == [
+        "1 True False", "2 True False", "3 True False", "final True False", ""]
 
     resumed_cfg = _config(tmp_path / "b", component)
     _crash_during_epoch(monkeypatch, 2)
@@ -278,28 +273,11 @@ def test_checkpoint_layout_stays_compatible(crashed) -> None:
 
 
 def test_a_failing_sync_is_logged_not_raised(tmp_path) -> None:
-    failing = tb.RunWriter(tmp_path / "f", {}, sync_command=f'"{sys.executable}" -c "raise SystemExit(3)"')
+    failing = tb.RunWriter(tmp_path, {}, sync_command=f'"{sys.executable}" -c "raise SystemExit(3)"')
     silent = tb.RunWriter(tmp_path / "x", {})
     try:
-        assert failing.sync(1) is True  # started in the background
-        assert failing.finish_sync() is False  # ... and reported as failed, without raising
-        assert silent.sync(1) is True and silent.finish_sync() is True  # no command: nothing to do
+        assert failing.sync(1) is False
+        assert silent.sync(1) is True  # no command: nothing to do
     finally:
         failing.close()
         silent.close()
-
-
-def test_a_slow_sync_never_blocks_training(tmp_path) -> None:
-    import time
-
-    slow = tb.RunWriter(tmp_path / "s", {}, sync_command=f'"{sys.executable}" -c "import time; time.sleep(3)"')
-    (slow.dir / "last.pt").write_bytes(b"x")
-    try:
-        started = time.monotonic()
-        assert slow.sync(1) is True
-        assert slow.sync(2) is False  # epoch 1 still uploading: epoch 2 is skipped, not waited for
-        assert time.monotonic() - started < 2
-        assert slow.finish_sync() is True
-        assert (slow.snapshot_dir / "last.pt").read_bytes() == b"x"  # it uploads a copy, not the live file
-    finally:
-        slow.close()
