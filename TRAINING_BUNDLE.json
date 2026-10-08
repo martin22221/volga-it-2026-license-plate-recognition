@@ -1,0 +1,10 @@
+{
+ "bundle": "baseline_v1_training",
+ "git_commit": "7fcc667775e01bb7bd680950c8ceb90fd72f502e",
+ "dataset_version": "v1",
+ "combined_image_digest": "68c4c0be6afbfa56c810e80f229b27490026b2c6398539a744a3ced004db538c",
+ "meta_sha256": "f7d1686aa8edc69275d268fa5ed6de3c0ed453c0fa7b81483baec0d8a1694b74",
+ "synthetic_images": 12000,
+ "real_images": 0,
+ "note": "No real photograph is included, by design. See scripts/pack_training_bundle.py."
+}
